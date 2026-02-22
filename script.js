@@ -7,7 +7,7 @@
 })();
 
 // Settings
-const LOADING_TIME = 4000;
+const LOADING_TIME = 2500;
 const TARGET_ALTITUDE = 25346;
 
 window.addEventListener('load', () => {
@@ -18,7 +18,7 @@ window.addEventListener('load', () => {
         if(loader) loader.style.display = 'none';
         initScrollAnimation();
     } else {
-        const duration = 2500;
+        const duration = LOADING_TIME;
         const startTime = performance.now();
 
         function updateCounter(currentTime) {
@@ -27,7 +27,6 @@ window.addEventListener('load', () => {
             const ease = 1 - Math.pow(1 - progress, 4);
             const currentAlt = Math.floor(ease * TARGET_ALTITUDE);
             
-            // Logic to prevent overflow
             const displayAlt = (progress >= 1) ? TARGET_ALTITUDE : currentAlt;
             const altString = String(displayAlt).padStart(5, '0');
             
@@ -49,7 +48,7 @@ window.addEventListener('load', () => {
                     }
                     initScrollAnimation();
                     sessionStorage.setItem('visited', 'true');
-                }, 800);
+                }, 1000);
             }
         }
         requestAnimationFrame(updateCounter);
@@ -100,8 +99,8 @@ window.addEventListener('scroll', () => {
     const progressBar = document.getElementById('scroll-progress');
     if(progressBar) { progressBar.style.width = scrollPercent + '%'; }
 
-    // Parallax removed
-    // Rocket Back To Top Visibility
+    document.body.style.backgroundPositionY = -(scrollTop * 0.2) + 'px';
+
     const backToTop = document.getElementById('back-to-top');
     if (backToTop) {
         if (scrollTop > 300) { backToTop.classList.add('show'); } 
@@ -159,7 +158,6 @@ if (slider && overlay && sliderBtn) {
 const mapBtn = document.getElementById('load-3d-map');
 const mapView = document.getElementById('map-3d-view');
 const imageView = document.getElementById('map-image-view');
-
 if(mapBtn && mapView && imageView) {
     mapBtn.addEventListener('click', () => {
         imageView.style.display = 'none';
