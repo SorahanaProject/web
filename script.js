@@ -7,7 +7,7 @@
 })();
 
 // Settings
-const LOADING_TIME = 2500;
+const LOADING_TIME = 4000;
 const TARGET_ALTITUDE = 25346;
 
 window.addEventListener('load', () => {
@@ -18,7 +18,7 @@ window.addEventListener('load', () => {
         if(loader) loader.style.display = 'none';
         initScrollAnimation();
     } else {
-        const duration = LOADING_TIME;
+        const duration = 2500;
         const startTime = performance.now();
 
         function updateCounter(currentTime) {
@@ -152,6 +152,18 @@ if (slider && overlay && sliderBtn) {
         const val = slider.value;
         overlay.style.width = val + "%";
         sliderBtn.style.left = val + "%";
+    });
+}
+
+// Map Switcher Logic
+const mapBtn = document.getElementById('load-3d-map');
+const mapView = document.getElementById('map-3d-view');
+const imageView = document.getElementById('map-image-view');
+
+if(mapBtn && mapView && imageView) {
+    mapBtn.addEventListener('click', () => {
+        imageView.style.display = 'none';
+        mapView.style.display = 'block';
     });
 }
 
