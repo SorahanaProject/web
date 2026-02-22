@@ -1,24 +1,41 @@
-// Immediate Hide Check
+// 言語設定の初期化（localStorageから読み出し）
+const savedLang = localStorage.getItem('lang') || 'ja';
+if (savedLang === 'en') {
+    document.body.classList.add('en');
+}
+
+// 設定値の決定（言語によって数値と単位を変える）
+const isEnglish = document.body.classList.contains('en');
+const TARGET_ALTITUDE = isEnglish ? 83156 : 25346; // ft : m
+const UNIT_TEXT = isEnglish ? 'ft' : 'm';
+const LOADING_TIME = 4000;
+
+// 即時実行：訪問済みならローディング画面をCSSで隠す
 (function(){
     const loader = document.getElementById('loader');
+    // セッションストレージ(visited)があり、かつ言語切り替え直後でない場合は隠す
     if (sessionStorage.getItem('visited') && loader) {
         loader.classList.add('hidden');
     }
 })();
 
-// Settings
-const LOADING_TIME = 2500;
-const TARGET_ALTITUDE = 25346;
-
 window.addEventListener('load', () => {
     const loader = document.getElementById('loader');
     const container = document.getElementById('digit-container');
+    const langBtn = document.getElementById('langBtn');
+
+    // ボタンのテキスト初期化
+    if (langBtn) {
+        langBtn.textContent = isEnglish ? 'JP' : 'EN';
+    }
     
+    // 2回目以降の訪問ならローディングをスキップ
     if (sessionStorage.getItem('visited')) {
         if(loader) loader.style.display = 'none';
         initScrollAnimation();
     } else {
-        const duration = LOADING_TIME;
+        // 初回訪問時: カウントアップ
+        const duration = 2500;
         const startTime = performance.now();
 
         function updateCounter(currentTime) {
@@ -34,7 +51,8 @@ window.addEventListener('load', () => {
             for (let char of altString) {
                 html += `<div class="digit-box">${char}</div>`;
             }
-            html += `<div class="unit-box">m</div>`;
+            // 単位を表示（m または ft）
+            html += `<div class="unit-box">${UNIT_TEXT}</div>`;
             
             if (container) container.innerHTML = html;
 
@@ -108,7 +126,7 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Back to Top (Rocket Launch)
+// Back to Top
 const backToTop = document.getElementById('back-to-top');
 if (backToTop) {
     backToTop.addEventListener('click', (e) => {
@@ -154,25 +172,26 @@ if (slider && overlay && sliderBtn) {
     });
 }
 
-// Map Switcher Logic
-const mapBtn = document.getElementById('load-3d-map');
-const mapView = document.getElementById('map-3d-view');
-const imageView = document.getElementById('map-image-view');
-if(mapBtn && mapView && imageView) {
-    mapBtn.addEventListener('click', () => {
-        imageView.style.display = 'none';
-        mapView.style.display = 'block';
-    });
-}
-
-// Language Switch
+// Language Switch (Reload Page Logic)
 const langBtn = document.getElementById('langBtn');
-const galleryModal = document.getElementById('gallery-modal');
 if(langBtn){
     langBtn.addEventListener('click', () => {
-        const isCurrentlyJa = !document.body.classList.contains('en');
-        if (isCurrentlyJa) { document.body.classList.add('en'); langBtn.textContent = 'JP'; } else { document.body.classList.remove('en'); langBtn.textContent = 'EN'; }
-        if(galleryModal.classList.contains('show')){ galleryModal.classList.remove('show'); }
+        // 現在の言語状態を反転
+        const isCurrentlyEn = document.body.classList.contains('en');
+        
+        if (isCurrentlyEn) {
+            // 英語 -> 日本語へ
+            localStorage.setItem('lang', 'ja');
+        } else {
+            // 日本語 -> 英語へ
+            localStorage.setItem('lang', 'en');
+        }
+
+        // ローディングアニメーションをもう一度見せるために履歴を削除
+        sessionStorage.removeItem('visited');
+
+        // ページを再読み込み（これで新しい言語設定とカウンターが反映される）
+        location.reload();
     });
 }
 
