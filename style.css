@@ -42,12 +42,42 @@ body::after {
 
 h1, h2, h3 { letter-spacing: 0.15em; }
 
-/* Scroll Progress */
-#scroll-progress {
-    position: fixed; top: 0; left: 0; height: 4px;
-    background: var(--accent-color); width: 0%;
-    z-index: 100000; box-shadow: 0 0 10px var(--accent-color);
-    transition: width 0.1s;
+/* === Scroll Down Button (Fixed Centering) === */
+.scroll-down {
+    position: absolute;
+    bottom: 30px;       /* 下からの距離 */
+    left: 50%;          /* 画面の左から50%の位置に */
+    
+    /* フォント設定 */
+    font-family: var(--font-en);
+    color: #fff;
+    font-size: 0.9rem;
+    letter-spacing: 0.2em;
+    text-decoration: none;
+    font-weight: 500;
+    
+    /* 影をつけて見やすく */
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+    
+    /* 重なり順を一番手前に */
+    z-index: 10;
+    
+    /* アニメーションの設定 */
+    animation: bounce 2s infinite;
+}
+
+/* ★重要：アニメーションの中で「真ん中寄せ(-50%)」を維持する */
+@keyframes bounce {
+    0%, 100% {
+        /* X軸(横)は-50%で維持、Y軸(縦)は0 */
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+    50% {
+        /* X軸(横)は-50%で維持、Y軸(縦)は-10px上に */
+        transform: translate(-50%, -10px);
+        opacity: 0.7;
+    }
 }
 
 /* Sparkle */
