@@ -19,7 +19,7 @@
     <meta property="og:description" content="成層圏で作る、世界で唯一のドライフラワー。宇宙空間での実験と挑戦の記録。">
 
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Noto+Serif+JP:wght@300;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Noto+Serif+JP:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -28,7 +28,6 @@
         <div class="loader-content">
             <div class="altitude-label">TARGET ALTITUDE</div>
             <div id="digit-container" class="digit-container">
-                <!-- 初期表示（JSで書き換わりますがレイアウト崩れ防止用） -->
                 <div class="digit-box">0</div>
                 <div class="digit-box">0</div>
                 <div class="digit-box">0</div>
@@ -39,17 +38,10 @@
         </div>
     </div>
 
-    <!-- ★重要: 訪問済みなら即座に消すスクリプト -->
-    <script>
-        if (sessionStorage.getItem('visited')) {
-            document.getElementById('loader').style.display = 'none';
-        }
-    </script>
-
     <!-- Scroll Progress Bar -->
     <div id="scroll-progress"></div>
 
-    <!-- Navigation -->
+    <!-- Navigation (Always English) -->
     <header id="header">
         <div class="header-container">
             <a href="#hero" class="logo-link">
@@ -90,7 +82,6 @@
             <p class="data-tag">ALT: 25,346m / TEMP: -38.8℃</p>
             <h1>
                 <span lang="ja">宇宙を旅する<br>花の物語</span>
-                <!-- ↓この行を追加（英語用タイトル） -->
                 <span lang="en">Making Dried Flowers<br>in the Stratosphere</span>
             </h1>
             <p class="hero-desc">
@@ -131,6 +122,8 @@
         <div class="container">
             <!-- Timeline -->
             <div class="timeline">
+                
+                <!-- Phase 01 -->
                 <div class="timeline-item js-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
@@ -143,6 +136,8 @@
                         </p>
                     </div>
                 </div>
+
+                <!-- Phase 02 -->
                 <div class="timeline-item js-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
@@ -155,6 +150,8 @@
                         </p>
                     </div>
                 </div>
+
+                <!-- Phase 03 -->
                 <div class="timeline-item js-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
@@ -167,6 +164,8 @@
                         </p>
                     </div>
                 </div>
+
+                <!-- Phase 04 -->
                 <div class="timeline-item js-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
@@ -179,6 +178,8 @@
                         </p>
                     </div>
                 </div>
+
+                <!-- Phase 05 -->
                 <div class="timeline-item js-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
@@ -193,26 +194,20 @@
                 </div>
             </div>
 
-            <!-- Experiment Images (Vertical & Large) -->
-            <div class="experiment-large-display js-scroll">
-                <div class="large-img-card">
-                    <img src="images/story.jpg" alt="Special Container" loading="lazy">
-                    <div class="img-overlay-caption">
-                        <h3>Special Container</h3>
-                        <p>Space-grade design</p>
-                    </div>
+            <!-- Experiment Image & Map -->
+            <div class="experiment-grid js-scroll" style="margin-bottom: 80px;">
+                <div class="about-img">
+                    <img src="images/story.jpg" alt="Experiment Container" loading="lazy">
+                    <p class="img-caption">Special Container</p>
                 </div>
-                <div class="large-img-card map-container">
+                <div class="about-img map-container">
                     <a href="https://earth.google.com/earth/d/1Cbov36QXcYHL8I0Sx-0zyBI57k08agBO?usp=sharing" target="_blank" class="map-link">
                         <img src="images/flight-map.jpg" alt="Flight Map" loading="lazy">
                         <div class="map-overlay-btn">
                             <span class="icon">🌍</span> View 3D Flight Path
                         </div>
                     </a>
-                    <div class="img-overlay-caption">
-                        <h3>Flight Trajectory</h3>
-                        <p>25,346m Journey</p>
-                    </div>
+                    <p class="img-caption">Flight Trajectory</p>
                 </div>
             </div>
 
@@ -339,20 +334,26 @@
             <div class="faq-list">
                 <div class="faq-item js-scroll">
                     <button class="faq-question">
-                        <span>商品はどこで購入できますか？</span>
+                        <span lang="ja">商品はどこで購入できますか？</span><span lang="en">Where can I buy products?</span>
                         <span class="icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>現在、オンラインストアでの販売準備を進めています。準備が整い次第、本サイトおよびInstagramにてお知らせいたします。</p>
+                        <p>
+                            <span lang="ja">現在、オンラインストアでの販売準備を進めています。準備が整い次第、本サイトおよびInstagramにてお知らせいたします。</span>
+                            <span lang="en">We are currently preparing our online store. Updates will be announced here and on Instagram.</span>
+                        </p>
                     </div>
                 </div>
                 <div class="faq-item js-scroll">
                     <button class="faq-question">
-                        <span>取材依頼は可能ですか？</span>
+                        <span lang="ja">取材依頼は可能ですか？</span><span lang="en">Can we interview you?</span>
                         <span class="icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>はい、歓迎いたします。下記のメールアドレスまでお気軽にご連絡ください。</p>
+                        <p>
+                            <span lang="ja">はい、歓迎いたします。下記のメールアドレスまでお気軽にご連絡ください。</span>
+                            <span lang="en">Yes, we welcome it. Please contact us via the email below.</span>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -370,19 +371,28 @@
                         <span class="link-icon">↗</span>
                     </a>
                 </h3>
-                <p class="sora-sub">起業家人材育成事業　高校生ディープテックプログラム</p>
+                <p class="sora-sub">
+                    <span lang="ja">起業家人材育成事業　高校生ディープテックプログラム</span>
+                    <span lang="en">Entrepreneurship Education Project: High School Deep Tech Program</span>
+                </p>
                 
                 <div class="credits-list">
                     <div class="credit-row">
-                        <div class="role-cell">主催</div>
-                        <div class="name-cell">名古屋市<br>名古屋大学　学術研究・産学官連携推進本部</div>
+                        <div class="role-cell"><span lang="ja">主催</span><span lang="en">Organizer</span></div>
+                        <div class="name-cell">
+                            <span lang="ja">名古屋市<br>名古屋大学　学術研究・産学官連携推進本部</span>
+                            <span lang="en">Nagoya City<br>Nagoya University</span>
+                        </div>
                     </div>
                     <div class="credit-row">
-                        <div class="role-cell">運営</div>
-                        <div class="name-cell">株式会社 GOCCO.<br>株式会社ドングルズ</div>
+                        <div class="role-cell"><span lang="ja">運営</span><span lang="en">Operation</span></div>
+                        <div class="name-cell">
+                            <span lang="ja">株式会社 GOCCO.<br>株式会社ドングルズ</span>
+                            <span lang="en">GOCCO. inc.<br>Dongles Inc.</span>
+                        </div>
                     </div>
                     <div class="credit-row">
-                        <div class="role-cell">協力</div>
+                        <div class="role-cell"><span lang="ja">協力</span><span lang="en">Cooperation</span></div>
                         <div class="name-cell">Tongali</div>
                     </div>
                 </div>
@@ -422,10 +432,10 @@
         <div class="footer-links">
             <a href="privacy.html">Privacy Policy</a>
         </div>
-        <p>&copy; 2026 Sorahana Project</p>
+        <p>&copy; 2025-2026 Sorahana Project</p>
     </footer>
 
-    <!-- Back to Top (Rocket) -->
+    <!-- Back to Top -->
     <a href="#" id="back-to-top" class="back-to-top">
         <img src="images/rocket.png" alt="Top" style="width: 100%; height: 100%; object-fit: contain;">
     </a>
