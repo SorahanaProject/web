@@ -82,13 +82,15 @@
             <img src="images/stratosphere.png" class="hero-bg" alt="Stratosphere View" onerror="this.style.display='block'">
             <div class="hero-overlay"></div>
         </div>
-        
         <div class="hero-content js-scroll">
-            <p class="data-tag">ALT: 25,346m / TEMP: -38.8℃</p>
+            <!-- ★ここを修正: 日本語(m/℃)と英語(ft/℉)を切り替え -->
+            <p class="data-tag">
+                <span lang="ja">ALT: 25,346m / TEMP: -38.8℃</span>
+                <span lang="en">ALT: 83,156ft / TEMP: -37.8℉</span>
+            </p>
+            
             <h1>
-                <!-- 日本語タイトル -->
                 <span lang="ja">宇宙を旅する<br>花の物語</span>
-                <!-- 英語タイトル -->
                 <span lang="en">A story of a flower<br>on journey across the sky</span>
             </h1>
             <p class="hero-desc">
