@@ -181,13 +181,25 @@ section { padding: 120px 20px; position: relative; }
 .hero h1 {
     margin: 0 0 25px 0; line-height: 1.4;
 }
+/* 日本語タイトルのスタイル */
 .hero h1 span[lang="ja"] {
-    display: block; font-size: clamp(2rem, 4vw, 3.8rem); font-weight: 700;
+    display: block; font-size: clamp(2.5rem, 4vw, 4.5rem); font-weight: 700;
     letter-spacing: 0.1em; color: #fff;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5);
 }
-.hero h1 span[lang="en"] { display: none; } /* Making...は消去 */
 
+/* ★追加: 英語タイトルのスタイル（非表示設定を削除し、デザインを定義） */
+.hero h1 span[lang="en"] {
+    display: block; 
+    font-family: var(--font-en); /* 英語フォント */
+    font-size: clamp(1.8rem, 3.5vw, 3.5rem); /* 日本語より少し小さめに調整 */
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5);
+    text-transform: uppercase; /* 大文字にする */
+}
 .hero-desc { 
     font-size: clamp(0.9rem, 2vw, 1.1rem); color: #e0e0e0; font-weight: 500;
     line-height: 1.8; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
