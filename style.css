@@ -537,8 +537,32 @@ html {
     scrollbar-width: thin;
     scrollbar-color: var(--accent-color) #050505;
 }
-/* === スマホ表示の修正（文字被り解消） === */
+/* === Mobile Specific Layout === */
 @media (max-width: 768px) {
+    /* ... 既存のコード ... */
+
+    /* ▼▼▼ ここから追加・修正 ▼▼▼ */
+
+    /* Google Earthボタンをスマホでは隠す（エラー回避） */
+    .map-overlay-btn {
+        display: none !important;
+    }
+
+    /* スマホでは画像をタップしてもリンクに飛ばないようにする */
+    .map-link {
+        pointer-events: none;
+        cursor: default;
+    }
+
+    /* 画像を少し明るくして見やすくする */
+    .map-link img {
+        filter: brightness(1) !important; /* ホバー効果の暗さをリセット */
+    }
+
+    /* ▲▲▲ ここまで追加 ▲▲▲ */
+    
+    /* ... 既存のコード（.digit-box など） ... */
+}
     
     /* 1. カードの枠組み設定を変更 */
     .exp-card {
