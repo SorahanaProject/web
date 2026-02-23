@@ -537,3 +537,54 @@ html {
     scrollbar-width: thin;
     scrollbar-color: var(--accent-color) #050505;
 }
+/* === スマホ表示の修正（文字被り解消） === */
+@media (max-width: 768px) {
+    
+    /* 1. カードの枠組み設定を変更 */
+    .exp-card {
+        overflow: visible; /* 文字を画像の外にはみ出させる許可 */
+        box-shadow: none;  /* コンテナ自体の影を消す */
+        background: transparent;
+        margin-bottom: 30px; /* 下に余白を作る */
+    }
+
+    /* 2. 画像のデザイン調整 */
+    .exp-card img {
+        border-radius: 16px; /* 画像の角を丸く */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* 画像自体に影をつける */
+    }
+
+    /* 3. 文字（キャプション）を画像の下に移動 */
+    .exp-caption {
+        position: relative; /* 画像の上に重ねるのをやめる */
+        background: none;   /* 黒いグラデーション背景を消す */
+        padding: 15px 0 0 0; /* 画像との間に隙間を空ける */
+        bottom: auto;
+        left: auto;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* タイトル文字の調整 */
+    .exp-caption h3 {
+        color: var(--accent-color);
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.8); /* 読みやすく影をつける */
+    }
+
+    /* 説明文の調整 */
+    .exp-caption p {
+        color: #ddd;
+        font-size: 0.9rem;
+    }
+
+    /* 4. Google Earthボタンの位置調整 */
+    .map-overlay-btn {
+        top: 50%; /* 画像のど真ん中に配置 */
+        transform: translate(-50%, -50%);
+        width: 80%; /* ボタン幅を広げて押しやすく */
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+}
