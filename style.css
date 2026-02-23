@@ -515,3 +515,25 @@ body.en [lang="en"] { display: block; }
     
     .digit-box { font-size: 3rem; width: 40px; height: 60px; }
 }
+/* === Custom Scrollbar (Pro Look) === */
+/* Chrome, Safari, Edge用 */
+::-webkit-scrollbar {
+    width: 12px; /* バーの太さ */
+}
+::-webkit-scrollbar-track {
+    background: #050505; /* 背景色（宇宙の黒） */
+}
+::-webkit-scrollbar-thumb {
+    background-color: #333; /* つまみの色 */
+    border-radius: 6px;
+    border: 1px solid var(--accent-color); /* 金色の枠線 */
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-color); /* ホバー時に金色に光る */
+}
+
+/* Firefox用 */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) #050505;
+}
