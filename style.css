@@ -273,13 +273,41 @@ body.en .hero h1 span[lang="en"] { display: block; }
     width: 100%; height: auto; display: block; transition: transform 0.5s ease;
 }
 .exp-card:hover img { transform: scale(1.02); }
+/* 写真の上の文字（キャプション） */
 .exp-caption {
-    position: absolute; bottom: 0; left: 0; width: 100%;
+    position: absolute; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%;
+    
+    /* 背景グラデーション */
     background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-    padding: 30px 20px; text-align: center; pointer-events: none;
+    
+    padding: 30px 20px; 
+    pointer-events: none;
+    
+    /* ★追加: 強制的に中央揃えにする設定 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* 横方向の中央 */
+    justify-content: center;
+    text-align: center;   /* 文字自体の中央揃え */
 }
-.exp-caption h3 { font-family: var(--font-en); color: var(--accent-color); margin: 0 0 5px 0; font-size: 1.5rem; }
-.exp-caption p { margin: 0; font-size: 0.9rem; color: #ddd; }
+
+.exp-caption h3 { 
+    font-family: var(--font-en); 
+    color: var(--accent-color); 
+    margin: 0 0 5px 0; 
+    font-size: 1.5rem; 
+    width: 100%; /* 幅を確保 */
+}
+
+.exp-caption p { 
+    margin: 0; 
+    font-size: 0.9rem; 
+    color: #ddd; 
+    width: 100%; /* 幅を確保 */
+}
 
 /* Map Switcher Styles */
 .map-link { display: block; position: relative; width: 100%; }
