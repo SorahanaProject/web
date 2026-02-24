@@ -1,19 +1,17 @@
-// 言語設定の初期化（localStorageから読み出し）
+// 言語設定の初期化
 const savedLang = localStorage.getItem('lang') || 'ja';
 if (savedLang === 'en') {
     document.body.classList.add('en');
 }
 
-// 設定値の決定（言語によって数値と単位を変える）
+// 設定値
 const isEnglish = document.body.classList.contains('en');
-const TARGET_ALTITUDE = isEnglish ? 83156 : 25346; // ft : m
+const TARGET_ALTITUDE = isEnglish ? 83156 : 25346;
 const UNIT_TEXT = isEnglish ? 'ft' : 'm';
-const LOADING_TIME = 4000;
 
-// 即時実行：訪問済みならローディング画面をCSSで隠す
+// 即時実行：訪問済みチェック（ローディング隠し）
 (function(){
     const loader = document.getElementById('loader');
-    // セッションストレージ(visited)があり、かつ言語切り替え直後でない場合は隠す
     if (sessionStorage.getItem('visited') && loader) {
         loader.classList.add('hidden');
     }
@@ -24,37 +22,35 @@ window.addEventListener('load', () => {
     const container = document.getElementById('digit-container');
     const langBtn = document.getElementById('langBtn');
 
-    // ボタンのテキスト初期化
-    if (langBtn) {
-        langBtn.textContent = isEnglish ? 'JP' : 'EN';
-    }
+    if (langBtn) { langBtn.textContent = isEnglish ? 'JP' : 'EN'; }
     
-    // 2回目以降の訪問ならローディングをスキップ
+    // 2回目以降 or 言語切替後のリロード時はローディングアニメーションを省略
     if (sessionStorage.getItem('visited')) {
         if(loader) loader.style.display = 'none';
         initScrollAnimation();
     } else {
-        // 初回訪問時: カウントアップ
-        const duration = 2500;
+        // 初回訪問時アニメーション
+        const duration = 2800; // ミリ秒
         const startTime = performance.now();
 
         function updateCounter(currentTime) {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
+            // easeOutQuart
             const ease = 1 - Math.pow(1 - progress, 4);
             const currentAlt = Math.floor(ease * TARGET_ALTITUDE);
             
             const displayAlt = (progress >= 1) ? TARGET_ALTITUDE : currentAlt;
             const altString = String(displayAlt).padStart(5, '0');
             
-            let html = '';
-            for (let char of altString) {
-                html += `<div class="digit-box">${char}</div>`;
+            if (container) {
+                let html = '';
+                for (let char of altString) {
+                    html += `<div class="digit-box">${char}</div>`;
+                }
+                html += `<div class="unit-box">${UNIT_TEXT}</div>`;
+                container.innerHTML = html;
             }
-            // 単位を表示（m または ft）
-            html += `<div class="unit-box">${UNIT_TEXT}</div>`;
-            
-            if (container) container.innerHTML = html;
 
             if (progress < 1) {
                 requestAnimationFrame(updateCounter);
@@ -66,28 +62,34 @@ window.addEventListener('load', () => {
                     }
                     initScrollAnimation();
                     sessionStorage.setItem('visited', 'true');
-                }, 1000);
+                }, 800);
             }
         }
         requestAnimationFrame(updateCounter);
     }
 });
 
-// Sparkle (Mouse Effect)
+// Sparkle Effect (パフォーマンスのためにThrottle処理を追加)
+let lastSparkleTime = 0;
 document.addEventListener('mousemove', function(e) {
-    for (let i = 0; i < 3; i++) {
+    const now = Date.now();
+    if (now - lastSparkleTime > 50) { // 50msに1回制限
         createSparkle(e.clientX, e.clientY);
+        lastSparkleTime = now;
     }
 });
 
 function createSparkle(x, y) {
     const sparkle = document.createElement('div');
     sparkle.classList.add('sparkle');
-    const offsetX = (Math.random() - 0.5) * 20;
-    const offsetY = (Math.random() - 0.5) * 20;
+    
+    // ランダム性を少し抑えて上品に
+    const offsetX = (Math.random() - 0.5) * 15;
+    const offsetY = (Math.random() - 0.5) * 15;
     sparkle.style.left = (x + offsetX) + 'px';
     sparkle.style.top = (y + offsetY) + 'px';
-    const size = Math.random() * 5 + 3;
+    
+    const size = Math.random() * 4 + 2;
     sparkle.style.width = size + 'px';
     sparkle.style.height = size + 'px';
     
@@ -95,13 +97,17 @@ function createSparkle(x, y) {
     setTimeout(() => { sparkle.remove(); }, 800);
 }
 
-// Scroll Animation
+// Scroll Animation Observer
 function initScrollAnimation() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) { entry.target.classList.add('is-visible'); }
+            if (entry.isIntersecting) { 
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target); // 一度表示したら監視終了（負荷軽減）
+            }
         });
-    }, { threshold: 0.1 });
+    }, { threshold: 0.15 });
+    
     document.querySelectorAll('.js-scroll').forEach((el) => { observer.observe(el); });
 }
 
@@ -112,29 +118,40 @@ window.addEventListener('scroll', () => {
     const header = document.getElementById('header');
     if (scrollTop > 50) { header.classList.add('scrolled'); } else { header.classList.remove('scrolled'); }
 
+    // プログレスバー
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (scrollTop / docHeight) * 100;
     const progressBar = document.getElementById('scroll-progress');
     if(progressBar) { progressBar.style.width = scrollPercent + '%'; }
 
-    document.body.style.backgroundPositionY = -(scrollTop * 0.2) + 'px';
+    // 背景パララックス（軽量なtransform等は使えないためbackgroundPositionで）
+    if(window.innerWidth > 768) {
+        document.body.style.backgroundPositionY = -(scrollTop * 0.1) + 'px';
+    }
 
     const backToTop = document.getElementById('back-to-top');
     if (backToTop) {
-        if (scrollTop > 300) { backToTop.classList.add('show'); } 
+        if (scrollTop > 400) { backToTop.classList.add('show'); } 
         else { backToTop.classList.remove('show'); }
     }
 });
 
-// Back to Top
+// Back to Top Rocket
 const backToTop = document.getElementById('back-to-top');
 if (backToTop) {
     backToTop.addEventListener('click', (e) => {
         e.preventDefault();
         backToTop.classList.add('launch');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Lenisがある場合はLenisでスクロール
+        if(window.lenis) {
+            window.lenis.scrollTo(0);
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
         setTimeout(() => {
             backToTop.classList.remove('launch');
+            backToTop.classList.remove('show');
         }, 1000);
     });
 }
@@ -143,54 +160,46 @@ if (backToTop) {
 const hamburger = document.getElementById('hamburger');
 const nav = document.getElementById('nav-menu');
 if (hamburger) {
-    hamburger.addEventListener('click', () => { hamburger.classList.toggle('active'); nav.classList.toggle('active'); });
-    nav.querySelectorAll('a').forEach(link => { link.addEventListener('click', () => { hamburger.classList.remove('active'); nav.classList.remove('active'); }); });
-}
-
-// Video Error Fallback
-const video = document.getElementById('hero-video');
-const fallbackImg = document.querySelector('.hero-bg');
-if (video) {
-    video.addEventListener('error', function() {
-        video.style.display = 'none';
-        if(fallbackImg) fallbackImg.style.display = 'block';
+    hamburger.addEventListener('click', () => { 
+        hamburger.classList.toggle('active'); 
+        nav.classList.toggle('active'); 
     });
-    video.addEventListener('loadeddata', function() {
-        if(fallbackImg) fallbackImg.style.display = 'none';
+    nav.querySelectorAll('a').forEach(link => { 
+        link.addEventListener('click', () => { 
+            hamburger.classList.remove('active'); 
+            nav.classList.remove('active'); 
+        }); 
     });
 }
 
-// Slider Logic
+// Slider Logic (Touch Supported)
 const slider = document.getElementById('compare-slider');
 const overlay = document.getElementById('compare-overlay');
 const sliderBtn = document.getElementById('slider-button');
-if (slider && overlay && sliderBtn) {
-    slider.addEventListener('input', function() {
-        const val = slider.value;
-        overlay.style.width = val + "%";
-        sliderBtn.style.left = val + "%";
-    });
+
+function updateSlider(val) {
+    if(overlay) overlay.style.width = val + "%";
+    if(sliderBtn) sliderBtn.style.left = val + "%";
 }
 
-// Language Switch (Reload Page Logic)
+if (slider) {
+    slider.addEventListener('input', function(e) {
+        updateSlider(e.target.value);
+    });
+    // スマホのタッチ操作を改善
+    slider.addEventListener('touchmove', function(e) {
+        // e.preventDefault(); // 必要に応じてスクロールブロック
+    }, { passive: true });
+}
+
+// Language Switch
 const langBtn = document.getElementById('langBtn');
 if(langBtn){
     langBtn.addEventListener('click', () => {
-        // 現在の言語状態を反転
         const isCurrentlyEn = document.body.classList.contains('en');
-        
-        if (isCurrentlyEn) {
-            // 英語 -> 日本語へ
-            localStorage.setItem('lang', 'ja');
-        } else {
-            // 日本語 -> 英語へ
-            localStorage.setItem('lang', 'en');
-        }
-
-        // ローディングアニメーションをもう一度見せるために履歴を削除
+        localStorage.setItem('lang', isCurrentlyEn ? 'ja' : 'en');
+        // 言語切替時はローディング演出を見せたいので visited を削除
         sessionStorage.removeItem('visited');
-
-        // ページを再読み込み（これで新しい言語設定とカウンターが反映される）
         location.reload();
     });
 }
@@ -198,12 +207,18 @@ if(langBtn){
 // FAQ Accordion
 document.querySelectorAll('.faq-question').forEach(button => {
     button.addEventListener('click', () => {
-        button.classList.toggle('active');
-        const answer = button.nextElementSibling;
-        if (button.classList.contains('active')) {
+        const isOpen = button.classList.contains('active');
+        
+        // 他を閉じる
+        document.querySelectorAll('.faq-question').forEach(b => {
+            b.classList.remove('active');
+            b.nextElementSibling.style.maxHeight = 0;
+        });
+
+        if (!isOpen) {
+            button.classList.add('active');
+            const answer = button.nextElementSibling;
             answer.style.maxHeight = answer.scrollHeight + "px";
-        } else {
-            answer.style.maxHeight = 0;
         }
     });
 });
@@ -214,6 +229,7 @@ const modalImg = document.getElementById('modal-img');
 const modalTitle = document.getElementById('modal-title');
 const modalDesc = document.getElementById('modal-desc');
 const closeModal = document.querySelector('.close-modal');
+
 document.querySelectorAll('.gallery-item').forEach(item => {
     item.addEventListener('click', () => {
         const titleJa = item.getAttribute('data-title-ja');
@@ -221,12 +237,24 @@ document.querySelectorAll('.gallery-item').forEach(item => {
         const descJa = item.getAttribute('data-desc-ja');
         const descEn = item.getAttribute('data-desc-en');
         const imgSrc = item.getAttribute('data-img');
-        const isEnglish = document.body.classList.contains('en');
+        const isEn = document.body.classList.contains('en');
+        
         modalImg.src = imgSrc;
-        modalTitle.textContent = isEnglish ? titleEn : titleJa;
-        modalDesc.textContent = isEnglish ? descEn : descJa;
+        modalTitle.textContent = isEn ? titleEn : titleJa;
+        modalDesc.textContent = isEn ? descEn : descJa;
         modal.classList.add('show');
+        
+        // モーダル表示中はLenisのスクロールを停止
+        if(window.lenis) window.lenis.stop();
+        document.body.style.overflow = 'hidden';
     });
 });
-if (closeModal) { closeModal.addEventListener('click', () => { modal.classList.remove('show'); }); }
-window.addEventListener('click', (e) => { if (e.target === modal) { modal.classList.remove('show'); } });
+
+function hideModal() {
+    if(modal) modal.classList.remove('show');
+    if(window.lenis) window.lenis.start();
+    document.body.style.overflow = '';
+}
+
+if (closeModal) { closeModal.addEventListener('click', hideModal); }
+window.addEventListener('click', (e) => { if (e.target === modal) { hideModal(); } });
