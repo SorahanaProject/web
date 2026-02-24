@@ -10,7 +10,7 @@
     --font-en: 'Montserrat', sans-serif;
 }
 
-/* Lenisを使用するため、html{scroll-behavior:smooth}は削除 */
+/* Lenis (Smooth Scroll) Setup */
 html.lenis { height: auto; }
 html { scrollbar-width: thin; scrollbar-color: var(--accent-color) #050505; }
 
@@ -24,7 +24,7 @@ body {
     font-family: var(--font-jp);
     overflow-x: hidden;
     cursor: default;
-    background-attachment: fixed; /* パララックス用 */
+    background-attachment: fixed; /* Parallax effect */
     background-size: 120% auto;
     font-feature-settings: "palt";
     letter-spacing: 0.05em;
@@ -52,7 +52,7 @@ h1, h2, h3 { letter-spacing: 0.15em; }
     margin-bottom: 80px; 
     color: var(--accent-color); 
     letter-spacing: 0.15em;
-    /* グラデーションと発光 */
+    /* Gradient & Glow */
     background: linear-gradient(to bottom, var(--accent-glow), var(--accent-color));
     -webkit-background-clip: text;
     background-clip: text;
@@ -267,124 +267,122 @@ body.en .hero h1 span[lang="en"] { display: block; }
     .timeline-item:nth-child(even) .timeline-dot { left: -10px; }
 }
 
-/* Experiment Vertical Display */
+/* =========================================
+   Experiment Vertical Display (修正版)
+   写真のど真ん中に文字、その下にボタン配置
+========================================= */
+
 .experiment-vertical-view {
     display: flex; flex-direction: column; gap: 60px; align-items: center; margin-bottom: 100px;
     width: 100%; max-width: 900px; margin-left: auto; margin-right: auto;
 }
+
 .exp-card {
-    position: relative; width: 100%; 
-    border-radius: 16px; overflow: hidden; /* 角丸からはみ出ないように */
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5); /* カード全体に影 */
+    position: relative; 
+    width: 100%; 
+    border-radius: 16px; 
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    background: #000;
 }
+
 .exp-card img {
     width: 100%; height: auto; display: block; 
-    transition: transform 0.5s ease;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+    opacity: 0.85; /* 画像を少し暗くして文字を読みやすく */
 }
-/* 画像にマウスが乗ったら少し拡大 */
+
 .exp-card:hover img {
-    transform: scale(1.03);
+    transform: scale(1.05); 
+    opacity: 0.6; /* ホバー時にさらに暗く */
 }
 
-/* ★★★ キャプションを写真中央へ変更 ★★★ */
+/* --- キャプション（文字） --- */
 .exp-caption {
-    position: absolute; 
-    top: 0; 
-    left: 0; 
+    position: absolute;
+    top: 50%;       
+    left: 50%;      
+    transform: translate(-50%, -50%); /* 上下左右中央 */
+    
     width: 100%;
-    height: 100%; /* 全体を覆う */
-    
-    /* 背景：文字を見やすくするために中央を暗くするグラデーション */
-    background: radial-gradient(circle, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
-    
-    padding: 20px;
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; /* 上下左右中央揃え */
     text-align: center;
-    
-    pointer-events: none; /* 重要: これにより下のリンクやボタンをクリック可能にする */
+    pointer-events: none; /* ボタンの邪魔をしない */
     z-index: 5;
-    transition: background 0.3s ease;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
 }
 
-/* ホバー時に背景を少し濃くして没入感を出す */
-.exp-card:hover .exp-caption {
-    background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 70%, transparent 100%);
+/* ボタンがある地図のカードだけ、文字を少し上にずらす */
+.map-container .exp-caption {
+    top: 45%; 
 }
 
 .exp-caption h3 { 
     font-family: var(--font-en); 
     color: var(--accent-color); 
-    margin: 0 0 15px 0; 
-    font-size: clamp(1.8rem, 4vw, 2.5rem); /* 文字サイズを大きく */
-    text-shadow: 0 0 20px rgba(0,0,0,0.8), 0 0 10px rgba(212,175,55,0.3); /* 影と発光 */
+    margin: 0 0 10px 0; 
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    text-shadow: 0 0 20px rgba(0,0,0,0.9);
     letter-spacing: 0.1em;
-    transform: translateY(0);
 }
 
 .exp-caption p { 
     margin: 0; 
     font-size: 1.1rem; 
     color: #fff; 
-    text-shadow: 0 2px 5px rgba(0,0,0,0.9);
     font-weight: 500;
-    letter-spacing: 0.05em;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.9);
 }
 
-/* Map Switcher Styles */
-.map-link { display: block; position: relative; width: 100%; text-decoration: none; }
+/* --- Google Earth ボタン --- */
+.map-link { 
+    display: block; 
+    position: static; 
+    width: 100%; 
+    text-decoration: none; 
+}
 
-/* ★★★ Google Earthボタンの位置調整 ★★★ */
 .map-overlay-btn {
     position: absolute; 
-    /* 中央だと文字と被るので、少し下にずらす (50% -> 75%) */
-    top: 75%; 
+    top: 68%; /* 文字(45%)の下に配置 */
     left: 50%; 
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%); /* ボタン中心基準 */
     
-    background: rgba(0, 0, 0, 0.6); color: #fff;
-    border: 1px solid rgba(255,255,255,0.3); padding: 12px 30px; border-radius: 50px;
-    font-family: var(--font-en); font-weight: 600; transition: 0.3s;
-    white-space: nowrap; backdrop-filter: blur(5px);
-    display: flex; align-items: center; gap: 10px;
+    background: rgba(0, 0, 0, 0.7); 
+    color: #fff;
+    border: 1px solid var(--accent-color); 
+    padding: 12px 35px; 
+    border-radius: 50px;
     
-    z-index: 10; /* キャプション(z-index:5)より上にして押せるようにする */
-    pointer-events: auto; /* クリック有効化 */
+    font-family: var(--font-en); 
+    font-weight: 600; 
+    white-space: nowrap; 
+    backdrop-filter: blur(5px);
+    
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
+    
+    z-index: 10; 
+    pointer-events: auto; /* クリック有効 */
     cursor: pointer;
+    transition: all 0.3s ease;
 }
+
 .map-link:hover .map-overlay-btn { 
-    background: var(--accent-color); color: #000; border-color: var(--accent-color);
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+    background: var(--accent-color); 
+    color: #000; 
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
     transform: translate(-50%, -50%) scale(1.05);
 }
 
-/* スマホ対応（メディアクエリ内も修正が必要） */
-@media (max-width: 768px) {
-    /* スマホでも写真の中に文字を表示し続ける */
-    .exp-card { 
-        overflow: hidden; 
-        margin-bottom: 30px; 
-    }
-    
-    .exp-caption {
-        position: absolute; /* relativeにせずabsoluteのまま */
-        top: 0;
-        background: radial-gradient(circle, rgba(0,0,0,0.6) 0%, transparent 80%);
-        padding: 15px;
-        justify-content: center;
-    }
-    
-    .exp-caption h3 { font-size: 1.6rem; margin-bottom: 5px; }
-    .exp-caption p { font-size: 0.9rem; }
-    
-    /* スマホではボタンを非表示（誤操作防止 & 画面が狭いため） */
-    .map-overlay-btn { display: none !important; }
-    
-    /* 画像タップ無効化 */
-    .map-link { pointer-events: none; }
-}
+/* =========================================
+   End of Experiment Fix
+========================================= */
 
 /* Slider */
 .comparison-section { max-width: 800px; margin: 0 auto; text-align: center; }
@@ -596,18 +594,11 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     .timeline-item { width: 100%; padding-left: 50px; padding-right: 0 !important; text-align: left !important; }
     .timeline-item:nth-child(odd) .timeline-dot, .timeline-item:nth-child(even) .timeline-dot { left: 11px; right: auto; }
     
-    /* Google Earth Link Fix (スマホではボタン非表示で誤操作防止) */
-    .map-overlay-btn { display: none !important; }
-    .map-link { pointer-events: none; cursor: default; }
-    .map-link img { filter: brightness(1) !important; }
-
-    /* Experiment Card Mobile */
-    .exp-card { overflow: visible; box-shadow: none; background: transparent; margin-bottom: 40px; }
-    .exp-card img { border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .exp-caption {
-        position: relative; background: none; padding: 15px 0 0 0;
-        bottom: auto; left: auto; width: 100%; text-align: center;
-    }
+    /* Experiment Card Mobile Fix */
+    .map-container .exp-caption { top: 50%; } /* スマホではボタンないので中央に戻す */
+    .map-overlay-btn { display: none !important; } /* スマホではボタン非表示 */
+    .exp-caption h3 { font-size: 1.8rem; }
+    .exp-caption p { font-size: 0.9rem; }
     
     .compare-container { height: 300px; }
     
