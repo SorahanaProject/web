@@ -269,43 +269,121 @@ body.en .hero h1 span[lang="en"] { display: block; }
 
 /* Experiment Vertical Display */
 .experiment-vertical-view {
-    display: flex; flex-direction: column; gap: 80px; align-items: center; margin-bottom: 100px;
+    display: flex; flex-direction: column; gap: 60px; align-items: center; margin-bottom: 100px;
     width: 100%; max-width: 900px; margin-left: auto; margin-right: auto;
 }
 .exp-card {
     position: relative; width: 100%; 
-    border-radius: 16px; overflow: visible; 
+    border-radius: 16px; overflow: hidden; /* 角丸からはみ出ないように */
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5); /* カード全体に影 */
 }
 .exp-card img {
-    width: 100%; height: auto; display: block; border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    border: 1px solid var(--glass-border);
+    width: 100%; height: auto; display: block; 
+    transition: transform 0.5s ease;
+}
+/* 画像にマウスが乗ったら少し拡大 */
+.exp-card:hover img {
+    transform: scale(1.03);
 }
 
+/* ★★★ キャプションを写真中央へ変更 ★★★ */
 .exp-caption {
-    position: absolute; bottom: 0; left: 0; width: 100%;
-    background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
-    padding: 40px 30px 30px 30px;
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-end; text-align: center;
-    border-radius: 0 0 16px 16px;
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%;
+    height: 100%; /* 全体を覆う */
+    
+    /* 背景：文字を見やすくするために中央を暗くするグラデーション */
+    background: radial-gradient(circle, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+    
+    padding: 20px;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; /* 上下左右中央揃え */
+    text-align: center;
+    
+    pointer-events: none; /* 重要: これにより下のリンクやボタンをクリック可能にする */
+    z-index: 5;
+    transition: background 0.3s ease;
 }
-.exp-caption h3 { font-family: var(--font-en); color: var(--accent-color); margin: 0 0 5px 0; font-size: 1.6rem; }
-.exp-caption p { margin: 0; font-size: 1rem; color: #ddd; }
+
+/* ホバー時に背景を少し濃くして没入感を出す */
+.exp-card:hover .exp-caption {
+    background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 70%, transparent 100%);
+}
+
+.exp-caption h3 { 
+    font-family: var(--font-en); 
+    color: var(--accent-color); 
+    margin: 0 0 15px 0; 
+    font-size: clamp(1.8rem, 4vw, 2.5rem); /* 文字サイズを大きく */
+    text-shadow: 0 0 20px rgba(0,0,0,0.8), 0 0 10px rgba(212,175,55,0.3); /* 影と発光 */
+    letter-spacing: 0.1em;
+    transform: translateY(0);
+}
+
+.exp-caption p { 
+    margin: 0; 
+    font-size: 1.1rem; 
+    color: #fff; 
+    text-shadow: 0 2px 5px rgba(0,0,0,0.9);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
 
 /* Map Switcher Styles */
 .map-link { display: block; position: relative; width: 100%; text-decoration: none; }
+
+/* ★★★ Google Earthボタンの位置調整 ★★★ */
 .map-overlay-btn {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    position: absolute; 
+    /* 中央だと文字と被るので、少し下にずらす (50% -> 75%) */
+    top: 75%; 
+    left: 50%; 
+    transform: translate(-50%, -50%);
+    
     background: rgba(0, 0, 0, 0.6); color: #fff;
-    border: 1px solid rgba(255,255,255,0.3); padding: 15px 35px; border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.3); padding: 12px 30px; border-radius: 50px;
     font-family: var(--font-en); font-weight: 600; transition: 0.3s;
     white-space: nowrap; backdrop-filter: blur(5px);
     display: flex; align-items: center; gap: 10px;
+    
+    z-index: 10; /* キャプション(z-index:5)より上にして押せるようにする */
+    pointer-events: auto; /* クリック有効化 */
+    cursor: pointer;
 }
 .map-link:hover .map-overlay-btn { 
     background: var(--accent-color); color: #000; border-color: var(--accent-color);
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
     transform: translate(-50%, -50%) scale(1.05);
+}
+
+/* スマホ対応（メディアクエリ内も修正が必要） */
+@media (max-width: 768px) {
+    /* スマホでも写真の中に文字を表示し続ける */
+    .exp-card { 
+        overflow: hidden; 
+        margin-bottom: 30px; 
+    }
+    
+    .exp-caption {
+        position: absolute; /* relativeにせずabsoluteのまま */
+        top: 0;
+        background: radial-gradient(circle, rgba(0,0,0,0.6) 0%, transparent 80%);
+        padding: 15px;
+        justify-content: center;
+    }
+    
+    .exp-caption h3 { font-size: 1.6rem; margin-bottom: 5px; }
+    .exp-caption p { font-size: 0.9rem; }
+    
+    /* スマホではボタンを非表示（誤操作防止 & 画面が狭いため） */
+    .map-overlay-btn { display: none !important; }
+    
+    /* 画像タップ無効化 */
+    .map-link { pointer-events: none; }
 }
 
 /* Slider */
