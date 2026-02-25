@@ -55,21 +55,27 @@ window.addEventListener('load', () => {
             if (progress < 1) {
                 requestAnimationFrame(updateCounter);
             } else {
+                // カウントアップ終了後、幕開け演出へ
                 setTimeout(() => {
                     if(loader) {
-                        loader.style.opacity = '0';
-                        loader.style.visibility = 'hidden';
+                        // クラスを追加してCSSアニメーション(Curtain Rise)を発動
+                        loader.classList.add('loaded');
+                        
+                        // アニメーション完了後に完全に消す
+                        setTimeout(() => {
+                            loader.style.display = 'none';
+                        }, 1600);
                     }
                     initScrollAnimation();
                     sessionStorage.setItem('visited', 'true');
-                }, 800);
+                }, 500); // 少しタメを作る
             }
         }
         requestAnimationFrame(updateCounter);
     }
 });
 
-// Sparkle Effect (パフォーマンスのためにThrottle処理を追加)
+// Sparkle Effect (Throttled for Performance)
 let lastSparkleTime = 0;
 document.addEventListener('mousemove', function(e) {
     const now = Date.now();
@@ -83,7 +89,6 @@ function createSparkle(x, y) {
     const sparkle = document.createElement('div');
     sparkle.classList.add('sparkle');
     
-    // ランダム性を少し抑えて上品に
     const offsetX = (Math.random() - 0.5) * 15;
     const offsetY = (Math.random() - 0.5) * 15;
     sparkle.style.left = (x + offsetX) + 'px';
@@ -124,6 +129,8 @@ window.addEventListener('scroll', () => {
     const progressBar = document.getElementById('scroll-progress');
     if(progressBar) { progressBar.style.width = scrollPercent + '%'; }
 
+    // 背景パララックス処理は削除しました（読みやすさ優先）
+
     const backToTop = document.getElementById('back-to-top');
     if (backToTop) {
         if (scrollTop > 400) { backToTop.classList.add('show'); } 
@@ -137,9 +144,9 @@ if (backToTop) {
     backToTop.addEventListener('click', (e) => {
         e.preventDefault();
         backToTop.classList.add('launch');
-        // Lenisがある場合はLenisでスクロール
+        // Lenisがある場合はLenisでスクロール（遅めに設定: duration 3秒）
         if(window.lenis) {
-            window.lenis.scrollTo(0);
+            window.lenis.scrollTo(0, { duration: 3 }); 
         } else {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
