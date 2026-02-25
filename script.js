@@ -351,13 +351,15 @@ document.addEventListener('click', (e) => {
 });
 
 /* =========================================
-   SPACESHIP MODE: Twinkle Stars & Light HUD
+   SPACESHIP MODE: Warp Drive & Light HUD
    ========================================= */
 
-// --- 1. Twinkling Starfield (JSは初期配置のみ、動きはCSS) ---
+// --- 1. Warp Starfield (ワープ航法) ---
 const starContainer = document.getElementById('starfield');
+const stars = []; // 星の要素を格納する配列
+
 if (starContainer) {
-    const starCount = 60; // 星の数
+    const starCount = 60; // 星の数（多すぎると重くなるので調整）
     
     for (let i = 0; i < starCount; i++) {
         const star = document.createElement('div');
@@ -366,71 +368,75 @@ if (starContainer) {
         // ランダムな位置
         const x = Math.random() * 100;
         const y = Math.random() * 100;
+        const size = Math.random() * 2 + 1; // 1px〜3px
         
-        // ランダムなサイズ（遠近感）
-        const size = Math.random() * 2 + 1;
-        
-        // アニメーションのタイミングをランダムにずらす
-        const duration = Math.random() * 3 + 2; // 2〜5秒で点滅
-        const delay = Math.random() * 5;        // 開始タイミング
+        // 点滅のタイミングをずらす
+        const duration = Math.random() * 3 + 2;
         
         star.style.left = x + '%';
         star.style.top = y + '%';
         star.style.width = size + 'px';
-        star.style.height = size + 'px';
+        star.style.height = size + 'px'; // 最初は正円
         star.style.animationDuration = duration + 's';
-        star.style.animationDelay = delay + 's';
         
         starContainer.appendChild(star);
+        stars.push(star);
     }
 }
 
-// --- 2. Lightweight HUD Cursor (軽量版) ---
+// Lenisのスクロールイベントを利用してワープ演出
+// （requestAnimationFrame内で行われるためスムーズ）
+if (window.lenis) {
+    window.lenis.on('scroll', (e) => {
+        // スクロール速度（絶対値）を取得
+        const velocity = Math.abs(e.velocity);
+        
+        // 速度に応じて縦に伸ばす倍率を計算（通常は1倍）
+        // velocityが大きいほど縦長になる
+        const stretch = 1 + (velocity * 0.15); 
+        
+        // すべての星に適用
+        // transformだけを操作するので描画コストは低い
+        const transformValue = `scaleY(${Math.min(stretch, 15)})`; // 最大15倍まで制限
+        
+        stars.forEach(star => {
+            star.style.transform = transformValue;
+        });
+    });
+}
+
+// --- 2. Lightweight HUD Cursor (軽量版カーソル) ---
 const cursor = document.getElementById('hud-cursor');
 const cursorLabel = document.querySelector('.cursor-label');
 
-// PC（マウス操作）のみ有効化
+// PCのみ有効
 if (cursor && window.matchMedia("(min-width: 1025px)").matches) {
-    let mouseX = -100; // 初期位置は画面外
+    let mouseX = -100;
     let mouseY = -100;
     
-    // マウス位置の取得（これだけを行う）
     document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
-    }, { passive: true }); // passive: true でスクロール性能への影響を防止
-
-    // アニメーションループ（requestAnimationFrameを使用）
-    function updateCursor() {
-        // 重い計算（Lerp）を削除し、直接追従させる
-        // ※「遅れてついてくる」演出が重さの原因になりやすいため、
-        //   ダイレクトに動かしつつCSSの transition で滑らかさを出す方式に変更
-        
-        // translate3d でGPUを強制使用
+        // マウスが動いた瞬間にCSS変数を使わず直接GPU合成させる
         cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
-        
-        requestAnimationFrame(updateCursor);
-    }
-    updateCursor();
+    }, { passive: true });
 
-    // リンクホバー時の演出（イベントリスナーの最適化）
+    // リンクホバー時の演出
     const interactables = document.querySelectorAll('a, button, .gallery-item, .exp-card, .btn-insta, .map-link');
     
     interactables.forEach(el => {
         el.addEventListener('mouseenter', () => {
             cursor.classList.add('locked');
-            // テキスト更新はDOM操作を伴うため必要な時だけ
             if(cursorLabel.textContent !== 'TARGET LOCKED') {
                 cursorLabel.innerHTML = 'TARGET LOCKED<br><span style="font-size:0.8em; opacity:0.7;">ACCESSING...</span>';
             }
         });
-        
         el.addEventListener('mouseleave', () => {
             cursor.classList.remove('locked');
         });
     });
     
-    // 画面外に出たら隠す
+    // 画面外処理
     document.addEventListener('mouseleave', () => { cursor.style.opacity = '0'; });
     document.addEventListener('mouseenter', () => { cursor.style.opacity = '1'; });
 }
