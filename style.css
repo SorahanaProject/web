@@ -627,3 +627,23 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
 }
 
 .dud { color: #555; } /* 解読中の文字色 */
+
+/* --- Flower Burst Particle --- */
+.burst-particle {
+    position: fixed;
+    top: 0; left: 0;
+    width: 6px; height: 6px;
+    background: var(--accent-color);
+    border-radius: 50%; /* 丸い光の粒 */
+    /* 花びらの形にしたい場合は以下を有効化 */
+    /* clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); */
+    
+    pointer-events: none;
+    z-index: 999999;
+    animation: burstAnim 1s ease-out forwards;
+}
+
+@keyframes burstAnim {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
