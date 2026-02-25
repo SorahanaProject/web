@@ -124,11 +124,6 @@ window.addEventListener('scroll', () => {
     const progressBar = document.getElementById('scroll-progress');
     if(progressBar) { progressBar.style.width = scrollPercent + '%'; }
 
-    // 背景パララックス（軽量なtransform等は使えないためbackgroundPositionで）
-    if(window.innerWidth > 768) {
-        document.body.style.backgroundPositionY = -(scrollTop * 0.1) + 'px';
-    }
-
     const backToTop = document.getElementById('back-to-top');
     if (backToTop) {
         if (scrollTop > 400) { backToTop.classList.add('show'); } 
