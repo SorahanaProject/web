@@ -5,65 +5,52 @@
     --accent-glow: #F2D06B;  /* Lighter Gold for glow */
     --glass-bg: rgba(255, 255, 255, 0.05);
     --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-blur: 10px;
     --font-jp: 'Noto Serif JP', serif;
     --font-en: 'Montserrat', sans-serif;
 }
 
-/* Lenis (Smooth Scroll) Setup */
+/* Scroll Setup */
 html.lenis { height: auto; }
 html { scrollbar-width: thin; scrollbar-color: var(--accent-color) #050505; }
 
 body {
     margin: 0;
-    /* Static Deep Black Background (No moving gradient for better readability) */
+    /* Static Black Background (High Performance & Readability) */
     background-color: #050505; 
     background-image: linear-gradient(to bottom, #0a0a0a 0%, #000000 100%);
-    
     color: var(--text-color);
     font-family: var(--font-jp);
     overflow-x: hidden;
     cursor: default;
     background-attachment: fixed;
     background-size: cover;
-    
     font-feature-settings: "palt";
     letter-spacing: 0.05em;
     position: relative;
 }
 
-/* Selection Color */
+/* Selection */
 ::selection { background: var(--accent-color); color: #000; }
 
-/* Noise Texture (Moving subtle noise for film look) */
+/* Lightweight Static Noise (Performance Optimized) */
 body::after {
     content: "";
-    position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    /* 非常に軽量なノイズ画像パターン(Base64) */
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAGFBMVEUAAAAAAAACAgIBAQEAAAAAAAABAQEAAAAw233DAAAAB3RSTlMABw8XIzM3R06nQwAAACVJREFUeF7t0wENAAAAwkD3T20PBxQAAAAAAAAAAAAAAAAA8xc4OAABy3Z33AAAAABJRU5ErkJggg==");
+    opacity: 0.03; 
     pointer-events: none; z-index: 999999;
-    opacity: 0.04; 
-    mix-blend-mode: overlay;
-    animation: noiseAnim 0.8s steps(6) infinite;
-}
-@keyframes noiseAnim {
-    0% { transform: translate(0,0); }
-    20% { transform: translate(-2%,2%); }
-    40% { transform: translate(-2%,-2%); }
-    60% { transform: translate(2%,2%); }
-    80% { transform: translate(2%,-2%); }
-    100% { transform: translate(0,0); }
 }
 
-/* Typography Enhancements */
+/* Typography */
 h1, h2, h3 { letter-spacing: 0.15em; }
 
-/* Premium Gold Text Effect */
+/* Premium Gold Text */
 .section-title {
     font-family: var(--font-en); text-align: center; font-size: 3rem;
     margin-bottom: 80px; 
     color: var(--accent-color); 
     letter-spacing: 0.15em;
-    /* Gradient & Glow Animation */
     background: linear-gradient(110deg, #aa771c 10%, #fcf6ba 30%, #D4AF37 50%, #fcf6ba 70%, #aa771c 90%);
     background-size: 200% 100%;
     -webkit-background-clip: text;
@@ -99,29 +86,41 @@ h1, h2, h3 { letter-spacing: 0.15em; }
     100% { transform: scale(0.2) rotate(180deg) translate(0, 20px); opacity: 0; }
 }
 
-/* --- Pro Loader (Curtain Rise Effect) --- */
+/* --- Split Curtain Loader (左右に開く幕) --- */
 #loader {
     position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-    background: #000; z-index: 9999;
+    z-index: 9999; pointer-events: none;
     display: flex; justify-content: center; align-items: center;
-    transition: transform 1.5s cubic-bezier(0.76, 0, 0.24, 1), border-radius 1s ease 0.2s;
+}
+/* 幕（左） */
+.curtain-left {
+    position: absolute; top: 0; left: 0; width: 50%; height: 100%;
+    background: #000; z-index: 1;
+    border-right: 1px solid #111;
+    transition: transform 1.5s cubic-bezier(0.76, 0, 0.24, 1);
     will-change: transform;
 }
-#loader.loaded {
-    transform: translateY(-100%);
-    border-bottom-left-radius: 50%;
-    border-bottom-right-radius: 50%;
+/* 幕（右） */
+.curtain-right {
+    position: absolute; top: 0; right: 0; width: 50%; height: 100%;
+    background: #000; z-index: 1;
+    border-left: 1px solid #111;
+    transition: transform 1.5s cubic-bezier(0.76, 0, 0.24, 1);
+    will-change: transform;
 }
-#loader.hidden { display: none !important; }
+/* コンテンツ */
+.loader-content {
+    position: relative; z-index: 2;
+    text-align: center; color: var(--accent-color);
+    transition: opacity 0.5s ease;
+}
 
-.loader-content { 
-    text-align: center; color: var(--accent-color); 
-    transition: opacity 0.5s ease, transform 0.8s ease;
-}
-#loader.loaded .loader-content {
-    opacity: 0;
-    transform: translateY(100px);
-}
+/* ロード完了時の動作 */
+#loader.loaded .curtain-left { transform: translateX(-100%); }
+#loader.loaded .curtain-right { transform: translateX(100%); }
+#loader.loaded .loader-content { opacity: 0; }
+
+#loader.hidden { display: none !important; }
 
 .altitude-label { font-family: var(--font-en); font-size: 0.9rem; letter-spacing: 0.3em; margin-bottom: 20px; opacity: 0.7; color: #fff; }
 .digit-container { display: flex; gap: 5px; justify-content: center; }
@@ -132,9 +131,7 @@ h1, h2, h3 { letter-spacing: 0.15em; }
     width: clamp(30px, 8vw, 60px); 
     height: clamp(40px, 11vw, 80px);
     display: flex; justify-content: center; align-items: center;
-    border-radius: 4px; 
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-    overflow: hidden;
+    border-radius: 4px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); overflow: hidden;
 }
 .digit-box::after {
     content: ''; position: absolute; top: 50%; left: 0;
@@ -204,7 +201,7 @@ section { padding: 120px 20px; position: relative; }
 /* Hero */
 .hero {
     position: relative; height: 100vh; display: flex; 
-    justify-content: flex-end; align-items: center; /* PC: Right */
+    justify-content: flex-end; align-items: center;
     text-align: left; overflow: hidden;
 }
 .hero-bg-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
@@ -307,124 +304,61 @@ body.en .hero h1 span[lang="en"] { display: block; }
     .timeline-item:nth-child(even) .timeline-dot { left: -10px; }
 }
 
-/* =========================================
-   Experiment Vertical Display (修正版)
-   写真のど真ん中に文字、その下にボタン配置
-========================================= */
-
+/* Experiment Vertical Display (Centered Text & Button Fix) */
 .experiment-vertical-view {
     display: flex; flex-direction: column; gap: 60px; align-items: center; margin-bottom: 100px;
     width: 100%; max-width: 900px; margin-left: auto; margin-right: auto;
 }
 
 .exp-card {
-    position: relative; 
-    width: 100%; 
-    border-radius: 16px; 
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    background: #000;
+    position: relative; width: 100%; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5); background: #000;
 }
 
 .exp-card img {
     width: 100%; height: auto; display: block; 
     transition: transform 0.5s ease, opacity 0.5s ease;
-    opacity: 0.85; /* 画像を少し暗くして文字を読みやすく */
-    filter: saturate(0.8) contrast(1.1); /* 映画的な渋さ */
+    opacity: 0.85; filter: saturate(0.8) contrast(1.1);
 }
 
 .exp-card:hover img {
-    transform: scale(1.05); 
-    opacity: 0.6; /* ホバー時にさらに暗く */
-    filter: saturate(1.1) contrast(1.1);
+    transform: scale(1.05); opacity: 0.6; filter: saturate(1.1) contrast(1.1);
 }
 
-/* --- キャプション（文字） --- */
+/* Caption Centered */
 .exp-caption {
-    position: absolute;
-    top: 50%;       
-    left: 50%;      
-    transform: translate(-50%, -50%); /* 上下左右中央 */
-    
-    width: 100%;
-    text-align: center;
-    pointer-events: none; /* ボタンの邪魔をしない */
-    z-index: 5;
-    
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 100%; text-align: center; pointer-events: none; z-index: 5;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 0 20px;
 }
-
-/* ボタンがある地図のカードだけ、文字を少し上にずらす */
-.map-container .exp-caption {
-    top: 45%; 
-}
+.map-container .exp-caption { top: 45%; } /* Map has button, so move text slightly up */
 
 .exp-caption h3 { 
-    font-family: var(--font-en); 
-    color: var(--accent-color); 
-    margin: 0 0 10px 0; 
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
-    text-shadow: 0 0 20px rgba(0,0,0,0.9);
-    letter-spacing: 0.1em;
+    font-family: var(--font-en); color: var(--accent-color); margin: 0 0 10px 0; 
+    font-size: clamp(1.8rem, 4vw, 2.8rem); text-shadow: 0 0 20px rgba(0,0,0,0.9); letter-spacing: 0.1em;
 }
 
 .exp-caption p { 
-    margin: 0; 
-    font-size: 1.1rem; 
-    color: #fff; 
-    font-weight: 500;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+    margin: 0; font-size: 1.1rem; color: #fff; font-weight: 500; text-shadow: 0 2px 10px rgba(0,0,0,0.9);
 }
 
-/* --- Google Earth ボタン --- */
-.map-link { 
-    display: block; 
-    position: static; 
-    width: 100%; 
-    text-decoration: none; 
-}
+/* Google Earth Button */
+.map-link { display: block; position: static; width: 100%; text-decoration: none; }
 
 .map-overlay-btn {
-    position: absolute; 
-    top: 68%; /* 文字(45%)の下に配置 */
-    left: 50%; 
-    transform: translate(-50%, -50%); /* ボタン中心基準 */
-    
-    background: rgba(0, 0, 0, 0.7); 
-    color: #fff;
-    border: 1px solid var(--accent-color); 
-    padding: 12px 35px; 
-    border-radius: 50px;
-    
-    font-family: var(--font-en); 
-    font-weight: 600; 
-    white-space: nowrap; 
-    backdrop-filter: blur(5px);
-    
-    display: flex; 
-    align-items: center; 
-    gap: 10px;
-    
-    z-index: 10; 
-    pointer-events: auto; /* クリック有効 */
-    cursor: pointer;
-    transition: all 0.3s ease;
+    position: absolute; top: 68%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid var(--accent-color); 
+    padding: 12px 35px; border-radius: 50px;
+    font-family: var(--font-en); font-weight: 600; white-space: nowrap; backdrop-filter: blur(5px);
+    display: flex; align-items: center; gap: 10px;
+    z-index: 10; pointer-events: auto; cursor: pointer; transition: all 0.3s ease;
 }
 
 .map-link:hover .map-overlay-btn { 
-    background: var(--accent-color); 
-    color: #000; 
-    box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
-    transform: translate(-50%, -50%) scale(1.05);
+    background: var(--accent-color); color: #000; 
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.6); transform: translate(-50%, -50%) scale(1.05);
 }
-
-/* =========================================
-   End of Experiment Fix
-========================================= */
 
 /* Slider */
 .comparison-section { max-width: 800px; margin: 0 auto; text-align: center; }
@@ -536,8 +470,7 @@ body.en .gallery-label [lang="en"] { display: block; }
 .link-icon { font-size: 0.7em; vertical-align: super; margin-left: 5px; color: var(--accent-color); }
 
 .credits-list { 
-    display: inline-block; 
-    width: 100%; max-width: 650px;
+    display: inline-block; width: 100%; max-width: 650px;
     text-align: left; margin-top: 30px;
 }
 .credit-row {
@@ -549,17 +482,10 @@ body.en .gallery-label [lang="en"] { display: block; }
     grid-template-columns: 120px 1fr;
     gap: 20px;
 }
-.credits-list:hover .credit-row {
-    opacity: 0.3;
-    filter: blur(2px);
-    transform: scale(0.98);
-}
+.credits-list:hover .credit-row { opacity: 0.3; filter: blur(2px); transform: scale(0.98); }
 .credits-list .credit-row:hover {
-    opacity: 1;
-    filter: blur(0);
-    transform: scale(1.02) translateX(10px);
-    background: rgba(255, 255, 255, 0.05);
-    border-left-color: var(--accent-color);
+    opacity: 1; filter: blur(0); transform: scale(1.02) translateX(10px);
+    background: rgba(255, 255, 255, 0.05); border-left-color: var(--accent-color);
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
@@ -630,10 +556,7 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
 /* === Scrollbar === */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb {
-    background-color: #333; border-radius: 5px;
-    border: 1px solid #444;
-}
+::-webkit-scrollbar-thumb { background-color: #333; border-radius: 5px; border: 1px solid #444; }
 ::-webkit-scrollbar-thumb:hover { background-color: var(--accent-color); }
 
 /* === Mobile Specific Layout === */
@@ -652,19 +575,16 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     .timeline-item { width: 100%; padding-left: 50px; padding-right: 0 !important; text-align: left !important; }
     .timeline-item:nth-child(odd) .timeline-dot, .timeline-item:nth-child(even) .timeline-dot { left: 11px; right: auto; }
     
-    /* Experiment Card Mobile Fix */
-    .map-container .exp-caption { top: 50%; } /* スマホではボタンないので中央に戻す */
-    .map-overlay-btn { display: none !important; } /* スマホではボタン非表示 */
+    .map-container .exp-caption { top: 50%; } 
+    .map-overlay-btn { display: none !important; } 
     .exp-caption h3 { font-size: 1.8rem; }
     .exp-caption p { font-size: 0.9rem; }
     
     .compare-container { height: 300px; }
     
-    /* Credits */
     .credit-row { display: flex; flex-direction: column; align-items: center; text-align: center; border-bottom: none; margin-bottom: 30px; gap: 5px; }
     .role-cell { width: auto; margin-bottom: 5px; border: 1px solid var(--accent-color); padding: 5px 20px; border-radius: 20px; font-size: 0.8rem; }
     
-    /* Hamburger */
     .hamburger { display: block; cursor: pointer; width: 30px; height: 25px; position: relative; z-index: 200; }
     .hamburger span { display: block; position: absolute; width: 100%; height: 2px; background: #fff; transition: 0.3s; }
     .hamburger span:nth-child(1) { top: 0; } .hamburger span:nth-child(2) { top: 11px; } .hamburger span:nth-child(3) { bottom: 0; }
