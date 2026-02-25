@@ -314,3 +314,38 @@ if(el) {
     // ローディング後に開始
     setTimeout(next, 3000); 
 }
+// --- Click Burst Effect (花びらが舞う) ---
+document.addEventListener('click', (e) => {
+    // リンクをクリックした時は邪魔しないように数を減らすなどの調整も可
+    const particleCount = 8; // 飛び散る数
+
+    for (let i = 0; i < particleCount; i++) {
+        const p = document.createElement('div');
+        p.classList.add('burst-particle');
+        
+        // クリック位置に配置
+        p.style.left = e.clientX + 'px';
+        p.style.top = e.clientY + 'px';
+        
+        // ランダムな方向に飛ばす計算
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = 50 + Math.random() * 100; // 飛ぶ距離
+        const tx = Math.cos(angle) * velocity + 'px';
+        const ty = Math.sin(angle) * velocity + 'px';
+        
+        // CSS変数に値を渡す
+        p.style.setProperty('--tx', tx);
+        p.style.setProperty('--ty', ty);
+        
+        // 色をランダムに少し変える（金色〜白）
+        const randomColor = Math.random() > 0.5 ? '#D4AF37' : '#ffffff';
+        p.style.background = randomColor;
+
+        document.body.appendChild(p);
+
+        // アニメーション終わったら消す
+        setTimeout(() => {
+            p.remove();
+        }, 1000);
+    }
+});
