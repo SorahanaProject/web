@@ -648,10 +648,13 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
 }
 
-/* --- 1. Twinkling Starfield (出現・消滅する星空) --- */
+/* --- 1. Warp Starfield (修正版) --- */
 #starfield {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: -1;
+    pointer-events: none;
+    /* z-indexを 0 に設定。
+       コンテンツ（.container）は z-index: 2 なので、星は「背景の上、写真の下」になります */
+    z-index: 0; 
     overflow: hidden;
 }
 
@@ -659,15 +662,21 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     position: absolute;
     background: #fff;
     border-radius: 50%;
-    /* CSSアニメーションで点滅させる（JSを使わないので超軽量） */
+    /* 点滅はopacityのみで行う（変形はJSに任せるため） */
     animation: twinkle linear infinite;
-    opacity: 0;
+    will-change: transform, opacity; /* GPU最適化 */
 }
 
 @keyframes twinkle {
-    0% { opacity: 0; transform: scale(0.5); }
-    50% { opacity: 0.8; transform: scale(1); }
-    100% { opacity: 0; transform: scale(0.5); }
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
+
+/* コンテンツが星より手前に来ることを確実にする */
+.container, .hero-content, header {
+    position: relative;
+    z-index: 2;
 }
 
 /* --- 2. HUD Cursor (軽量化版) --- */
