@@ -647,3 +647,76 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
     100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
 }
+
+/* --- 1. Warp Starfield (ワープする星空) --- */
+#starfield {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: -1; /* 背景の一番奥 */
+    overflow: hidden;
+}
+.warp-star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0.8;
+    will-change: transform, opacity;
+}
+
+/* --- 2. HUD Cursor (宇宙船の照準器) --- */
+/* PCのみ表示（スマホは指で隠れるため非表示） */
+@media (min-width: 769px) {
+    body { cursor: none; } /* デフォルトカーソルを消す */
+    a, button, .exp-card, .gallery-item { cursor: none; } /* リンク上の指マークも消す */
+}
+
+#hud-cursor {
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 1000000;
+    mix-blend-mode: difference; /* 背景が白でも見えるように反転色 */
+    transition: opacity 0.3s;
+    display: none; /* スマホでは非表示 */
+}
+@media (min-width: 769px) { #hud-cursor { display: block; } }
+
+/* 外側のリング */
+.cursor-circle {
+    position: absolute; top: -20px; left: -20px;
+    width: 40px; height: 40px;
+    border: 1px solid var(--accent-color);
+    border-radius: 50%;
+    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.2s;
+}
+
+/* 十字（照準） */
+.cursor-crosshair {
+    position: absolute; top: -2px; left: -2px;
+    width: 4px; height: 4px;
+    background: var(--accent-color);
+    border-radius: 50%;
+}
+.cursor-crosshair::before, .cursor-crosshair::after {
+    content: ''; position: absolute; background: var(--accent-color);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+}
+.cursor-crosshair::before { width: 100%; height: 10px; } /* 縦線 */
+.cursor-crosshair::after { width: 10px; height: 100%; } /* 横線 */
+
+/* 横に出る文字 */
+.cursor-label {
+    position: absolute; top: 10px; left: 30px;
+    font-family: 'Montserrat', monospace; font-size: 0.6rem;
+    color: var(--accent-color); letter-spacing: 0.1em;
+    white-space: nowrap; opacity: 0; transition: opacity 0.2s;
+}
+
+/* --- Hover State (ロックオン時) --- */
+#hud-cursor.locked .cursor-circle {
+    transform: scale(1.8) rotate(45deg); /* 拡大して回転 */
+    border-width: 2px;
+    border-color: #fff; /* 白く光る */
+    background: rgba(212, 175, 55, 0.1); /* うっすら金色 */
+}
+#hud-cursor.locked .cursor-label {
+    opacity: 1; /* 文字を表示 */
+}
