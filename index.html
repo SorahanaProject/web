@@ -18,8 +18,10 @@
 </head>
 <body>
 
-    <!-- Loading Animation (Pro: Curtain Rise) -->
+    <!-- Loading Animation (Split Curtain) -->
     <div id="loader">
+        <div class="curtain-left"></div>
+        <div class="curtain-right"></div>
         <div class="loader-content">
             <div class="altitude-label">TARGET ALTITUDE</div>
             <div id="digit-container" class="digit-container">
@@ -35,7 +37,6 @@
     <header id="header">
         <div class="header-container">
             <a href="#hero" class="logo-link">
-                <!-- ロゴ画像がない場合はテキストを表示 -->
                 <img src="images/logo.png" alt="Sorahana Logo" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
                 <span class="logo-text" style="display:none; font-family:'Montserrat'; font-weight:bold; letter-spacing:0.2em; color:#fff;">SORAHANA</span>
             </a>
@@ -62,10 +63,10 @@
     <!-- 1. HERO SECTION -->
     <div id="hero" class="hero">
         <div class="hero-bg-wrapper">
-            <video id="hero-video" autoplay loop muted playsinline poster="images/stratosphere.png">
+            <!-- preload="none" で初期読み込み負荷を軽減 -->
+            <video id="hero-video" autoplay loop muted playsinline preload="metadata" poster="images/stratosphere.png">
                 <source src="images/hero-movie.mp4" type="video/mp4">
             </video>
-            <!-- 動画読み込み失敗時のフォールバック画像 -->
             <img src="images/stratosphere.png" class="hero-bg" alt="Stratosphere View">
             <div class="hero-overlay"></div>
         </div>
@@ -179,7 +180,7 @@
                 </div>
             </div>
 
-            <!-- Experiment Images (Centered Text & Button Fix) -->
+            <!-- Experiment Images -->
             <div class="experiment-vertical-view js-scroll">
                 
                 <!-- 1. Special Container -->
@@ -237,7 +238,7 @@
         <h2 class="section-title js-scroll">Gallery</h2>
         <div class="container">
             <div class="gallery-grid">
-                <!-- Gallery Item 1 -->
+                <!-- Gallery Items -->
                 <div class="gallery-item js-scroll" data-title-ja="成層圏からの眺望" data-title-en="Flight View" data-desc-ja="高度25,346m、気温マイナス38.8℃。過酷な環境下でのフライト映像。" data-desc-en="The container reached 25,346 meters." data-img="images/g-stratosphere.jpg">
                     <img src="images/g-stratosphere.jpg" alt="Stratosphere" loading="lazy">
                     <div class="gallery-label">
@@ -245,7 +246,6 @@
                         <span lang="en">Flight View</span>
                     </div>
                 </div>
-                <!-- Gallery Item 2 -->
                 <div class="gallery-item js-scroll" data-title-ja="愛知県産スプレーバラ" data-title-en="Spray Roses" data-desc-ja="日本一の生産額を誇る愛知県のバラを選定。" data-desc-en="We chose Spray Roses from Aichi." data-img="images/g-roses.jpg">
                     <img src="images/g-roses.jpg" alt="Roses" loading="lazy">
                     <div class="gallery-label">
@@ -253,7 +253,6 @@
                         <span lang="en">Spray Roses</span>
                     </div>
                 </div>
-                <!-- Gallery Item 3 -->
                 <div class="gallery-item js-scroll" data-title-ja="実験結果：色の変化" data-title-en="The Result" data-desc-ja="帰還した花は、鮮やかな色からアンティークのような黄金色へ変化しました。" data-desc-en="The flowers changed to an antique-like color." data-img="images/g-dried.jpg">
                     <img src="images/g-dried.jpg" alt="Result" loading="lazy">
                     <div class="gallery-label">
@@ -261,7 +260,6 @@
                         <span lang="en">Result</span>
                     </div>
                 </div>
-                <!-- Gallery Item 4 -->
                 <div class="gallery-item js-scroll" data-title-ja="ボトルフラワー" data-title-en="Bottle Flower" data-desc-ja="宇宙を旅した物語をボトルに封じ込めました。" data-desc-en="We put these flowers in bottles." data-img="images/g-bottle.jpg">
                     <img src="images/g-bottle.jpg" alt="Product" loading="lazy">
                     <div class="gallery-label">
@@ -314,7 +312,7 @@
         </div>
     </section>
 
-    <!-- 6. INSTAGRAM (SnapWidget) -->
+    <!-- 6. INSTAGRAM -->
     <section id="instagram-feed">
         <h2 class="section-title js-scroll">Instagram</h2>
         <div class="container text-center">
@@ -322,13 +320,10 @@
                 <span lang="ja">最新の活動記録をチェック</span>
                 <span lang="en">Check out our latest activities</span>
             </p>
-            
             <div class="insta-widget-wrapper js-scroll">
                 <script src="https://snapwidget.com/js/snapwidget.js"></script>
-                <!-- SnapWidget IDはダミーです。実際のものに置き換えてください -->
                 <iframe src="https://snapwidget.com/embed/1118472" class="snapwidget-widget" allowtransparency="true" frameborder="0" scrolling="no" style="border:none; overflow:hidden; width:100%; height:500px" title="Posts from Instagram"></iframe>
             </div>
-            
             <a href="https://www.instagram.com/sorahana_project/" target="_blank" class="btn-insta js-scroll">Visit Instagram &rarr;</a>
         </div>
     </section>
@@ -366,7 +361,7 @@
         </div>
     </section>
 
-    <!-- Supporting (Pro Focus Effect) -->
+    <!-- Supporting -->
     <section id="supporters">
         <h2 class="section-title js-scroll">Supporting</h2>
         <div class="container">
@@ -414,17 +409,14 @@
                 <span lang="ja">プロジェクトに関するお問い合わせは、<br>下記メールアドレスまでご連絡ください。</span>
                 <span lang="en">For inquiries, please contact us via email.</span>
             </p>
-            
             <div class="email-box js-scroll">
                 <a href="mailto:seisouken2025@gmail.com" class="email-link">
                     seisouken2025@gmail.com
                 </a>
             </div>
-
             <div class="social-links" style="margin-top: 60px; text-align:center;">
                 <p style="margin-bottom: 20px; font-size: 0.9rem; letter-spacing: 0.1em; font-family:var(--font-en);">Follow Us</p>
                 <a href="https://www.instagram.com/sorahana_project/" target="_blank" class="social-icon-link" aria-label="Instagram">
-                    <!-- Instagram SVG -->
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                         <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
                     </svg>
@@ -465,12 +457,9 @@
             duration: 1.2,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             smooth: true,
-            smoothTouch: false // スマホはネイティブスクロール優先
+            smoothTouch: false
         });
-        
-        // JSファイルから参照できるようにグローバル化
         window.lenis = lenis;
-
         function raf(time) {
             lenis.raf(time);
             requestAnimationFrame(raf);
