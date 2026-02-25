@@ -349,3 +349,98 @@ document.addEventListener('click', (e) => {
         }, 1000);
     }
 });
+
+/* =========================================
+   SPACESHIP MODE: Warp Drive & HUD
+   ========================================= */
+
+// --- 1. Warp Starfield Init ---
+const starContainer = document.getElementById('starfield');
+const starCount = 40; // 星の数
+const stars = [];
+
+// 星を生成
+for (let i = 0; i < starCount; i++) {
+    const star = document.createElement('div');
+    star.classList.add('warp-star');
+    
+    // ランダムな位置
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+    const size = Math.random() * 2 + 1;
+    
+    star.style.left = x + '%';
+    star.style.top = y + '%';
+    star.style.width = size + 'px';
+    
+    starContainer.appendChild(star);
+    stars.push(star);
+}
+
+// Lenisのスクロールイベントでワープ演出
+if (window.lenis) {
+    window.lenis.on('scroll', (e) => {
+        // e.velocity はスクロール速度（プラスなら下、マイナスなら上）
+        const velocity = Math.abs(e.velocity);
+        const stretch = 1 + (velocity * 0.5); // 速度に応じて伸ばす倍率
+        
+        // すべての星を変形させる
+        stars.forEach(star => {
+            // スケールYで縦に伸ばす = ワープ感
+            star.style.transform = `scaleY(${stretch})`;
+            // 速いときは少し透明にしてブレ感を出す
+            star.style.opacity = Math.max(0.3, 1 - (velocity * 0.05));
+        });
+    });
+}
+
+// --- 2. HUD Cursor Logic ---
+const cursor = document.getElementById('hud-cursor');
+const cursorCircle = document.querySelector('.cursor-circle');
+const cursorLabel = document.querySelector('.cursor-label');
+
+// PCのみ動作
+if (window.matchMedia("(min-width: 769px)").matches) {
+    let mouseX = 0;
+    let mouseY = 0;
+    let cursorX = 0;
+    let cursorY = 0;
+
+    // マウス位置取得
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    // スムーズな追従アニメーション
+    function animateCursor() {
+        // 遅延追従（Lerp）
+        const speed = 0.15;
+        cursorX += (mouseX - cursorX) * speed;
+        cursorY += (mouseY - cursorY) * speed;
+
+        cursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
+        
+        requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // リンクホバー時のロックオン演出
+    const interactables = document.querySelectorAll('a, button, .gallery-item, .exp-card, .btn-insta');
+    
+    interactables.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            cursor.classList.add('locked');
+            cursorLabel.textContent = 'TARGET LOCKED'; // 文言変更
+            
+            // 少しSEっぽい演出：ランダムな数値を出す
+            const randomCode = Math.floor(Math.random() * 9000) + 1000;
+            cursorLabel.innerHTML = `TARGET LOCKED <br> <span style="font-size:0.5em">DATA: ${randomCode}</span>`;
+        });
+        
+        el.addEventListener('mouseleave', () => {
+            cursor.classList.remove('locked');
+            cursorLabel.textContent = 'SYSTEM READY';
+        });
+    });
+}
