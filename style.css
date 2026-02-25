@@ -14,18 +14,25 @@
 html.lenis { height: auto; }
 html { scrollbar-width: thin; scrollbar-color: var(--accent-color) #050505; }
 
+/* style.css の body 部分をこれに置き換え */
 body {
     margin: 0;
-    background-color: var(--bg-color);
-    background-image: 
-        radial-gradient(circle at 10% 20%, rgba(20, 20, 50, 0.8) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(50, 20, 40, 0.3) 0%, transparent 40%);
+    /* ベースカラー：純粋な黒に近いグレー */
+    background-color: #050505; 
+    
+    /* 読みづらさの原因となる「色ムラ」を廃止し、
+       上から下へのごく薄いグラデーションのみにする（奥行き用） */
+    background-image: linear-gradient(to bottom, #0a0a0a 0%, #000000 100%);
+    
     color: var(--text-color);
     font-family: var(--font-jp);
     overflow-x: hidden;
     cursor: default;
-    background-attachment: fixed; /* Parallax effect */
-    background-size: 120% auto;
+    
+    /* 背景を固定（スクロールしても動かさない） */
+    background-attachment: fixed; 
+    background-size: cover;
+    
     font-feature-settings: "palt";
     letter-spacing: 0.05em;
     position: relative;
