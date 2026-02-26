@@ -177,16 +177,16 @@ h1, h2, h3 { letter-spacing: 0.15em; }
     100% { transform: scale(0.2) rotate(180deg) translate(0, 20px); opacity: 0; }
 }
 
-/* --- Hyperspace Loader --- */
+/* --- Hyperspace Loader (Star Wars Warp) --- */
 #loader {
     position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
     background: #000; z-index: 9999;
     display: flex; justify-content: center; align-items: center;
     overflow: hidden;
-    perspective: 1000px; /* 3D空間 */
+    perspective: 1000px; /* 3D空間を作成 */
 }
 
-/* 閃光 */
+/* 閃光（最後のホワイトアウト） */
 #white-flash {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: #fff; z-index: 5; opacity: 0; pointer-events: none;
@@ -200,43 +200,42 @@ h1, h2, h3 { letter-spacing: 0.15em; }
     transition: opacity 0.2s ease;
 }
 
-/* ワープ用の星 */
-#hyper-container {
+/* ワープ用の星コンテナ */
+#hyperspace {
     position: absolute; top: 50%; left: 50%; width: 0; height: 0;
-    z-index: 1;
+    z-index: 1; transform-style: preserve-3d;
 }
-.hyper-star {
+
+/* 星の粒 */
+.warp-star-loader {
     position: absolute; top: 0; left: 0;
     width: 2px; height: 2px;
     background: #fff; border-radius: 50%;
-    transform-origin: center center;
-    /* 中心から放射状に配置される想定 */
+    opacity: 0;
 }
 
-/* ジャンプ時のアニメーション */
-#loader.loaded .hyper-star {
-    animation: hyperJump 1.5s cubic-bezier(0.9, 0, 0.2, 1) forwards;
-}
+/* ロード完了時のアニメーション */
 #loader.loaded .loader-content { opacity: 0; }
-#loader.loaded #white-flash { 
-    animation: flashAnim 1.5s cubic-bezier(0.9, 0, 0.2, 1) forwards; 
-}
 
-/* 星が伸びて手前に飛んでくる */
+/* 星が伸びて手前に飛んでくるアニメーション */
+/* translateZで手前に移動しつつ、scaleZで長く伸ばす */
 @keyframes hyperJump {
     0% { transform: translate3d(var(--tx), var(--ty), 0) scale(1); opacity: 1; }
-    60% { transform: translate3d(var(--tx), var(--ty), 0) scale(50); opacity: 1; width: 4px; }
-    100% { transform: translate3d(var(--tx), var(--ty), 1000px) scale(200); opacity: 0; }
+    30% { transform: translate3d(var(--tx), var(--ty), 0) scale(1); opacity: 1; }
+    100% { 
+        transform: translate3d(var(--tx), var(--ty), 800px) scale(50); 
+        opacity: 0; 
+        width: 4px; /* 線を少し太く */
+    }
 }
 
-/* 最後の一瞬の閃光とフェードアウト */
+/* 閃光アニメーション */
 @keyframes flashAnim {
     0% { opacity: 0; }
-    80% { opacity: 1; } /* ピカッ！ */
+    90% { opacity: 1; } /* ピカッ！ */
     100% { opacity: 0; }
 }
 
-/* 完了後に消す */
 #loader.hidden { display: none !important; }
 
 .altitude-label { font-family: var(--font-en); font-size: 0.9rem; letter-spacing: 0.3em; margin-bottom: 20px; opacity: 0.7; color: #fff; }
