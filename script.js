@@ -9,7 +9,7 @@ const isEnglish = document.body.classList.contains('en');
 const TARGET_ALTITUDE = isEnglish ? 83156 : 25346;
 const UNIT_TEXT = isEnglish ? 'ft' : 'm';
 
-// ローディング制御（毎回実行）
+// ローディング制御
 window.addEventListener('load', () => {
     const loader = document.getElementById('loader');
     const container = document.getElementById('digit-container');
@@ -17,9 +17,7 @@ window.addEventListener('load', () => {
 
     if (langBtn) { langBtn.textContent = isEnglish ? 'JP' : 'EN'; }
     
-    // 星生成
     initHyperspaceStars();
-    // カウントアップ開始
     startLoadingAnimation(loader, container);
 });
 
@@ -28,13 +26,13 @@ function initHyperspaceStars() {
     const hyperContainer = document.getElementById('hyperspace');
     if (!hyperContainer) return;
 
-    for (let i = 0; i < 60; i++) { 
+    for (let i = 0; i < 80; i++) { // 数を増やして密度を上げる
         const s = document.createElement('div');
         s.className = 'hyper-star';
         
-        // 中心から放射状に配置
+        // 極座標でランダム配置
         const angle = Math.random() * Math.PI * 2;
-        const dist = 50 + Math.random() * 400; 
+        const dist = 30 + Math.random() * 400; 
         const tx = Math.cos(angle) * dist + 'px';
         const ty = Math.sin(angle) * dist + 'px';
         
@@ -67,17 +65,15 @@ function startLoadingAnimation(loader, container) {
         if (progress < 1) {
             requestAnimationFrame(updateCounter);
         } else {
-            // カウント完了 -> ジャンプ
             setTimeout(() => {
                 if(loader) {
-                    loader.classList.add('loaded'); // CSSアニメ開始
+                    loader.classList.add('loaded'); // ジャンプ発動
                     
-                    // アニメ終了に合わせて非表示 (1.2s + buffer)
                     setTimeout(() => {
                         loader.style.display = 'none';
-                        initTextScramble(); 
-                        initScrollAnimation(); 
-                    }, 1200);
+                        initTextScramble();
+                        initScrollAnimation();
+                    }, 1200); // 1.2秒後にフェードアウト
                 } else {
                     initScrollAnimation();
                     initTextScramble();
