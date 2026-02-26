@@ -50,25 +50,47 @@ body::after {
     pointer-events: none; z-index: 999999;
 }
 
-/* --- Warp Starfield (Configured for Background) --- */
+/* --- Warp Starfield (安全な配置設定) --- */
 #starfield {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
     pointer-events: none;
-    z-index: -1; /* Behind body content */
+    /* -1だと背景色に隠れる場合があるので 0 に変更 */
+    z-index: 0; 
     overflow: hidden;
 }
+
 .star {
     position: absolute;
     background: #fff;
     border-radius: 50%;
     opacity: 0.3;
+    /* アニメーションは透明度のみ（変形はJS） */
     animation: twinkle linear infinite;
+    /* GPUで描画させる */
     will-change: transform, opacity;
 }
+
 @keyframes twinkle {
-    0% { opacity: 0.3; }
+    0% { opacity: 0.2; }
     50% { opacity: 1; }
-    100% { opacity: 0.3; }
+    100% { opacity: 0.2; }
+}
+
+/* コンテンツを確実に星より手前に表示 */
+/* header, footer, section, .hero は全て z-index を持つようにする */
+header, footer, section, .hero, .container {
+    position: relative;
+    z-index: 10; /* 星(0)より確実に手前 */
+}
+
+/* 念のためコンテンツ背景が透けないようにする */
+.exp-card, .gallery-item {
+    background: #000;
+    z-index: 15;
 }
 
 /* --- HUD Cursor --- */
