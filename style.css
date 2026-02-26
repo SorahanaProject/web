@@ -37,7 +37,7 @@ body::after {
     opacity: 0.03; pointer-events: none; z-index: 999999;
 }
 
-/* Typography */
+/* Typography & Titles */
 h1, h2, h3 { letter-spacing: 0.15em; }
 .section-title {
     font-family: var(--font-en); text-align: center; font-size: 3rem; margin-bottom: 80px; 
@@ -57,17 +57,14 @@ h1, h2, h3 { letter-spacing: 0.15em; }
     transition: width 0.1s ease-out;
 }
 
-/* --- Hyperspace Loader (直線状に伸びる演出) --- */
+/* --- Hyperspace Loader (修正版: 太く、ランダムに) --- */
 #loader {
     position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
     background: #000; z-index: 9999;
     display: flex; justify-content: center; align-items: center;
-    overflow: hidden;
-    perspective: 800px; /* 奥行きを深める */
-    transform-style: preserve-3d;
+    overflow: hidden; perspective: 500px;
 }
 
-/* 閃光 */
 #white-flash {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: #fff; z-index: 5; opacity: 0; pointer-events: none;
@@ -79,65 +76,42 @@ h1, h2, h3 { letter-spacing: 0.15em; }
     transition: opacity 0.2s ease;
 }
 
-/* ワープ空間 */
 #hyperspace {
-    position: absolute; top: 50%; left: 50%;
-    width: 0; height: 0;
-    z-index: 1;
-    transform-style: preserve-3d;
+    position: absolute; top: 50%; left: 50%; width: 0; height: 0;
+    z-index: 1; transform-style: preserve-3d;
 }
 
-/* ハイパースペースの星（線になる前は点） */
 .hyper-star {
-    position: absolute; 
-    top: 0; left: 0;
-    width: 2px; height: 2px;
-    background: #fff; 
-    border-radius: 50%;
-    opacity: 1;
-    /* 青白い光彩 */
-    box-shadow: 0 0 6px rgba(200, 230, 255, 0.8);
-    transform-origin: 50% 50%;
-    /* 初期位置：奥に配置 */
-    transform: translate3d(var(--tx), var(--ty), -800px);
+    position: absolute; top: 0; left: 0;
+    /* ★修正: 初期サイズを少し大きく */
+    width: 3px; height: 3px; 
+    background: #fff; border-radius: 50%;
+    opacity: 1; box-shadow: 0 0 5px #aaddff;
+    transform-origin: 50% 50%; transform: translate3d(var(--tx), var(--ty), -500px);
 }
 
-/* アニメーション発動 */
 #loader.loaded .hyper-star {
-    animation: hyperJump 1.2s cubic-bezier(0.9, 0, 0.1, 1) forwards;
+    animation: hyperJump 1.2s cubic-bezier(0.7, 0, 0.3, 1) forwards;
 }
 #loader.loaded .loader-content { opacity: 0; }
 #loader.loaded #white-flash { 
     animation: flashAnim 1.2s ease-out forwards; 
 }
 
-/* 星が「線」になって飛び去るアニメーション */
+/* ★修正: 太く伸びるアニメーション */
 @keyframes hyperJump {
-    0% {
-        transform: translate3d(var(--tx), var(--ty), -800px) scaleZ(1);
-        opacity: 1;
-        width: 2px;
-    }
-    10% {
-        /* 少し溜めてから */
-        transform: translate3d(var(--tx), var(--ty), -600px) scaleZ(5);
-        opacity: 1;
-        width: 2px;
-    }
-    100% {
-        /* 一気に手前へ。ScaleZを大きくして「長い線」にする */
-        transform: translate3d(var(--tx), var(--ty), 1000px) scaleZ(500); 
-        opacity: 0;
-        width: 1px; /* 線を細くしてスピード感を出す */
-        background: #d0eaff; /* 青白い軌跡 */
+    0% { transform: translate3d(var(--tx), var(--ty), -500px) scaleZ(1); opacity: 1; width: 3px; }
+    20% { transform: translate3d(var(--tx), var(--ty), -400px) scaleZ(20); opacity: 1; width: 4px; background: #e0f0ff; }
+    100% { 
+        transform: translate3d(var(--tx), var(--ty), 500px) scaleZ(100); 
+        opacity: 0; 
+        width: 8px; /* ★ここで太さを強調 */
     }
 }
 
-/* 閃光（タイミング調整） */
 @keyframes flashAnim {
     0% { opacity: 0; }
-    50% { opacity: 0; } /* 星が伸びてから光る */
-    80% { opacity: 1; } /* ピカッ！ */
+    80% { opacity: 0.8; }
     100% { opacity: 0; }
 }
 
@@ -226,6 +200,7 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .timeline-content:hover { border-color: var(--accent-color); transform: translateY(-5px); }
 .timeline-img { width: 100%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
 .timeline-content .phase { display: block; font-family: var(--font-en); color: var(--accent-color); font-size: 0.8rem; letter-spacing: 0.2em; margin-bottom: 10px; text-transform: uppercase; }
+.timeline-content h3 { margin: 0 0 15px 0; font-size: 1.5rem; }
 @media (min-width: 769px) {
     .timeline::before { left: 50%; }
     .timeline-item { width: 50%; box-sizing: border-box; }
@@ -299,7 +274,7 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .credits-list .credit-row:hover { opacity: 1; filter: blur(0); transform: scale(1.02) translateX(10px); background: rgba(255, 255, 255, 0.05); border-left-color: var(--accent-color); }
 .role-cell { font-family: var(--font-en); color: var(--accent-color); font-weight: bold; }
 
-/* Contact (修正版: 中央寄せ) */
+/* Contact (中央寄せ) */
 .contact-container { 
     max-width: 600px; margin: 0 auto; 
     display: flex; flex-direction: column; align-items: center; 
