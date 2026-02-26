@@ -63,7 +63,6 @@
     <!-- 1. HERO SECTION -->
     <div id="hero" class="hero">
         <div class="hero-bg-wrapper">
-            <!-- preload="none" で初期読み込み負荷を軽減 -->
             <video id="hero-video" autoplay loop muted playsinline preload="metadata" poster="images/stratosphere.png">
                 <source src="images/hero-movie.mp4" type="video/mp4">
             </video>
@@ -73,6 +72,7 @@
         
         <div class="hero-content js-scroll">
             <p class="data-tag">
+                <!-- TextScramble対象 -->
                 <span lang="ja">ALT: 25,346m / TEMP: -38.8℃</span>
                 <span lang="en">ALT: 83,156ft / TEMP: -37.8℉</span>
             </p>
@@ -438,6 +438,14 @@
         <img src="images/rocket.png" alt="Top" style="width: 100%; height: 100%; object-fit: contain;">
     </a>
 
+    <!-- Spaceship Elements -->
+    <div id="starfield"></div> <!-- Warp Starfield -->
+    <div id="hud-cursor"> <!-- Pro HUD Cursor -->
+        <div class="cursor-circle"></div>
+        <div class="cursor-crosshair"></div>
+        <div class="cursor-label">SYSTEM READY</div>
+    </div>
+
     <!-- Modal -->
     <div id="gallery-modal" class="modal">
         <div class="modal-content">
@@ -466,15 +474,7 @@
         }
         requestAnimationFrame(raf);
     </script>
-    
-<!-- Spaceship Elements -->
-    <div id="starfield"></div> <!-- ワープする星空 -->
-    <div id="hud-cursor">
-        <div class="cursor-circle"></div>
-        <div class="cursor-crosshair"></div>
-        <div class="cursor-label">SYSTEM READY</div>
-    </div>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
