@@ -9,9 +9,25 @@ const isEnglish = document.body.classList.contains('en');
 const TARGET_ALTITUDE = isEnglish ? 83156 : 25346;
 const UNIT_TEXT = isEnglish ? 'ft' : 'm';
 
-// 即時実行：訪問済みチェック
+// --- 安全装置: 強制ローディング解除 ---
+// 何らかのエラーで止まっても、5秒後には必ず画面を開く
+setTimeout(() => {
+    const loader = document.getElementById('loader');
+    if (loader && !loader.classList.contains('loaded') && loader.style.display !== 'none') {
+        console.warn('Loading forced to close due to timeout.');
+        loader.classList.add('loaded');
+        setTimeout(() => { loader.style.display = 'none'; }, 1600);
+        // 強制解除時もアニメーションなどは開始させる
+        initScrollAnimation();
+        initTextScramble();
+        sessionStorage.setItem('visited', 'true');
+    }
+}, 5000); // 5000ms = 5秒
+
+// --- 即時実行：訪問済みチェック ---
 (function(){
     const loader = document.getElementById('loader');
+    // 以前の訪問履歴がある場合は、CSSで即座に隠す（チラつき防止）
     if (sessionStorage.getItem('visited') && loader) {
         loader.classList.add('hidden');
     }
@@ -31,7 +47,7 @@ window.addEventListener('load', () => {
         initTextScramble(); // 即座に文字演出
     } else {
         // 初回訪問時アニメーション
-        const duration = 2800; // ミリ秒
+        const duration = 2500; // 時間を少し短縮
         const startTime = performance.now();
 
         function updateCounter(currentTime) {
@@ -59,18 +75,16 @@ window.addEventListener('load', () => {
                 // カウントアップ終了後、幕開け演出へ
                 setTimeout(() => {
                     if(loader) {
-                        // クラスを追加してCSSアニメーション(Curtain Rise)を発動
                         loader.classList.add('loaded');
                         
-                        // アニメーション完了後に完全に消す
                         setTimeout(() => {
                             loader.style.display = 'none';
-                            initTextScramble(); // 幕開け後に文字演出開始
+                            initTextScramble();
                         }, 1600);
                     }
                     initScrollAnimation();
                     sessionStorage.setItem('visited', 'true');
-                }, 500); // 少しタメを作る
+                }, 300); // 待ち時間を短縮
             }
         }
         requestAnimationFrame(updateCounter);
@@ -133,7 +147,7 @@ class TextScramble {
 }
 
 function initTextScramble() {
-    const el = document.querySelector('.data-tag span[lang="ja"]'); // 対象要素
+    const el = document.querySelector('.data-tag span[lang="ja"]');
     if(el) {
         const fx = new TextScramble(el);
         const phrases = [
@@ -152,11 +166,11 @@ function initTextScramble() {
     }
 }
 
-// Sparkle Effect (Throttled for Performance)
+// --- Sparkle Effect ---
 let lastSparkleTime = 0;
 document.addEventListener('mousemove', function(e) {
     const now = Date.now();
-    if (now - lastSparkleTime > 50) { // 50msに1回制限
+    if (now - lastSparkleTime > 50) {
         createSparkle(e.clientX, e.clientY);
         lastSparkleTime = now;
     }
@@ -165,27 +179,24 @@ document.addEventListener('mousemove', function(e) {
 function createSparkle(x, y) {
     const sparkle = document.createElement('div');
     sparkle.classList.add('sparkle');
-    
     const offsetX = (Math.random() - 0.5) * 15;
     const offsetY = (Math.random() - 0.5) * 15;
     sparkle.style.left = (x + offsetX) + 'px';
     sparkle.style.top = (y + offsetY) + 'px';
-    
     const size = Math.random() * 4 + 2;
     sparkle.style.width = size + 'px';
     sparkle.style.height = size + 'px';
-    
     document.body.appendChild(sparkle);
     setTimeout(() => { sparkle.remove(); }, 800);
 }
 
-// Scroll Animation Observer
+// --- Scroll Animation ---
 function initScrollAnimation() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) { 
                 entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target); // 一度表示したら監視終了（負荷軽減）
+                observer.unobserve(entry.target);
             }
         });
     }, { threshold: 0.15 });
@@ -193,14 +204,16 @@ function initScrollAnimation() {
     document.querySelectorAll('.js-scroll').forEach((el) => { observer.observe(el); });
 }
 
-// Scroll Events
+// --- Scroll Events ---
 window.addEventListener('scroll', () => {
     const scrollTop = window.scrollY;
     
     const header = document.getElementById('header');
-    if (scrollTop > 50) { header.classList.add('scrolled'); } else { header.classList.remove('scrolled'); }
+    if (header) {
+        if (scrollTop > 50) { header.classList.add('scrolled'); } 
+        else { header.classList.remove('scrolled'); }
+    }
 
-    // プログレスバー
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (scrollTop / docHeight) * 100;
     const progressBar = document.getElementById('scroll-progress');
@@ -213,19 +226,17 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Back to Top Rocket
+// --- Back to Top ---
 const backToTop = document.getElementById('back-to-top');
 if (backToTop) {
     backToTop.addEventListener('click', (e) => {
         e.preventDefault();
         backToTop.classList.add('launch');
-        // Lenisがある場合はLenisでスクロール（遅めに設定: duration 3秒）
         if(window.lenis) {
             window.lenis.scrollTo(0, { duration: 3 }); 
         } else {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        
         setTimeout(() => {
             backToTop.classList.remove('launch');
             backToTop.classList.remove('show');
@@ -233,7 +244,7 @@ if (backToTop) {
     });
 }
 
-// Mobile Menu
+// --- Hamburger Menu ---
 const hamburger = document.getElementById('hamburger');
 const nav = document.getElementById('nav-menu');
 if (hamburger) {
@@ -249,29 +260,22 @@ if (hamburger) {
     });
 }
 
-// Slider Logic
+// --- Slider ---
 const slider = document.getElementById('compare-slider');
 const overlay = document.getElementById('compare-overlay');
 const sliderBtn = document.getElementById('slider-button');
 
-function updateSlider(val) {
-    if(overlay) overlay.style.width = val + "%";
-    if(sliderBtn) sliderBtn.style.left = val + "%";
-}
-
 if (slider) {
     slider.addEventListener('input', function(e) {
-        updateSlider(e.target.value);
+        if(overlay) overlay.style.width = e.target.value + "%";
+        if(sliderBtn) sliderBtn.style.left = e.target.value + "%";
     });
-    slider.addEventListener('touchmove', function(e) {
-        // スマホタッチ対策
-    }, { passive: true });
 }
 
-// Language Switch
-const langBtn = document.getElementById('langBtn');
-if(langBtn){
-    langBtn.addEventListener('click', () => {
+// --- Language Switch ---
+const langBtnFunc = document.getElementById('langBtn');
+if(langBtnFunc){
+    langBtnFunc.addEventListener('click', () => {
         const isCurrentlyEn = document.body.classList.contains('en');
         localStorage.setItem('lang', isCurrentlyEn ? 'ja' : 'en');
         sessionStorage.removeItem('visited');
@@ -279,7 +283,7 @@ if(langBtn){
     });
 }
 
-// FAQ Accordion
+// --- FAQ ---
 document.querySelectorAll('.faq-question').forEach(button => {
     button.addEventListener('click', () => {
         const isOpen = button.classList.contains('active');
@@ -295,7 +299,7 @@ document.querySelectorAll('.faq-question').forEach(button => {
     });
 });
 
-// Modal Logic
+// --- Modal ---
 const modal = document.getElementById('gallery-modal');
 const modalImg = document.getElementById('modal-img');
 const modalTitle = document.getElementById('modal-title');
@@ -331,26 +335,22 @@ if (closeModal) { closeModal.addEventListener('click', hideModal); }
 window.addEventListener('click', (e) => { if (e.target === modal) { hideModal(); } });
 
 /* =========================================
-   SPACESHIP MODE: Warp Drive & Light HUD
+   SPACESHIP MODE (Warp & HUD)
    ========================================= */
 
-// --- 1. Warp Starfield (常時監視型ワープ) ---
+// --- 1. Warp Starfield (常時監視型) ---
 const starContainer = document.getElementById('starfield');
 const stars = [];
 
-// 星の生成
 if (starContainer) {
-    const starCount = 80; // 星の数
+    const starCount = 80;
     
     for (let i = 0; i < starCount; i++) {
         const star = document.createElement('div');
         star.classList.add('star');
-        
         const x = Math.random() * 100;
         const y = Math.random() * 100;
-        // サイズは小さめに（伸びた時に綺麗に見えるよう）
-        const size = Math.random() * 2 + 1; 
-        
+        const size = Math.random() * 2 + 1;
         const duration = Math.random() * 3 + 2;
         
         star.style.left = x + '%';
@@ -359,7 +359,7 @@ if (starContainer) {
         star.style.height = size + 'px';
         star.style.animationDuration = duration + 's';
         
-        // 初期変形（これがないと後で効かないことがある）
+        // 初期変形を確実にセット
         star.style.transform = 'scaleY(1)';
         
         starContainer.appendChild(star);
@@ -367,85 +367,36 @@ if (starContainer) {
     }
 }
 
-// ワープアニメーションループ
+// ワープアニマループ (エラー耐性強化)
 function animateWarp() {
     let velocity = 0;
-
-    // Lenisから現在のスクロール速度を直接取得
-    if (window.lenis) {
+    
+    // Lenisが存在しない場合でも止まらないようにチェック
+    if (window.lenis && typeof window.lenis.velocity === 'number') {
         velocity = window.lenis.velocity;
     }
 
-    // 速度を絶対値に変換
     const v = Math.abs(velocity);
-
-    // ★倍率調整：係数を「8.0」に設定（かなり敏感に反応します）
-    // 通常は1倍、スクロール時は最大60倍まで伸びる
-    const stretch = 1 + (v * 8.0);
+    const stretch = 1 + (v * 8.0); // 感度高め
     const scaleY = Math.min(stretch, 60);
-    
-    // スクロール中は透明度を下げて「光の筋」っぽくする
     const opacity = v > 1 ? 0.6 : ''; 
-    const animState = v > 5 ? 'paused' : 'running'; // 高速時は点滅停止
+    const animState = v > 5 ? 'paused' : 'running';
 
-    // 全ての星に適用
-    // forEachよりforループの方が高速だが、80個程度ならforEachでOK
     const count = stars.length;
     for (let i = 0; i < count; i++) {
         const star = stars[i];
         star.style.transform = `scaleY(${scaleY})`;
-        
-        // 高速移動時の演出調整
         if (v > 1) {
             star.style.opacity = opacity;
             star.style.animationPlayState = animState;
         } else {
-            star.style.opacity = ''; // CSSのキーフレームに戻す
+            star.style.opacity = ''; 
             star.style.animationPlayState = 'running';
         }
     }
-
-    // 次のフレームへ
     requestAnimationFrame(animateWarp);
 }
-
-// アニメーション開始
 animateWarp();
-
-
-// --- 2. Lightweight HUD Cursor (軽量版) ---
-const cursor = document.getElementById('hud-cursor');
-const cursorLabel = document.querySelector('.cursor-label');
-
-if (cursor && window.matchMedia("(min-width: 1025px)").matches) {
-    let mouseX = -100;
-    let mouseY = -100;
-    
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        // マウス位置へ即座に移動（遅延なしで軽量化）
-        cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
-    }, { passive: true });
-
-    const interactables = document.querySelectorAll('a, button, .gallery-item, .exp-card, .btn-insta, .map-link');
-    
-    interactables.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            cursor.classList.add('locked');
-            // テキスト変更（ちらつき防止の判定付き）
-            if(!cursorLabel.innerHTML.includes('LOCKED')) {
-                cursorLabel.innerHTML = 'TARGET LOCKED<br><span style="font-size:0.8em; opacity:0.7;">ACCESSING...</span>';
-            }
-        });
-        el.addEventListener('mouseleave', () => {
-            cursor.classList.remove('locked');
-        });
-    });
-    
-    document.addEventListener('mouseleave', () => { cursor.style.opacity = '0'; });
-    document.addEventListener('mouseenter', () => { cursor.style.opacity = '1'; });
-}
 
 // --- 2. Lightweight HUD Cursor ---
 const cursor = document.getElementById('hud-cursor');
@@ -466,7 +417,7 @@ if (cursor && window.matchMedia("(min-width: 1025px)").matches) {
     interactables.forEach(el => {
         el.addEventListener('mouseenter', () => {
             cursor.classList.add('locked');
-            if(cursorLabel.textContent !== 'TARGET LOCKED') {
+            if(!cursorLabel.innerHTML.includes('LOCKED')) {
                 cursorLabel.innerHTML = 'TARGET LOCKED<br><span style="font-size:0.8em; opacity:0.7;">ACCESSING...</span>';
             }
         });
