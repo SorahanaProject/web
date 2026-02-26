@@ -21,18 +21,20 @@ window.addEventListener('load', () => {
     startLoadingAnimation(loader, container);
 });
 
-// ハイパースペースの星生成
+// ★★★ ハイパースペースの星生成（ランダム配置強化） ★★★
 function initHyperspaceStars() {
     const hyperContainer = document.getElementById('hyperspace');
     if (!hyperContainer) return;
 
-    for (let i = 0; i < 80; i++) { // 数を増やして密度を上げる
+    for (let i = 0; i < 80; i++) { 
         const s = document.createElement('div');
         s.className = 'hyper-star';
         
-        // 極座標でランダム配置
+        // 中心から放射状に配置 (中心付近は避けるが、広く散らす)
         const angle = Math.random() * Math.PI * 2;
-        const dist = 30 + Math.random() * 400; 
+        // ルートを使って均等分布に近づける
+        const dist = 60 + Math.pow(Math.random(), 0.5) * 450; 
+        
         const tx = Math.cos(angle) * dist + 'px';
         const ty = Math.sin(angle) * dist + 'px';
         
@@ -73,7 +75,7 @@ function startLoadingAnimation(loader, container) {
                         loader.style.display = 'none';
                         initTextScramble();
                         initScrollAnimation();
-                    }, 1200); // 1.2秒後にフェードアウト
+                    }, 1200); 
                 } else {
                     initScrollAnimation();
                     initTextScramble();
@@ -130,7 +132,7 @@ function initTextScramble() {
     }
 }
 
-// Background Warp Stars
+// Background Warp Stars (Static)
 const starContainer = document.getElementById('starfield');
 const stars = [];
 if (starContainer) {
