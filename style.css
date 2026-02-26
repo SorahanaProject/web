@@ -9,28 +9,33 @@
     --font-en: 'Montserrat', sans-serif;
 }
 
-/* ★★★ 重要：ここを追加（はみ出し防止の基本設定） ★★★ */
 *, *::before, *::after {
     box-sizing: border-box;
 }
 
 /* Scroll Setup */
+html {
+    height: 100%;
+    background-color: #050505;
+    background-image: linear-gradient(to bottom, #0a0a0a 0%, #000000 100%);
+    background-attachment: fixed;
+    width: 100%; 
+    overflow-y: scroll;
+}
 html.lenis { height: auto; }
 html { scrollbar-width: thin; scrollbar-color: var(--accent-color) #050505; }
 
 body {
     margin: 0;
-    background-color: #050505; 
-    background-image: linear-gradient(to bottom, #0a0a0a 0%, #000000 100%);
+    background-color: transparent;
     color: var(--text-color);
     font-family: var(--font-jp);
     overflow-x: hidden;
     cursor: default;
-    background-attachment: fixed;
-    background-size: cover;
     font-feature-settings: "palt";
     letter-spacing: 0.05em;
     position: relative;
+    z-index: 1;
 }
 
 /* Selection */
@@ -43,6 +48,90 @@ body::after {
     background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAGFBMVEUAAAAAAAACAgIBAQEAAAAAAAABAQEAAAAw233DAAAAB3RSTlMABw8XIzM3R06nQwAAACVJREFUeF7t0wENAAAAwkD3T20PBxQAAAAAAAAAAAAAAAAA8xc4OAABy3Z33AAAAABJRU5ErkJggg==");
     opacity: 0.03; 
     pointer-events: none; z-index: 999999;
+}
+
+/* --- Warp Starfield (Configured for Background) --- */
+#starfield {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: -1; /* Behind body content */
+    overflow: hidden;
+}
+.star {
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: twinkle linear infinite;
+    will-change: transform, opacity;
+}
+@keyframes twinkle {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
+
+/* --- HUD Cursor --- */
+#hud-cursor { display: none; }
+@media (min-width: 1025px) {
+    body, a, button, .exp-card, .gallery-item { cursor: none; }
+    #hud-cursor {
+        display: block; position: fixed; top: 0; left: 0;
+        pointer-events: none; z-index: 1000000;
+        transition: opacity 0.3s; will-change: transform;
+    }
+    .cursor-circle {
+        position: absolute; top: -10px; left: -10px;
+        width: 20px; height: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 50%;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        transition: transform 0.2s cubic-bezier(0.1, 1, 0.3, 1), 
+                    width 0.2s, height 0.2s, top 0.2s, left 0.2s, border-color 0.2s;
+    }
+    .cursor-crosshair {
+        position: absolute; top: 0; left: 0; width: 0; height: 0;
+        opacity: 0; transition: opacity 0.2s;
+    }
+    .cursor-crosshair::before, .cursor-crosshair::after {
+        content: ''; position: absolute; background: var(--accent-color);
+        top: 50%; left: 50%; transform: translate(-50%, -50%);
+    }
+    .cursor-crosshair::before { width: 40px; height: 1px; }
+    .cursor-crosshair::after { width: 1px; height: 40px; }
+    .cursor-label {
+        position: absolute; top: 20px; left: 20px;
+        font-family: 'Montserrat', sans-serif; font-size: 0.7rem;
+        color: var(--accent-color); letter-spacing: 0.1em;
+        white-space: nowrap; opacity: 0; text-shadow: 0 0 5px #000;
+        transition: opacity 0.2s;
+    }
+    #hud-cursor.locked .cursor-circle {
+        width: 50px; height: 50px; top: -25px; left: -25px;
+        border-color: var(--accent-color); border-width: 2px;
+        background: rgba(0, 0, 0, 0.1); transform: rotate(45deg);
+    }
+    #hud-cursor.locked .cursor-crosshair { opacity: 1; }
+    #hud-cursor.locked .cursor-label { opacity: 1; }
+}
+
+/* Magnetic Button Class */
+.magnet-btn {
+    display: inline-block;
+    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
+}
+
+/* Click Burst Particle */
+.burst-particle {
+    position: fixed; top: 0; left: 0;
+    width: 6px; height: 6px;
+    background: var(--accent-color); border-radius: 50%;
+    pointer-events: none; z-index: 999999;
+    animation: burstAnim 1s ease-out forwards;
+}
+@keyframes burstAnim {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
 }
 
 /* Typography */
@@ -71,8 +160,7 @@ h1, h2, h3 { letter-spacing: 0.15em; }
 #scroll-progress {
     position: fixed; top: 0; left: 0; height: 3px;
     background: linear-gradient(90deg, var(--accent-color), #fff);
-    width: 0%;
-    z-index: 100000; box-shadow: 0 0 15px var(--accent-color);
+    width: 0%; z-index: 100000; box-shadow: 0 0 15px var(--accent-color);
     transition: width 0.1s ease-out;
 }
 
@@ -97,17 +185,13 @@ h1, h2, h3 { letter-spacing: 0.15em; }
 }
 .curtain-left {
     position: absolute; top: 0; left: 0; width: 50%; height: 100%;
-    background: #000; z-index: 1;
-    border-right: 1px solid #111;
-    transition: transform 1.5s cubic-bezier(0.76, 0, 0.24, 1);
-    will-change: transform;
+    background: #000; z-index: 1; border-right: 1px solid #111;
+    transition: transform 1.5s cubic-bezier(0.76, 0, 0.24, 1); will-change: transform;
 }
 .curtain-right {
     position: absolute; top: 0; right: 0; width: 50%; height: 100%;
-    background: #000; z-index: 1;
-    border-left: 1px solid #111;
-    transition: transform 1.5s cubic-bezier(0.76, 0, 0.24, 1);
-    will-change: transform;
+    background: #000; z-index: 1; border-left: 1px solid #111;
+    transition: transform 1.5s cubic-bezier(0.76, 0, 0.24, 1); will-change: transform;
 }
 .loader-content {
     position: relative; z-index: 2;
@@ -141,15 +225,12 @@ h1, h2, h3 { letter-spacing: 0.15em; }
 
 /* Animations */
 .js-scroll { 
-    opacity: 0; 
-    transform: translateY(30px) scale(0.98);
+    opacity: 0; transform: translateY(30px) scale(0.98);
     filter: blur(5px);
     transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.165, 0.84, 0.44, 1), filter 1.2s ease;
 }
 .js-scroll.is-visible { 
-    opacity: 1; 
-    transform: translateY(0) scale(1);
-    filter: blur(0);
+    opacity: 1; transform: translateY(0) scale(1); filter: blur(0);
 }
 
 /* Header */
@@ -187,7 +268,7 @@ body.en [lang="ja"] { display: none; }
 body.en [lang="en"] { display: unset; }
 
 /* Sections */
-section { padding: 120px 20px; position: relative; }
+section { padding: 120px 20px; position: relative; z-index: 2; }
 .bg-dark { background-color: transparent; }
 .container { max-width: 1000px; margin: 0 auto; position: relative; z-index: 2; }
 .lead-text {
@@ -199,7 +280,7 @@ section { padding: 120px 20px; position: relative; }
 .hero {
     position: relative; height: 100vh; display: flex; 
     justify-content: flex-end; align-items: center;
-    text-align: left; overflow: hidden;
+    text-align: left; overflow: hidden; z-index: 2;
 }
 .hero-bg-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 #hero-video {
@@ -207,9 +288,7 @@ section { padding: 120px 20px; position: relative; }
     min-width: 100%; min-height: 100%; width: auto; height: auto;
     transform: translate(-50%, -50%); object-fit: cover; z-index: -2;
 }
-.hero-bg {
-    width: 100%; height: 100%; object-fit: cover; z-index: -1;
-}
+.hero-bg { width: 100%; height: 100%; object-fit: cover; z-index: -1; }
 .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%); }
 
 .hero-content { 
@@ -228,20 +307,15 @@ section { padding: 120px 20px; position: relative; }
     font-family: var(--font-en); font-size: 0.8rem; color: var(--accent-color);
     letter-spacing: 0.15em; margin-bottom: 15px; display: block;
 }
-
 .hero h1 { margin: 0 0 25px 0; line-height: 1.4; }
 .hero h1 span[lang="ja"] {
-    display: block;
-    font-size: clamp(2.2rem, 4vw, 3.8rem); font-weight: 700;
-    letter-spacing: 0.1em; color: #fff;
-    text-shadow: 0 0 30px rgba(0,0,0,0.5);
+    display: block; font-size: clamp(2.2rem, 4vw, 3.8rem); font-weight: 700;
+    letter-spacing: 0.1em; color: #fff; text-shadow: 0 0 30px rgba(0,0,0,0.5);
 }
 .hero h1 span[lang="en"] {
-    display: none;
-    font-family: var(--font-en); font-size: clamp(2rem, 3.5vw, 3.5rem);
+    display: none; font-family: var(--font-en); font-size: clamp(2rem, 3.5vw, 3.5rem);
     font-weight: 700; letter-spacing: 0.05em; line-height: 1.2;
-    color: #fff; text-shadow: 0 0 30px rgba(0,0,0,0.5);
-    text-transform: uppercase;
+    color: #fff; text-shadow: 0 0 30px rgba(0,0,0,0.5); text-transform: uppercase;
 }
 body.en .hero h1 span[lang="ja"] { display: none; }
 body.en .hero h1 span[lang="en"] { display: block; }
@@ -310,6 +384,7 @@ body.en .hero h1 span[lang="en"] { display: block; }
 .exp-card {
     position: relative; width: 100%; border-radius: 16px; overflow: hidden;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5); background: #000;
+    z-index: 2; /* Important for stars behind */
 }
 
 .exp-card img {
@@ -391,6 +466,8 @@ body.en .hero h1 span[lang="en"] { display: block; }
     position: relative; height: 350px; overflow: hidden;
     cursor: pointer; border-radius: 8px;
     box-shadow: 0 10px 20px rgba(0,0,0,0.3); border: 1px solid #333;
+    z-index: 2; /* Stars behind */
+    background: #000;
 }
 .gallery-item img {
     width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1);
@@ -562,9 +639,7 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
 
 /* === Mobile Specific Layout === */
 @media (max-width: 768px) {
-    /* はみ出し防止のためセクションパディングを減らす */
-    section { padding: 80px 15px; }
-
+    section { padding: 80px 15px; } /* Prevent overflow */
     .section-title { font-size: 2.2rem; }
     
     .hero { justify-content: center; text-align: center; }
@@ -575,23 +650,15 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     }
     .hero h1 span[lang="ja"] { font-size: 2rem; }
     
-    /* タイムラインの幅とパディングを調整してはみ出し防止 */
     .timeline { margin-bottom: 50px; }
     .timeline::before { left: 10px; }
     .timeline-item { 
-        width: 100%; 
-        padding-left: 35px; /* 線に近い位置に */
-        padding-right: 0 !important; 
-        text-align: left !important; 
-        margin-bottom: 40px;
+        width: 100%; padding-left: 35px; padding-right: 0 !important; 
+        text-align: left !important; margin-bottom: 40px;
     }
-    .timeline-item:nth-child(odd) .timeline-dot, 
-    .timeline-item:nth-child(even) .timeline-dot { 
-        left: 2px; right: auto; 
-    }
+    .timeline-item:nth-child(odd) .timeline-dot, .timeline-item:nth-child(even) .timeline-dot { left: 2px; right: auto; }
     .timeline-content { padding: 20px; }
 
-    /* Experiment Card Mobile Fix */
     .map-container .exp-caption { top: 50%; } 
     .map-overlay-btn { display: none !important; } 
     .exp-caption h3 { font-size: 1.8rem; }
@@ -599,11 +666,9 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     
     .compare-container { height: 300px; }
     
-    /* Credits */
     .credit-row { display: flex; flex-direction: column; align-items: center; text-align: center; border-bottom: none; margin-bottom: 30px; gap: 5px; }
     .role-cell { width: auto; margin-bottom: 5px; border: 1px solid var(--accent-color); padding: 5px 20px; border-radius: 20px; font-size: 0.8rem; }
     
-    /* Hamburger */
     .hamburger { display: block; cursor: pointer; width: 30px; height: 25px; position: relative; z-index: 200; }
     .hamburger span { display: block; position: absolute; width: 100%; height: 2px; background: #fff; transition: 0.3s; }
     .hamburger span:nth-child(1) { top: 0; } .hamburger span:nth-child(2) { top: 11px; } .hamburger span:nth-child(3) { bottom: 0; }
@@ -624,124 +689,4 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     
     .email-link { font-size: 1rem; padding: 20px 30px; word-break: break-all; width: 80%; }
     .digit-box { font-size: 2.5rem; width: 35px; height: 55px; }
-}
-
-.dud { color: #555; } /* 解読中の文字色 */
-
-/* --- Flower Burst Particle --- */
-.burst-particle {
-    position: fixed;
-    top: 0; left: 0;
-    width: 6px; height: 6px;
-    background: var(--accent-color);
-    border-radius: 50%; /* 丸い光の粒 */
-    /* 花びらの形にしたい場合は以下を有効化 */
-    /* clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); */
-    
-    pointer-events: none;
-    z-index: 999999;
-    animation: burstAnim 1s ease-out forwards;
-}
-
-@keyframes burstAnim {
-    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
-}
-
-/* --- 1. Warp Starfield (修正版) --- */
-#starfield {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none;
-    /* z-indexを 0 に設定。
-       コンテンツ（.container）は z-index: 2 なので、星は「背景の上、写真の下」になります */
-    z-index: 0; 
-    overflow: hidden;
-}
-
-.star {
-    position: absolute;
-    background: #fff;
-    border-radius: 50%;
-    /* 点滅はopacityのみで行う（変形はJSに任せるため） */
-    animation: twinkle linear infinite;
-    will-change: transform, opacity; /* GPU最適化 */
-}
-
-@keyframes twinkle {
-    0% { opacity: 0.3; }
-    50% { opacity: 1; }
-    100% { opacity: 0.3; }
-}
-
-/* コンテンツが星より手前に来ることを確実にする */
-.container, .hero-content, header {
-    position: relative;
-    z-index: 2;
-}
-
-/* --- 2. HUD Cursor (軽量化版) --- */
-/* スマホでは非表示 */
-#hud-cursor { display: none; }
-
-@media (min-width: 1025px) { /* タブレット以下も無効にして負荷軽減 */
-    body, a, button, .exp-card, .gallery-item { cursor: none; }
-    
-    #hud-cursor {
-        display: block;
-        position: fixed; top: 0; left: 0;
-        pointer-events: none; z-index: 1000000;
-        /* 重いブレンドモードを廃止し、視認性の高い白+影に変更 */
-        /* mix-blend-mode: difference; */ 
-        transition: opacity 0.3s;
-        will-change: transform; /* GPU使用を明示 */
-    }
-
-    /* カーソル本体 */
-    .cursor-circle {
-        position: absolute; top: -10px; left: -10px;
-        width: 20px; height: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        border-radius: 50%;
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-        transition: transform 0.2s cubic-bezier(0.1, 1, 0.3, 1), 
-                    width 0.2s, height 0.2s, top 0.2s, left 0.2s, border-color 0.2s;
-    }
-
-    /* 十字（軽量化のためCSS描画） */
-    .cursor-crosshair {
-        position: absolute; top: 0; left: 0;
-        width: 0; height: 0; /* 通常時は見せない */
-        opacity: 0;
-        transition: opacity 0.2s;
-    }
-    
-    /* 十字線 */
-    .cursor-crosshair::before, .cursor-crosshair::after {
-        content: ''; position: absolute; background: var(--accent-color);
-        top: 50%; left: 50%; transform: translate(-50%, -50%);
-    }
-    .cursor-crosshair::before { width: 40px; height: 1px; }
-    .cursor-crosshair::after { width: 1px; height: 40px; }
-
-    /* ロックオン時の文字 */
-    .cursor-label {
-        position: absolute; top: 20px; left: 20px;
-        font-family: 'Montserrat', sans-serif; font-size: 0.7rem;
-        color: var(--accent-color); letter-spacing: 0.1em;
-        white-space: nowrap; opacity: 0; 
-        text-shadow: 0 0 5px #000;
-        transition: opacity 0.2s;
-    }
-
-    /* --- ロックオン状態（ホバー時） --- */
-    #hud-cursor.locked .cursor-circle {
-        width: 50px; height: 50px;
-        top: -25px; left: -25px;
-        border-color: var(--accent-color);
-        border-width: 2px;
-        background: rgba(0, 0, 0, 0.1);
-        transform: rotate(45deg);
-    }
-    #hud-cursor.locked .cursor-crosshair { opacity: 1; }
-    #hud-cursor.locked .cursor-label { opacity: 1; }
 }
