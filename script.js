@@ -1,37 +1,40 @@
 // 言語設定
 const savedLang = localStorage.getItem('lang') || 'ja';
-if (savedLang === 'en') { document.body.classList.add('en'); }
+if (savedLang === 'en') {
+    document.body.classList.add('en');
+}
+
+// 設定値
 const isEnglish = document.body.classList.contains('en');
 const TARGET_ALTITUDE = isEnglish ? 83156 : 25346;
 const UNIT_TEXT = isEnglish ? 'ft' : 'm';
 
-// ローディング
+// ローディング制御（毎回実行）
 window.addEventListener('load', () => {
     const loader = document.getElementById('loader');
     const container = document.getElementById('digit-container');
     const langBtn = document.getElementById('langBtn');
+
     if (langBtn) { langBtn.textContent = isEnglish ? 'JP' : 'EN'; }
     
     // 星生成
     initHyperspaceStars();
-    
-    // カウントダウン開始（訪問済みチェックは削除し毎回実行）
+    // カウントアップ開始
     startLoadingAnimation(loader, container);
 });
 
-// ★★★ 修正点：ハイパースペースの星生成 ★★★
+// ハイパースペースの星生成
 function initHyperspaceStars() {
     const hyperContainer = document.getElementById('hyperspace');
     if (!hyperContainer) return;
 
-    for (let i = 0; i < 60; i++) { // 星の数
+    for (let i = 0; i < 60; i++) { 
         const s = document.createElement('div');
-        // 【重要】クラス名をCSSの定義(.hyper-star)と一致させる
         s.className = 'hyper-star';
         
-        // ランダムな位置（極座標で配置して放射状にする）
+        // 中心から放射状に配置
         const angle = Math.random() * Math.PI * 2;
-        const dist = 50 + Math.random() * 400; // 中心を避けて配置
+        const dist = 50 + Math.random() * 400; 
         const tx = Math.cos(angle) * dist + 'px';
         const ty = Math.sin(angle) * dist + 'px';
         
@@ -64,16 +67,16 @@ function startLoadingAnimation(loader, container) {
         if (progress < 1) {
             requestAnimationFrame(updateCounter);
         } else {
-            // カウント完了後にジャンプ
+            // カウント完了 -> ジャンプ
             setTimeout(() => {
                 if(loader) {
-                    loader.classList.add('loaded'); // アニメーション開始
+                    loader.classList.add('loaded'); // CSSアニメ開始
                     
-                    // 0.8秒(星の伸び) + α でフェードアウト完了
+                    // アニメ終了に合わせて非表示 (1.2s + buffer)
                     setTimeout(() => {
                         loader.style.display = 'none';
-                        initTextScramble();
-                        initScrollAnimation();
+                        initTextScramble(); 
+                        initScrollAnimation(); 
                     }, 1200);
                 } else {
                     initScrollAnimation();
@@ -165,7 +168,7 @@ function initWarpEffect() {
 }
 initWarpEffect();
 
-// Other UI Scripts (Cursor, Burst, Magnetic, Scroll)
+// Other UI Scripts
 let lastSparkleTime = 0;
 document.addEventListener('mousemove', (e) => {
     const now = Date.now();
@@ -224,6 +227,18 @@ if (cursor && window.matchMedia("(min-width: 1025px)").matches) {
         el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
     });
 }
+
+const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
+magnets.forEach((magnet) => {
+    magnet.classList.add('magnet-btn');
+    magnet.addEventListener('mousemove', (e) => {
+        const rect = magnet.getBoundingClientRect();
+        const x = (e.clientX - (rect.left + rect.width / 2)) / 5;
+        const y = (e.clientY - (rect.top + rect.height / 2)) / 5;
+        magnet.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+    });
+    magnet.addEventListener('mouseleave', () => { magnet.style.transform = 'translate(0, 0) scale(1)'; });
+});
 
 document.addEventListener('click', (e) => {
     for(let i=0; i<8; i++){
