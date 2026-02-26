@@ -25,14 +25,13 @@ window.addEventListener('load', () => {
 
 // ハイパースペースの星を生成
 function initHyperspaceStars() {
-    const hyperContainer = document.getElementById('hyper-container');
+    const hyperContainer = document.getElementById('hyperspace');
     if (!hyperContainer) return;
 
     for (let i = 0; i < 50; i++) {
         const s = document.createElement('div');
-        s.className = 'hyper-star';
+        s.className = 'warp-star-loader';
         // 画面中央（0,0）からの相対位置をランダム計算
-        // 半径20px〜400pxのドーナツ状に配置
         const angle = Math.random() * Math.PI * 2;
         const dist = 20 + Math.random() * 380;
         const tx = Math.cos(angle) * dist + 'px';
@@ -218,6 +217,7 @@ window.addEventListener('scroll', () => {
     const header = document.getElementById('header');
     if (scrollTop > 50) { header.classList.add('scrolled'); } else { header.classList.remove('scrolled'); }
 
+    // プログレスバー
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (scrollTop / docHeight) * 100;
     const progressBar = document.getElementById('scroll-progress');
