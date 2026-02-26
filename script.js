@@ -354,29 +354,29 @@ document.addEventListener('click', (e) => {
    SPACESHIP MODE: Warp Drive & Light HUD
    ========================================= */
 
-// --- 1. Warp Starfield (ワープ航法) ---
+// --- 1. Warp Starfield (ワープ航法：高速版) ---
 const starContainer = document.getElementById('starfield');
-const stars = []; // 星の要素を格納する配列
+const stars = [];
 
 if (starContainer) {
-    const starCount = 60; // 星の数（多すぎると重くなるので調整）
+    // 星の数を少し増やす
+    const starCount = 80; 
     
     for (let i = 0; i < starCount; i++) {
         const star = document.createElement('div');
         star.classList.add('star');
         
-        // ランダムな位置
         const x = Math.random() * 100;
         const y = Math.random() * 100;
-        const size = Math.random() * 2 + 1; // 1px〜3px
+        // 星のサイズを少しランダムに（基本2px前後）
+        const size = Math.random() * 1.5 + 1.5; 
         
-        // 点滅のタイミングをずらす
         const duration = Math.random() * 3 + 2;
         
         star.style.left = x + '%';
         star.style.top = y + '%';
         star.style.width = size + 'px';
-        star.style.height = size + 'px'; // 最初は正円
+        star.style.height = size + 'px';
         star.style.animationDuration = duration + 's';
         
         starContainer.appendChild(star);
@@ -384,26 +384,37 @@ if (starContainer) {
     }
 }
 
-// Lenisのスクロールイベントを利用してワープ演出
-// （requestAnimationFrame内で行われるためスムーズ）
-if (window.lenis) {
-    window.lenis.on('scroll', (e) => {
-        // スクロール速度（絶対値）を取得
-        const velocity = Math.abs(e.velocity);
-        
-        // 速度に応じて縦に伸ばす倍率を計算（通常は1倍）
-        // velocityが大きいほど縦長になる
-        const stretch = 1 + (velocity * 0.15); 
-        
-        // すべての星に適用
-        // transformだけを操作するので描画コストは低い
-        const transformValue = `scaleY(${Math.min(stretch, 15)})`; // 最大15倍まで制限
-        
-        stars.forEach(star => {
-            star.style.transform = transformValue;
+// Lenisのスクロールイベント（読み込み完了後に確実に登録）
+window.addEventListener('load', () => {
+    if (window.lenis) {
+        window.lenis.on('scroll', (e) => {
+            // スクロール速度（絶対値）
+            const velocity = Math.abs(e.velocity);
+            
+            // ★ここを修正：係数を 0.15 -> 5.0 に変更
+            // これで少しのスクロールでも数倍〜数十倍に伸びます
+            const stretch = 1 + (velocity * 5.0);
+            
+            // 最大50倍まで許可（ビヨーンと長くする）
+            const scaleY = Math.min(stretch, 50);
+            
+            // 透明度も速度に合わせて少し下げる（残像感）
+            const opacity = Math.max(0.5, 1 - (velocity * 0.05));
+            
+            // すべての星に適用
+            stars.forEach(star => {
+                star.style.transform = `scaleY(${scaleY})`;
+                // 高速移動中は点滅アニメーションを無視して透明度を制御
+                if(velocity > 1) {
+                    star.style.opacity = opacity;
+                    star.style.animation = 'none'; // アニメ一時停止
+                } else {
+                    star.style.animation = ''; // 止まったら点滅再開
+                }
+            });
         });
-    });
-}
+    }
+});
 
 // --- 2. Lightweight HUD Cursor (軽量版カーソル) ---
 const cursor = document.getElementById('hud-cursor');
