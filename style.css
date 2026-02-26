@@ -37,7 +37,7 @@ body::after {
     opacity: 0.03; pointer-events: none; z-index: 999999;
 }
 
-/* Typography & Titles */
+/* Typography */
 h1, h2, h3 { letter-spacing: 0.15em; }
 .section-title {
     font-family: var(--font-en); text-align: center; font-size: 3rem; margin-bottom: 80px; 
@@ -57,15 +57,17 @@ h1, h2, h3 { letter-spacing: 0.15em; }
     transition: width 0.1s ease-out;
 }
 
-/* --- Hyperspace Loader (修正版: 白飛び防止) --- */
+/* --- Hyperspace Loader (直線状に伸びる演出) --- */
 #loader {
     position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
     background: #000; z-index: 9999;
     display: flex; justify-content: center; align-items: center;
-    overflow: hidden; perspective: 500px;
+    overflow: hidden;
+    perspective: 800px; /* 奥行きを深める */
+    transform-style: preserve-3d;
 }
 
-/* 閃光（タイミング調整済み） */
+/* 閃光 */
 #white-flash {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: #fff; z-index: 5; opacity: 0; pointer-events: none;
@@ -77,46 +79,71 @@ h1, h2, h3 { letter-spacing: 0.15em; }
     transition: opacity 0.2s ease;
 }
 
+/* ワープ空間 */
 #hyperspace {
-    position: absolute; top: 50%; left: 50%; width: 0; height: 0;
-    z-index: 1; transform-style: preserve-3d;
+    position: absolute; top: 50%; left: 50%;
+    width: 0; height: 0;
+    z-index: 1;
+    transform-style: preserve-3d;
 }
 
+/* ハイパースペースの星（線になる前は点） */
 .hyper-star {
-    position: absolute; top: 0; left: 0;
-    width: 2px; height: 2px; background: #fff; border-radius: 50%;
-    opacity: 1; box-shadow: 0 0 4px #aaddff;
-    transform-origin: 50% 50%; transform: translate3d(var(--tx), var(--ty), -500px);
+    position: absolute; 
+    top: 0; left: 0;
+    width: 2px; height: 2px;
+    background: #fff; 
+    border-radius: 50%;
+    opacity: 1;
+    /* 青白い光彩 */
+    box-shadow: 0 0 6px rgba(200, 230, 255, 0.8);
+    transform-origin: 50% 50%;
+    /* 初期位置：奥に配置 */
+    transform: translate3d(var(--tx), var(--ty), -800px);
 }
 
-/* アニメーション適用 */
+/* アニメーション発動 */
 #loader.loaded .hyper-star {
-    animation: hyperJump 1.2s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+    animation: hyperJump 1.2s cubic-bezier(0.9, 0, 0.1, 1) forwards;
 }
 #loader.loaded .loader-content { opacity: 0; }
 #loader.loaded #white-flash { 
     animation: flashAnim 1.2s ease-out forwards; 
 }
 
-/* 星が伸びるアニメーション（太くなりすぎないように調整） */
+/* 星が「線」になって飛び去るアニメーション */
 @keyframes hyperJump {
-    0% { transform: translate3d(var(--tx), var(--ty), -500px) scaleZ(1); opacity: 1; width: 2px; }
-    20% { transform: translate3d(var(--tx), var(--ty), -400px) scaleZ(20); opacity: 1; width: 2px; background: #e0f0ff; }
-    100% { 
-        transform: translate3d(var(--tx), var(--ty), 500px) scaleZ(150); 
-        opacity: 0; width: 3px; /* 幅を制限して画面が真っ白になるのを防ぐ */
+    0% {
+        transform: translate3d(var(--tx), var(--ty), -800px) scaleZ(1);
+        opacity: 1;
+        width: 2px;
+    }
+    10% {
+        /* 少し溜めてから */
+        transform: translate3d(var(--tx), var(--ty), -600px) scaleZ(5);
+        opacity: 1;
+        width: 2px;
+    }
+    100% {
+        /* 一気に手前へ。ScaleZを大きくして「長い線」にする */
+        transform: translate3d(var(--tx), var(--ty), 1000px) scaleZ(500); 
+        opacity: 0;
+        width: 1px; /* 線を細くしてスピード感を出す */
+        background: #d0eaff; /* 青白い軌跡 */
     }
 }
 
-/* 閃光（最後は確実に透明にする） */
+/* 閃光（タイミング調整） */
 @keyframes flashAnim {
     0% { opacity: 0; }
-    80% { opacity: 0.8; } /* ピークの明るさを少し抑える */
+    50% { opacity: 0; } /* 星が伸びてから光る */
+    80% { opacity: 1; } /* ピカッ！ */
     100% { opacity: 0; }
 }
 
 #loader.hidden { display: none !important; }
 
+/* UI Elements */
 .altitude-label { font-family: var(--font-en); font-size: 0.9rem; letter-spacing: 0.3em; margin-bottom: 20px; opacity: 0.7; color: #fff; }
 .digit-container { display: flex; gap: 5px; justify-content: center; }
 .digit-box {
@@ -159,12 +186,9 @@ nav a:hover::after { width: 100%; }
 .lang-switch { border: 1px solid #fff; padding: 5px 15px; cursor: pointer; transition: 0.3s; border-radius: 20px; font-family: var(--font-en); font-size: 0.85rem; }
 .lang-switch:hover { background: var(--accent-color); border-color: var(--accent-color); color: #000; font-weight: 600; }
 
-/* --- Language Toggle (修正版: 確実に片方だけ表示) --- */
-/* デフォルト（日本語モード） */
+/* Language */
 [lang="en"] { display: none; }
 [lang="ja"] { display: block; }
-
-/* 英語モード */
 body.en [lang="ja"] { display: none !important; }
 body.en [lang="en"] { display: block !important; }
 
@@ -181,15 +205,10 @@ body.en [lang="en"] { display: block !important; }
     display: flex; flex-direction: column; align-items: flex-start;
 }
 .data-tag { font-family: var(--font-en); font-size: 0.8rem; color: var(--accent-color); letter-spacing: 0.15em; margin-bottom: 15px; display: block; }
-
-/* タイトルのスタイル */
 .hero h1 { margin: 0 0 25px 0; line-height: 1.4; }
-.hero h1 span { 
-    font-weight: 700; color: #fff; text-shadow: 0 0 30px rgba(0,0,0,0.5); 
-}
+.hero h1 span { font-weight: 700; color: #fff; text-shadow: 0 0 30px rgba(0,0,0,0.5); }
 .hero h1 span[lang="ja"] { font-size: clamp(2.2rem, 4vw, 3.8rem); letter-spacing: 0.1em; }
 .hero h1 span[lang="en"] { font-family: var(--font-en); font-size: clamp(2rem, 3.5vw, 3.5rem); letter-spacing: 0.05em; text-transform: uppercase; }
-
 .hero-desc { font-size: clamp(0.9rem, 2vw, 1.1rem); color: #ccc; font-weight: 400; line-height: 1.8; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; width: 100%; }
 .scroll-down { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); color: #fff; font-family: var(--font-en); font-size: 0.8rem; animation: bounce 2s infinite; }
 @keyframes bounce { 0%, 100% { transform: translate(-50%, 0); opacity: 0.5; } 50% { transform: translate(-50%, 10px); opacity: 1; } }
@@ -280,30 +299,22 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .credits-list .credit-row:hover { opacity: 1; filter: blur(0); transform: scale(1.02) translateX(10px); background: rgba(255, 255, 255, 0.05); border-left-color: var(--accent-color); }
 .role-cell { font-family: var(--font-en); color: var(--accent-color); font-weight: bold; }
 
-/* Contact (修正版: 確実に中央寄せ) */
+/* Contact (修正版: 中央寄せ) */
 .contact-container { 
-    max-width: 600px; 
-    margin: 0 auto; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; /* 左右中央揃え */
+    max-width: 600px; margin: 0 auto; 
+    display: flex; flex-direction: column; align-items: center; 
 }
 .email-box { 
-    text-align: center; 
-    width: 100%; 
-    margin-bottom: 50px; 
-    display: flex; 
-    justify-content: center; /* フレックスでも中央寄せ */
+    text-align: center; width: 100%; margin-bottom: 50px; 
+    display: flex; justify-content: center; 
 }
 .email-link { 
-    display: inline-block; 
-    font-family: var(--font-en); font-size: 1.5rem; color: #fff; 
+    display: inline-block; font-family: var(--font-en); font-size: 1.5rem; color: #fff; 
     border: 1px solid var(--glass-border); padding: 25px 50px; border-radius: 50px; 
     text-decoration: none; transition: 0.3s; background: rgba(255,255,255,0.05); 
-    max-width: 100%; word-break: break-all; /* 長いメアドの折り返し */
+    max-width: 100%; word-break: break-all;
 }
 .email-link:hover { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
-
 .social-links { text-align: center; width: 100%; }
 .social-icon-link { display: inline-block; width: 60px; height: 60px; transition: 0.3s; position: relative; }
 .social-icon-link svg { width: 100%; height: 100%; fill: var(--accent-color); transition: 0.3s; }
@@ -346,9 +357,6 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     #hud-cursor.locked .cursor-circle { width: 50px; height: 50px; top: -25px; left: -25px; border-color: var(--accent-color); border-width: 2px; transform: rotate(45deg); }
     #hud-cursor.locked .cursor-crosshair, #hud-cursor.locked .cursor-label { opacity: 1; }
 }
-
-/* Scroll Progress */
-#scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent-color), #fff); width: 0%; z-index: 100000; transition: width 0.1s; }
 
 /* Mobile */
 @media (max-width: 768px) {
