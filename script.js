@@ -1,3 +1,7 @@
+/* =========================================
+   SORAHANA PROJECT MAIN SCRIPT
+   ========================================= */
+
 // 言語設定の初期化
 const savedLang = localStorage.getItem('lang') || 'ja';
 if (savedLang === 'en') {
@@ -9,14 +13,7 @@ const isEnglish = document.body.classList.contains('en');
 const TARGET_ALTITUDE = isEnglish ? 83156 : 25346;
 const UNIT_TEXT = isEnglish ? 'ft' : 'm';
 
-// 即時実行：訪問済みチェック（ローディング隠し）
-(function(){
-    const loader = document.getElementById('loader');
-    if (sessionStorage.getItem('visited') && loader) {
-        loader.classList.add('hidden');
-    }
-})();
-
+// ローディング画面の制御
 window.addEventListener('load', () => {
     const loader = document.getElementById('loader');
     const container = document.getElementById('digit-container');
@@ -24,60 +21,64 @@ window.addEventListener('load', () => {
 
     if (langBtn) { langBtn.textContent = isEnglish ? 'JP' : 'EN'; }
     
-    // 2回目以降 or 言語切替後のリロード時はローディングアニメーションを省略
-    if (sessionStorage.getItem('visited')) {
-        if(loader) loader.style.display = 'none';
-        initScrollAnimation();
-        initTextScramble(); // 即座に文字演出
-    } else {
-        // 初回訪問時アニメーション
-        const duration = 2800; // ミリ秒
-        const startTime = performance.now();
-
-        function updateCounter(currentTime) {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            // easeOutQuart
-            const ease = 1 - Math.pow(1 - progress, 4);
-            const currentAlt = Math.floor(ease * TARGET_ALTITUDE);
-            
-            const displayAlt = (progress >= 1) ? TARGET_ALTITUDE : currentAlt;
-            const altString = String(displayAlt).padStart(5, '0');
-            
-            if (container) {
-                let html = '';
-                for (let char of altString) {
-                    html += `<div class="digit-box">${char}</div>`;
-                }
-                html += `<div class="unit-box">${UNIT_TEXT}</div>`;
-                container.innerHTML = html;
-            }
-
-            if (progress < 1) {
-                requestAnimationFrame(updateCounter);
-            } else {
-                // カウントアップ終了後、幕開け演出へ
-                setTimeout(() => {
-                    if(loader) {
-                        // クラスを追加してCSSアニメーション(Curtain Rise)を発動
-                        loader.classList.add('loaded');
-                        
-                        // アニメーション完了後に完全に消す
-                        setTimeout(() => {
-                            loader.style.display = 'none';
-                            initTextScramble(); // 幕開け後に文字演出開始
-                        }, 1600);
-                    }
-                    initScrollAnimation();
-                    sessionStorage.setItem('visited', 'true');
-                }, 500); // 少しタメを作る
-            }
-        }
-        requestAnimationFrame(updateCounter);
-    }
+    // ★修正ポイント：訪問済みチェックを削除し、毎回必ずアニメーションを実行するようにしました。
+    startLoadingAnimation(loader, container);
 });
 
-// --- Text Scramble Effect ---
+// ローディングアニメーション関数
+function startLoadingAnimation(loader, container) {
+    const duration = 2800; // カウントアップにかかる時間（ミリ秒）
+    const startTime = performance.now();
+
+    function updateCounter(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // イージング関数（最後ゆっくりになる）
+        const ease = 1 - Math.pow(1 - progress, 4);
+        const currentAlt = Math.floor(ease * TARGET_ALTITUDE);
+        
+        // 完了時はターゲット数値を確実に表示
+        const displayAlt = (progress >= 1) ? TARGET_ALTITUDE : currentAlt;
+        const altString = String(displayAlt).padStart(5, '0');
+        
+        // HTML生成
+        if (container) {
+            let html = '';
+            for (let char of altString) {
+                html += `<div class="digit-box">${char}</div>`;
+            }
+            html += `<div class="unit-box">${UNIT_TEXT}</div>`;
+            container.innerHTML = html;
+        }
+
+        if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+        } else {
+            // カウント完了後、幕開け演出へ
+            setTimeout(() => {
+                if(loader) {
+                    // クラスを追加してCSSアニメーション(Curtain Rise)を発動
+                    loader.classList.add('loaded');
+                    
+                    // アニメーション完了後に完全に消す
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        initTextScramble(); // 幕開け後に文字演出開始
+                        initScrollAnimation(); // スクロールアニメ開始
+                    }, 1600);
+                } else {
+                    // 万が一ローダーがない場合
+                    initScrollAnimation();
+                    initTextScramble();
+                }
+            }, 500); // 少しタメを作る
+        }
+    }
+    requestAnimationFrame(updateCounter);
+}
+
+// --- Text Scramble Effect (文字解読演出) ---
 class TextScramble {
     constructor(el) {
         this.el = el;
@@ -152,11 +153,11 @@ function initTextScramble() {
     }
 }
 
-// Sparkle Effect (Throttled for Performance)
+// --- Sparkle Effect ---
 let lastSparkleTime = 0;
 document.addEventListener('mousemove', function(e) {
     const now = Date.now();
-    if (now - lastSparkleTime > 50) { // 50msに1回制限
+    if (now - lastSparkleTime > 50) { 
         createSparkle(e.clientX, e.clientY);
         lastSparkleTime = now;
     }
@@ -179,13 +180,13 @@ function createSparkle(x, y) {
     setTimeout(() => { sparkle.remove(); }, 800);
 }
 
-// Scroll Animation Observer
+// --- Scroll Animation Observer ---
 function initScrollAnimation() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) { 
                 entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target); // 一度表示したら監視終了（負荷軽減）
+                observer.unobserve(entry.target);
             }
         });
     }, { threshold: 0.15 });
@@ -193,7 +194,7 @@ function initScrollAnimation() {
     document.querySelectorAll('.js-scroll').forEach((el) => { observer.observe(el); });
 }
 
-// Scroll Events
+// --- Scroll Events ---
 window.addEventListener('scroll', () => {
     const scrollTop = window.scrollY;
     
@@ -213,19 +214,17 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Back to Top Rocket
+// --- Back to Top Rocket ---
 const backToTop = document.getElementById('back-to-top');
 if (backToTop) {
     backToTop.addEventListener('click', (e) => {
         e.preventDefault();
         backToTop.classList.add('launch');
-        // Lenisがある場合はLenisでスクロール（遅めに設定: duration 3秒）
         if(window.lenis) {
             window.lenis.scrollTo(0, { duration: 3 }); 
         } else {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        
         setTimeout(() => {
             backToTop.classList.remove('launch');
             backToTop.classList.remove('show');
@@ -233,7 +232,7 @@ if (backToTop) {
     });
 }
 
-// Mobile Menu
+// --- Mobile Menu ---
 const hamburger = document.getElementById('hamburger');
 const nav = document.getElementById('nav-menu');
 if (hamburger) {
@@ -249,7 +248,7 @@ if (hamburger) {
     });
 }
 
-// Slider Logic
+// --- Slider Logic ---
 const slider = document.getElementById('compare-slider');
 const overlay = document.getElementById('compare-overlay');
 const sliderBtn = document.getElementById('slider-button');
@@ -263,23 +262,21 @@ if (slider) {
     slider.addEventListener('input', function(e) {
         updateSlider(e.target.value);
     });
-    slider.addEventListener('touchmove', function(e) {
-        // スマホタッチ対策
-    }, { passive: true });
+    slider.addEventListener('touchmove', function(e) {}, { passive: true });
 }
 
-// Language Switch
+// --- Language Switch ---
 const langBtn = document.getElementById('langBtn');
 if(langBtn){
     langBtn.addEventListener('click', () => {
         const isCurrentlyEn = document.body.classList.contains('en');
         localStorage.setItem('lang', isCurrentlyEn ? 'ja' : 'en');
-        sessionStorage.removeItem('visited');
+        // リロード
         location.reload();
     });
 }
 
-// FAQ Accordion
+// --- FAQ Accordion ---
 document.querySelectorAll('.faq-question').forEach(button => {
     button.addEventListener('click', () => {
         const isOpen = button.classList.contains('active');
@@ -295,7 +292,7 @@ document.querySelectorAll('.faq-question').forEach(button => {
     });
 });
 
-// Modal Logic
+// --- Modal Logic ---
 const modal = document.getElementById('gallery-modal');
 const modalImg = document.getElementById('modal-img');
 const modalTitle = document.getElementById('modal-title');
@@ -331,7 +328,7 @@ if (closeModal) { closeModal.addEventListener('click', hideModal); }
 window.addEventListener('click', (e) => { if (e.target === modal) { hideModal(); } });
 
 /* =========================================
-   SPACESHIP MODE: Warp Drive & Light HUD
+   SPACESHIP MODE
    ========================================= */
 
 // --- 1. Warp Starfield (ワープ航法：完動版) ---
@@ -349,18 +346,16 @@ if (starContainer) {
         const y = Math.random() * 100;
         const size = Math.random() * 2 + 1; 
         
-        // 点滅のタイミングと開始時間をランダムに（これでバラバラに光ります）
-        const duration = Math.random() * 3 + 2; // 2~5秒周期
-        const delay = Math.random() * 5;        // 0~5秒遅れで開始
+        const duration = Math.random() * 3 + 2;
+        const delay = Math.random() * 5; // ランダム出現
         
         star.style.left = x + '%';
         star.style.top = y + '%';
         star.style.width = size + 'px';
         star.style.height = size + 'px';
         star.style.animationDuration = duration + 's';
-        star.style.animationDelay = delay + 's'; // Delay追加
+        star.style.animationDelay = delay + 's';
         
-        // 初期状態のtransformを設定（これがCSSと競合しない鍵）
         star.style.transform = 'scaleY(1)'; 
         
         starContainer.appendChild(star);
@@ -374,19 +369,17 @@ function initWarpEffect() {
         window.lenis.on('scroll', (e) => {
             const velocity = Math.abs(e.velocity);
             
-            // 係数を大きく設定（少しのスクロールでビヨーンとさせる）
             const stretch = 1 + (velocity * 3.0);
-            const scaleY = Math.min(stretch, 40); // 最大40倍
+            const scaleY = Math.min(stretch, 40); 
             
             stars.forEach(star => {
                 star.style.transform = `scaleY(${scaleY})`;
-                // 高速時は点滅アニメーションを一時停止してちらつき防止
                 if(velocity > 5) {
                     star.style.animationPlayState = 'paused';
                     star.style.opacity = 0.5;
                 } else {
                     star.style.animationPlayState = 'running';
-                    star.style.opacity = ''; // CSSにお任せ
+                    star.style.opacity = '';
                 }
             });
         });
