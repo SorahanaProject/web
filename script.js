@@ -1,7 +1,3 @@
-/* =========================================
-   SORAHANA PROJECT MAIN SCRIPT
-   ========================================= */
-
 // 言語設定の初期化
 const savedLang = localStorage.getItem('lang') || 'ja';
 if (savedLang === 'en') {
@@ -13,7 +9,7 @@ const isEnglish = document.body.classList.contains('en');
 const TARGET_ALTITUDE = isEnglish ? 83156 : 25346;
 const UNIT_TEXT = isEnglish ? 'ft' : 'm';
 
-// ローディング画面の制御
+// ローディング画面の制御（毎回実行）
 window.addEventListener('load', () => {
     const loader = document.getElementById('loader');
     const container = document.getElementById('digit-container');
@@ -21,28 +17,50 @@ window.addEventListener('load', () => {
 
     if (langBtn) { langBtn.textContent = isEnglish ? 'JP' : 'EN'; }
     
-    // ★修正ポイント：訪問済みチェックを削除し、毎回必ずアニメーションを実行するようにしました。
+    // ハイパースペース用の星を初期化（ロード直後）
+    initHyperspaceStars();
+
     startLoadingAnimation(loader, container);
 });
 
+// ハイパースペースの星を生成
+function initHyperspaceStars() {
+    const hyperContainer = document.getElementById('hyper-container');
+    if (!hyperContainer) return;
+
+    for (let i = 0; i < 50; i++) {
+        const s = document.createElement('div');
+        s.className = 'hyper-star';
+        // 画面中央（0,0）からの相対位置をランダム計算
+        // 半径20px〜400pxのドーナツ状に配置
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 20 + Math.random() * 380;
+        const tx = Math.cos(angle) * dist + 'px';
+        const ty = Math.sin(angle) * dist + 'px';
+        
+        s.style.setProperty('--tx', tx);
+        s.style.setProperty('--ty', ty);
+        
+        hyperContainer.appendChild(s);
+    }
+}
+
 // ローディングアニメーション関数
 function startLoadingAnimation(loader, container) {
-    const duration = 2800; // カウントアップにかかる時間（ミリ秒）
+    const duration = 2800; // カウントアップ時間
     const startTime = performance.now();
 
     function updateCounter(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // イージング関数（最後ゆっくりになる）
+        // イージング関数
         const ease = 1 - Math.pow(1 - progress, 4);
         const currentAlt = Math.floor(ease * TARGET_ALTITUDE);
         
-        // 完了時はターゲット数値を確実に表示
         const displayAlt = (progress >= 1) ? TARGET_ALTITUDE : currentAlt;
         const altString = String(displayAlt).padStart(5, '0');
         
-        // HTML生成
         if (container) {
             let html = '';
             for (let char of altString) {
@@ -55,30 +73,29 @@ function startLoadingAnimation(loader, container) {
         if (progress < 1) {
             requestAnimationFrame(updateCounter);
         } else {
-            // カウント完了後、幕開け演出へ
+            // カウント完了後、ジャンプ演出へ
             setTimeout(() => {
                 if(loader) {
-                    // クラスを追加してCSSアニメーション(Curtain Rise)を発動
+                    // クラスを追加してCSSアニメーション(Hyper Jump)を発動
                     loader.classList.add('loaded');
                     
                     // アニメーション完了後に完全に消す
                     setTimeout(() => {
                         loader.style.display = 'none';
-                        initTextScramble(); // 幕開け後に文字演出開始
+                        initTextScramble(); // 文字演出開始
                         initScrollAnimation(); // スクロールアニメ開始
-                    }, 1600);
+                    }, 1500);
                 } else {
-                    // 万が一ローダーがない場合
                     initScrollAnimation();
                     initTextScramble();
                 }
-            }, 500); // 少しタメを作る
+            }, 500); 
         }
     }
     requestAnimationFrame(updateCounter);
 }
 
-// --- Text Scramble Effect (文字解読演出) ---
+// --- Text Scramble Effect ---
 class TextScramble {
     constructor(el) {
         this.el = el;
@@ -134,7 +151,7 @@ class TextScramble {
 }
 
 function initTextScramble() {
-    const el = document.querySelector('.data-tag span[lang="ja"]'); // 対象要素
+    const el = document.querySelector('.data-tag span[lang="ja"]');
     if(el) {
         const fx = new TextScramble(el);
         const phrases = [
@@ -201,7 +218,6 @@ window.addEventListener('scroll', () => {
     const header = document.getElementById('header');
     if (scrollTop > 50) { header.classList.add('scrolled'); } else { header.classList.remove('scrolled'); }
 
-    // プログレスバー
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (scrollTop / docHeight) * 100;
     const progressBar = document.getElementById('scroll-progress');
@@ -271,7 +287,7 @@ if(langBtn){
     langBtn.addEventListener('click', () => {
         const isCurrentlyEn = document.body.classList.contains('en');
         localStorage.setItem('lang', isCurrentlyEn ? 'ja' : 'en');
-        // リロード
+        sessionStorage.removeItem('visited');
         location.reload();
     });
 }
