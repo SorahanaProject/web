@@ -334,12 +334,13 @@ window.addEventListener('click', (e) => { if (e.target === modal) { hideModal();
    SPACESHIP MODE: Warp Drive & Light HUD
    ========================================= */
 
-// --- 1. Warp Starfield (ワープ航法：完動版) ---
+// --- 1. Warp Starfield (常時監視型ワープ) ---
 const starContainer = document.getElementById('starfield');
 const stars = [];
 
+// 星の生成
 if (starContainer) {
-    const starCount = 80; 
+    const starCount = 80; // 星の数
     
     for (let i = 0; i < starCount; i++) {
         const star = document.createElement('div');
@@ -347,6 +348,7 @@ if (starContainer) {
         
         const x = Math.random() * 100;
         const y = Math.random() * 100;
+        // サイズは小さめに（伸びた時に綺麗に見えるよう）
         const size = Math.random() * 2 + 1; 
         
         const duration = Math.random() * 3 + 2;
@@ -357,41 +359,93 @@ if (starContainer) {
         star.style.height = size + 'px';
         star.style.animationDuration = duration + 's';
         
-        // 初期状態のtransformを設定（これがCSSと競合しない鍵）
-        star.style.transform = 'scaleY(1)'; 
+        // 初期変形（これがないと後で効かないことがある）
+        star.style.transform = 'scaleY(1)';
         
         starContainer.appendChild(star);
         stars.push(star);
     }
 }
 
-// Lenisスクロール連動
-function initWarpEffect() {
+// ワープアニメーションループ
+function animateWarp() {
+    let velocity = 0;
+
+    // Lenisから現在のスクロール速度を直接取得
     if (window.lenis) {
-        window.lenis.on('scroll', (e) => {
-            const velocity = Math.abs(e.velocity);
-            
-            // 係数を大きく設定（少しのスクロールでビヨーンとさせる）
-            const stretch = 1 + (velocity * 3.0);
-            const scaleY = Math.min(stretch, 40); // 最大40倍
-            
-            stars.forEach(star => {
-                star.style.transform = `scaleY(${scaleY})`;
-                // 高速時は点滅アニメーションを一時停止してちらつき防止
-                if(velocity > 5) {
-                    star.style.animationPlayState = 'paused';
-                    star.style.opacity = 0.5;
-                } else {
-                    star.style.animationPlayState = 'running';
-                    star.style.opacity = ''; // CSSにお任せ
-                }
-            });
-        });
-    } else {
-        requestAnimationFrame(initWarpEffect);
+        velocity = window.lenis.velocity;
     }
+
+    // 速度を絶対値に変換
+    const v = Math.abs(velocity);
+
+    // ★倍率調整：係数を「8.0」に設定（かなり敏感に反応します）
+    // 通常は1倍、スクロール時は最大60倍まで伸びる
+    const stretch = 1 + (v * 8.0);
+    const scaleY = Math.min(stretch, 60);
+    
+    // スクロール中は透明度を下げて「光の筋」っぽくする
+    const opacity = v > 1 ? 0.6 : ''; 
+    const animState = v > 5 ? 'paused' : 'running'; // 高速時は点滅停止
+
+    // 全ての星に適用
+    // forEachよりforループの方が高速だが、80個程度ならforEachでOK
+    const count = stars.length;
+    for (let i = 0; i < count; i++) {
+        const star = stars[i];
+        star.style.transform = `scaleY(${scaleY})`;
+        
+        // 高速移動時の演出調整
+        if (v > 1) {
+            star.style.opacity = opacity;
+            star.style.animationPlayState = animState;
+        } else {
+            star.style.opacity = ''; // CSSのキーフレームに戻す
+            star.style.animationPlayState = 'running';
+        }
+    }
+
+    // 次のフレームへ
+    requestAnimationFrame(animateWarp);
 }
-initWarpEffect();
+
+// アニメーション開始
+animateWarp();
+
+
+// --- 2. Lightweight HUD Cursor (軽量版) ---
+const cursor = document.getElementById('hud-cursor');
+const cursorLabel = document.querySelector('.cursor-label');
+
+if (cursor && window.matchMedia("(min-width: 1025px)").matches) {
+    let mouseX = -100;
+    let mouseY = -100;
+    
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        // マウス位置へ即座に移動（遅延なしで軽量化）
+        cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+    }, { passive: true });
+
+    const interactables = document.querySelectorAll('a, button, .gallery-item, .exp-card, .btn-insta, .map-link');
+    
+    interactables.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            cursor.classList.add('locked');
+            // テキスト変更（ちらつき防止の判定付き）
+            if(!cursorLabel.innerHTML.includes('LOCKED')) {
+                cursorLabel.innerHTML = 'TARGET LOCKED<br><span style="font-size:0.8em; opacity:0.7;">ACCESSING...</span>';
+            }
+        });
+        el.addEventListener('mouseleave', () => {
+            cursor.classList.remove('locked');
+        });
+    });
+    
+    document.addEventListener('mouseleave', () => { cursor.style.opacity = '0'; });
+    document.addEventListener('mouseenter', () => { cursor.style.opacity = '1'; });
+}
 
 // --- 2. Lightweight HUD Cursor ---
 const cursor = document.getElementById('hud-cursor');
