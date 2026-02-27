@@ -17,23 +17,23 @@ window.addEventListener('load', () => {
 
     if (langBtn) { langBtn.textContent = isEnglish ? 'JP' : 'EN'; }
     
-    // 星生成（数は多めに）
+    // 星生成
     initHyperspaceStars();
     
+    // カウントアップ開始
     startLoadingAnimation(loader, container);
 });
 
-// ★★★ ハイパースペースの星生成（画面全体に分散・数200） ★★★
+// ★★★ ハイパースペースの星生成 ★★★
 function initHyperspaceStars() {
     const hyperContainer = document.getElementById('hyperspace');
     if (!hyperContainer) return;
 
-    for (let i = 0; i < 200; i++) { // 星の数を200に増加
+    for (let i = 0; i < 200; i++) { 
         const s = document.createElement('div');
         s.className = 'hyper-star';
         
-        // 画面全体に散らす (XY座標をランダムに)
-        // 中心(0,0)から -50vw ~ +50vw の範囲
+        // 画面全体に散らす
         const x = (Math.random() - 0.5) * window.innerWidth * 1.5;
         const y = (Math.random() - 0.5) * window.innerHeight * 1.5;
         
@@ -66,6 +66,7 @@ function startLoadingAnimation(loader, container) {
         if (progress < 1) {
             requestAnimationFrame(updateCounter);
         } else {
+            // カウント完了 -> ジャンプ
             setTimeout(() => {
                 if(loader) {
                     loader.classList.add('loaded'); // ジャンプ発動
@@ -118,9 +119,8 @@ class TextScramble {
     randomChar() { return this.chars[Math.floor(Math.random() * this.chars.length)]; }
 }
 function initTextScramble() {
-    const el = document.querySelector('.data-tag span[lang="ja"]'); // 言語に合わせて選択
+    const el = document.querySelector('.data-tag span[lang="ja"]');
     const elEn = document.querySelector('.data-tag span[lang="en"]');
-    
     // 現在表示されている方を対象にする
     const target = (document.body.classList.contains('en')) ? elEn : el;
 
@@ -128,10 +128,8 @@ function initTextScramble() {
         const fx = new TextScramble(target);
         const phrases = ['ALT: 25,346m / TEMP: -38.8℃', 'SYSTEM: NORMAL', 'STATUS: LAUNCHED'];
         if(document.body.classList.contains('en')) {
-             // 英語モードなら単位を変える
              phrases[0] = 'ALT: 83,156ft / TEMP: -37.8℉';
         }
-
         let counter = 0;
         const next = () => {
             fx.setText(phrases[counter]).then(() => { setTimeout(next, 3000); });
@@ -160,7 +158,8 @@ if (starContainer) {
     }
 }
 function initWarpEffect() {
-    if (window.lenis) {
+    // Lenisがない場合のエラー防止
+    if (typeof window.lenis !== 'undefined' && window.lenis) {
         window.lenis.on('scroll', (e) => {
             const velocity = Math.abs(e.velocity);
             const stretch = 1 + (velocity * 3.0);
@@ -209,7 +208,11 @@ window.addEventListener('scroll', () => {
 const btt = document.getElementById('back-to-top');
 if(btt) btt.addEventListener('click', (e) => {
     e.preventDefault(); btt.classList.add('launch');
-    if(window.lenis) window.lenis.scrollTo(0, {duration: 3}); else window.scrollTo({top:0, behavior:'smooth'});
+    if(typeof window.lenis !== 'undefined' && window.lenis) {
+        window.lenis.scrollTo(0, {duration: 3}); 
+    } else {
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
     setTimeout(() => { btt.classList.remove('launch', 'show'); }, 3500);
 });
 
