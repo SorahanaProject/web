@@ -1,4 +1,6 @@
-// 言語設定
+// --- START OF FILE script.js ---
+
+// 言語設定（初期ロード時）
 const savedLang = localStorage.getItem('lang') || 'ja';
 if (savedLang === 'en') {
     document.body.classList.add('en');
@@ -15,16 +17,29 @@ window.addEventListener('load', () => {
     const container = document.getElementById('digit-container');
     const langBtn = document.getElementById('langBtn');
 
-    if (langBtn) { langBtn.textContent = isEnglish ? 'JP' : 'EN'; }
+    // 言語ボタンの初期テキスト設定
+    if (langBtn) { 
+        langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
+        
+        // ★【修正箇所】言語切り替えクリックイベント追加
+        langBtn.addEventListener('click', () => {
+            // クラスのトグル
+            const isEn = document.body.classList.toggle('en');
+            // ローカルストレージへの保存
+            localStorage.setItem('lang', isEn ? 'en' : 'ja');
+            // ボタンの文字を変更
+            langBtn.textContent = isEn ? 'JP' : 'EN';
+        });
+    }
     
-    // 星生成
+    // 星（Hyperspace Loader用）生成 ※背景の星は削除済み
     initHyperspaceStars();
     
     // カウントアップ開始
     startLoadingAnimation(loader, container);
 });
 
-// ★★★ ハイパースペースの星生成 ★★★
+// ★★★ ハイパースペースの星生成（ローディング用のみ保持） ★★★
 function initHyperspaceStars() {
     const hyperContainer = document.getElementById('hyperspace');
     if (!hyperContainer) return;
@@ -139,40 +154,7 @@ function initTextScramble() {
     }
 }
 
-// Background Warp Stars
-const starContainer = document.getElementById('starfield');
-const stars = [];
-if (starContainer) {
-    const starCount = 80; 
-    for (let i = 0; i < starCount; i++) {
-        const star = document.createElement('div');
-        star.classList.add('star');
-        const x = Math.random() * 100; const y = Math.random() * 100;
-        const size = Math.random() * 2 + 1; 
-        const duration = Math.random() * 3 + 2; const delay = Math.random() * 5;
-        star.style.left = x + '%'; star.style.top = y + '%';
-        star.style.width = size + 'px'; star.style.height = size + 'px';
-        star.style.animationDuration = duration + 's'; star.style.animationDelay = delay + 's';
-        star.style.transform = 'scaleY(1)'; 
-        starContainer.appendChild(star); stars.push(star);
-    }
-}
-function initWarpEffect() {
-    // Lenisがない場合のエラー防止
-    if (typeof window.lenis !== 'undefined' && window.lenis) {
-        window.lenis.on('scroll', (e) => {
-            const velocity = Math.abs(e.velocity);
-            const stretch = 1 + (velocity * 3.0);
-            const scaleY = Math.min(stretch, 40); 
-            stars.forEach(star => {
-                star.style.transform = `scaleY(${scaleY})`;
-                if(velocity > 5) { star.style.animationPlayState = 'paused'; star.style.opacity = 0.5; }
-                else { star.style.animationPlayState = 'running'; star.style.opacity = ''; }
-            });
-        });
-    } else { requestAnimationFrame(initWarpEffect); }
-}
-initWarpEffect();
+// ★【削除箇所】ここにあった背景の星（Background Warp Stars）のコードを削除しました
 
 // Other UI Scripts
 let lastSparkleTime = 0;
