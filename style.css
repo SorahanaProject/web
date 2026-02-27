@@ -80,46 +80,47 @@ h1, h2, h3 { letter-spacing: 0.15em; }
     100% { background-position: -100% 0; }
 }
 
-/* === 3. Language Switching (Fixed) === */
-/* 重要：以前の [lang="en"]... の記述や、h1 span... の記述をすべて削除して、以下に置き換えてください */
+/* === 3. Language Switching (Fixed: Strict Mode) === */
 
-/* デフォルト（日本語モード）：英語を隠す */
-:not(body.en) [lang="en"] { display: none !important; }
+/* 重要：ここが最優先されるように !important を付与 */
 
-/* 英語モード：日本語を隠す */
-body.en [lang="ja"] { display: none !important; }
-
-/* 表示すべき言語要素の復活（display: block等の上書きを防ぐため unset/revert を使用） */
-[lang="ja"], [lang="en"] {
-    visibility: visible;
-    opacity: 1;
+/* Bodyに .en クラスが無い（日本語モード）場合：英語要素を強制非表示 */
+body:not(.en) [lang="en"] { 
+    display: none !important; 
 }
 
-/* 見出し内の改行用spanなど、明示的にブロックにしたい場合のみ指定 */
-h1 span[lang="ja"], h1 span[lang="en"] {
+/* Bodyに .en クラスがある（英語モード）場合：日本語要素を強制非表示 */
+body.en [lang="ja"] { 
+    display: none !important; 
+}
+
+/* 表示されている言語のレイアウト調整 */
+/* 見出し内のspanなど、ブロック表示が必要な箇所だけ指定 */
+h1 span[lang="ja"], h1 span[lang="en"] { 
     display: block; 
 }
 
 
-/* === 4. Hyperspace Loader (Modified Sequence) === */
+/* === 4. Hyperspace Loader (Fixed: Star Sequence) === */
 #loader {
     position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
     background: #000; z-index: 9999;
     display: flex; justify-content: center; align-items: center;
     overflow: hidden;
-    perspective: 500px;
+    perspective: 1000px; /* 奥行き感を強化 */
     transform-style: preserve-3d;
 }
 
 #loader.hidden { display: none !important; }
 
+/* 閃光（ホワイトアウト用） */
 #white-flash {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: #fff; z-index: 5; opacity: 0; pointer-events: none;
+    background: #fff; z-index: 20; opacity: 0; pointer-events: none;
 }
 
 .loader-content {
-    position: relative; z-index: 10;
+    position: relative; z-index: 30;
     text-align: center; color: var(--accent-color);
     transition: opacity 0.5s ease;
 }
@@ -127,69 +128,76 @@ h1 span[lang="ja"], h1 span[lang="en"] {
 /* ワープ空間コンテナ */
 #hyperspace {
     position: absolute; top: 50%; left: 50%;
-    width: 0; height: 0;
-    z-index: 1;
+    width: 100%; height: 100%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
     transform-style: preserve-3d;
 }
 
-/* 星（初期状態：非表示） */
+/* 星の設定 */
 .hyper-star {
     position: absolute; 
-    top: 0; left: 0;
+    top: 50%; left: 50%;
     width: 2px; height: 2px;
     background: #fff; 
     border-radius: 50%;
     opacity: 0; /* 最初は隠す */
     transform-origin: 50% 50%;
-    transform: translate3d(var(--tx), var(--ty), -800px); /* 遠くに配置 */
+    /* 初期位置：ランダムなXYと、奥(-1000px) */
+    transform: translate3d(var(--tx), var(--ty), -1000px);
+    will-change: transform, opacity;
 }
 
-/* アニメーション1: 星が一斉に出現 */
+/* Phase 1: 星が静かに出現 */
 #loader.phase-stars .hyper-star {
     opacity: 1;
-    transition: opacity 0.5s ease-in;
-    transform: translate3d(var(--tx), var(--ty), -200px); /* 少し手前に来る */
-    transition: transform 2s ease-out, opacity 0.5s ease-in;
+    transition: opacity 1.5s ease-out; /* ふわっと現れる */
 }
 
-/* アニメーション2: ワープ（引き伸ばして手前に飛ぶ） */
+/* Phase 2: ワープ（一気に手前に伸びる） */
 #loader.phase-warp .hyper-star {
-    animation: hyperJump 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+    opacity: 1;
+    /* 伸びながら手前に移動し、最後は消える */
+    animation: warpJump 1.2s cubic-bezier(0.9, 0, 0.2, 1) forwards;
 }
 
-/* アニメーション3: ホワイトアウト */
-#loader.phase-warp #white-flash {
-    animation: flashAnim 0.8s ease-in forwards;
-    animation-delay: 0.2s; /* 星が伸びてから光る */
-}
-
-/* コンテンツはワープ開始時に消す */
+/* Phase 2: 文字を消す */
 #loader.phase-warp .loader-content {
     opacity: 0;
-    transform: scale(1.5); /* 文字も少し迫ってくる */
+    transform: scale(3); /* 文字も迫ってくる演出 */
+    transition: all 0.5s ease-in;
 }
 
-@keyframes hyperJump {
+/* Phase 2: ホワイトアウト発動 */
+#loader.phase-warp #white-flash {
+    animation: flashIn 1.0s ease-out forwards;
+    animation-delay: 0.5s; /* 星が動き出してから光る */
+}
+
+/* ワープのアニメーションキーフレーム */
+@keyframes warpJump {
     0% {
-        transform: translate3d(var(--tx), var(--ty), -200px) scaleZ(1);
-        width: 2px; opacity: 1;
+        transform: translate3d(var(--tx), var(--ty), -1000px) scaleZ(1);
+        width: 2px;
     }
     40% {
-        /* 伸びる */
-        transform: translate3d(var(--tx), var(--ty), -100px) scaleZ(50);
-        width: 2px; background: #e0f0ff; opacity: 1;
+        /* 途中経過：線のように伸びる */
+        transform: translate3d(var(--tx), var(--ty), -500px) scaleZ(50);
+        width: 2px;
+        opacity: 0.8;
     }
     100% {
         /* 通り過ぎる */
-        transform: translate3d(var(--tx), var(--ty), 500px) scaleZ(200);
-        width: 4px; opacity: 0;
+        transform: translate3d(var(--tx), var(--ty), 1000px) scaleZ(100);
+        width: 4px;
+        opacity: 0; 
     }
 }
 
-@keyframes flashAnim {
+@keyframes flashIn {
     0% { opacity: 0; }
-    50% { opacity: 1; }
-    100% { opacity: 1; } /* そのまま白で維持（JSで非表示にするまで） */
+    40% { opacity: 1; }
+    100% { opacity: 1; }
 }
 
 /* デジタル数字 */
