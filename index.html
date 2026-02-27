@@ -4,47 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sorahana Project | 宇宙を旅する花の物語</title>
-    
-    <!-- SEO -->
     <meta name="description" content="Sorahana Project（宙花プロジェクト）公式サイト。高度30,000mの成層圏へ花を打ち上げ、世界に一つだけの『宇宙品質』ドライフラワーを作る挑戦の記録です。">
-
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Noto+Serif+JP:wght@300;400;600&display=swap" rel="stylesheet">
-    
-    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Loading Animation (Star Wars Hyperspace) -->
+    <!-- Loading Animation -->
     <div id="loader">
         <div id="hyperspace"></div> <!-- ワープ空間 -->
-        <div id="white-flash"></div> <!-- 最後の閃光 -->
+        <div id="white-flash"></div> <!-- 閃光 -->
         <div class="loader-content">
             <div class="altitude-label">TARGET ALTITUDE</div>
-            <div id="digit-container" class="digit-container">
-                <!-- JSにより数値が挿入されます -->
-            </div>
+            <div id="digit-container" class="digit-container"></div>
         </div>
     </div>
 
-    <!-- Scroll Progress Bar -->
+    <!-- Scroll Progress -->
     <div id="scroll-progress"></div>
 
-    <!-- Navigation -->
+    <!-- Header -->
     <header id="header">
         <div class="header-container">
             <a href="#hero" class="logo-link">
                 <img src="images/logo.png" alt="Sorahana Logo" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
                 <span class="logo-text" style="display:none; font-family:'Montserrat'; font-weight:bold; letter-spacing:0.2em; color:#fff;">SORAHANA</span>
             </a>
-            
-            <div class="hamburger" id="hamburger">
-                <span></span><span></span><span></span>
-            </div>
-
+            <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
             <nav id="nav-menu">
                 <ul>
                     <li><a href="#hero">Home</a></li>
@@ -60,7 +48,7 @@
         </div>
     </header>
 
-    <!-- 1. HERO SECTION -->
+    <!-- Hero -->
     <div id="hero" class="hero">
         <div class="hero-bg-wrapper">
             <video id="hero-video" autoplay loop muted playsinline preload="metadata" poster="images/stratosphere.png">
@@ -69,7 +57,6 @@
             <img src="images/stratosphere.png" class="hero-bg" alt="Stratosphere View">
             <div class="hero-overlay"></div>
         </div>
-        
         <div class="hero-content js-scroll">
             <p class="data-tag">
                 <span lang="ja">ALT: 25,346m / TEMP: -38.8℃</span>
@@ -87,7 +74,7 @@
         <a href="#concept" class="scroll-down"><span>Scroll</span> ↓</a>
     </div>
 
-    <!-- 2. CONCEPT -->
+    <!-- Concept -->
     <section id="concept">
         <h2 class="section-title js-scroll">Concept</h2>
         <div class="container text-center">
@@ -110,12 +97,10 @@
         </div>
     </section>
 
-    <!-- 3. ABOUT (EXPERIMENT) -->
+    <!-- Experiment -->
     <section id="about" class="bg-dark">
         <h2 class="section-title js-scroll">The Experiment</h2>
-        
         <div class="container">
-            <!-- Timeline -->
             <div class="timeline">
                 <div class="timeline-item js-scroll">
                     <div class="timeline-dot"></div>
@@ -123,10 +108,7 @@
                         <span class="phase">Phase 01</span>
                         <h3>Preparation</h3>
                         <img src="images/g-roses.jpg" alt="Preparation" class="timeline-img" loading="lazy">
-                        <p>
-                            <span lang="ja">乾燥しやすく美しい「愛知県産スプレーバラ」を選定。UVカットフィルムと透湿防水シートを備えた、宇宙用特別コンテナを製作。</span>
-                            <span lang="en">Selected spray roses from Aichi. Created a special container with UV-blocking film and moisture-permeable sheets.</span>
-                        </p>
+                        <p><span lang="ja">乾燥しやすく美しい「愛知県産スプレーバラ」を選定。UVカットフィルムと透湿防水シートを備えた、宇宙用特別コンテナを製作。</span><span lang="en">Selected spray roses from Aichi. Created a special container with UV-blocking film and moisture-permeable sheets.</span></p>
                     </div>
                 </div>
                 <div class="timeline-item js-scroll">
@@ -135,10 +117,7 @@
                         <span class="phase">Phase 02</span>
                         <h3>Launch</h3>
                         <img src="images/g-night.jpg" alt="Launch" class="timeline-img" loading="lazy">
-                        <p>
-                            <span lang="ja">早朝、バルーンにヘリウムガスを充填しリリース。機体は秒速5mで上昇を開始。</span>
-                            <span lang="en">Released the balloon filled with helium gas early in the morning. Ascended at 5m/s.</span>
-                        </p>
+                        <p><span lang="ja">早朝、バルーンにヘリウムガスを充填しリリース。機体は秒速5mで上昇を開始。</span><span lang="en">Released the balloon filled with helium gas early in the morning. Ascended at 5m/s.</span></p>
                     </div>
                 </div>
                 <div class="timeline-item js-scroll">
@@ -147,10 +126,7 @@
                         <span class="phase">Phase 03</span>
                         <h3>Stratosphere</h3>
                         <img src="images/g-stratosphere.jpg" alt="Stratosphere" class="timeline-img" loading="lazy">
-                        <p>
-                            <span lang="ja">高度25,346mに到達。気温-38.8℃、気圧は地上の約1/100。極限の環境下でフライトを継続。</span>
-                            <span lang="en">Reached 25,346m. Temp -38.8°C. Extreme environment with 1/100th atmospheric pressure.</span>
-                        </p>
+                        <p><span lang="ja">高度25,346mに到達。気温-38.8℃、気圧は地上の約1/100。極限の環境下でフライトを継続。</span><span lang="en">Reached 25,346m. Temp -38.8°C. Extreme environment with 1/100th atmospheric pressure.</span></p>
                     </div>
                 </div>
                 <div class="timeline-item js-scroll">
@@ -159,10 +135,7 @@
                         <span class="phase">Phase 04</span>
                         <h3>Recovery</h3>
                         <img src="images/flight-map.jpg" alt="Recovery" class="timeline-img" loading="lazy">
-                        <p>
-                            <span lang="ja">バルーン破裂後、パラシュートで降下。GPSを頼りに海上で機体を回収。</span>
-                            <span lang="en">After balloon burst, descended via parachute. Recovered at sea using GPS.</span>
-                        </p>
+                        <p><span lang="ja">バルーン破裂後、パラシュートで降下。GPSを頼りに海上で機体を回収。</span><span lang="en">After balloon burst, descended via parachute. Recovered at sea using GPS.</span></p>
                     </div>
                 </div>
                 <div class="timeline-item js-scroll">
@@ -171,60 +144,34 @@
                         <span class="phase">Phase 05</span>
                         <h3>Analysis</h3>
                         <img src="images/g-dried.jpg" alt="Analysis" class="timeline-img" loading="lazy">
-                        <p>
-                            <span lang="ja">花の状態を確認。鮮やかな赤色は、宇宙の刻印とも言える「黄金色」へと変化していました。</span>
-                            <span lang="en">Confirmed the flowers. The vivid red color had changed to a "golden" color, a mark of space.</span>
-                        </p>
+                        <p><span lang="ja">花の状態を確認。鮮やかな赤色は、宇宙の刻印とも言える「黄金色」へと変化していました。</span><span lang="en">Confirmed the flowers. The vivid red color had changed to a "golden" color, a mark of space.</span></p>
                     </div>
                 </div>
             </div>
 
-            <!-- Experiment Images -->
             <div class="experiment-vertical-view js-scroll">
-                
-                <!-- 1. Special Container -->
                 <div class="exp-card">
                     <img src="images/story.jpg" alt="Special Container" loading="lazy">
-                    <div class="exp-caption">
-                        <h3>Special Container</h3>
-                    </div>
+                    <div class="exp-caption"><h3>Special Container</h3></div>
                 </div>
-
-                <!-- 2. Flight Trajectory -->
                 <div class="exp-card map-container">
                     <a href="https://earth.google.com/earth/d/1Cbov36QXcYHL8I0Sx-0zyBI57k08agBO?usp=sharing" target="_blank" class="map-link">
                         <img src="images/flight-map.jpg" alt="Flight Map" loading="lazy">
-                        <div class="map-overlay-btn">
-                            <span class="icon">🌍</span> View 3D Flight Path
-                        </div>
+                        <div class="map-overlay-btn"><span class="icon">🌍</span> View 3D Flight Path</div>
                     </a>
                     <div class="exp-caption">
                         <h3>Flight Trajectory</h3>
-                        <p>
-                            <span lang="ja">25,346m Journey</span>
-                            <span lang="en">83,156ft Journey</span>
-                        </p>
+                        <p><span lang="ja">25,346m Journey</span><span lang="en">83,156ft Journey</span></p>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Comparison Slider -->
             <div class="comparison-section js-scroll">
                 <h3>Visualizing the Change</h3>
-                <p class="text-center" style="margin-bottom:20px; color:#aaa; font-size:0.9rem;">
-                    <span lang="ja">スライダーを動かして変化を確認</span>
-                    <span lang="en">Drag the slider to compare</span>
-                </p>
+                <p class="text-center" style="margin-bottom:20px; color:#aaa; font-size:0.9rem;"><span lang="ja">スライダーを動かして変化を確認</span><span lang="en">Drag the slider to compare</span></p>
                 <div class="compare-container">
-                    <div class="img-wrapper before">
-                        <img src="images/g-roses.jpg" alt="Before Launch" loading="lazy">
-                        <span class="label">Before (Earth)</span>
-                    </div>
-                    <div class="img-wrapper after" id="compare-overlay">
-                        <img src="images/g-dried.jpg" alt="After Launch" loading="lazy">
-                        <span class="label">After (Space)</span>
-                    </div>
+                    <div class="img-wrapper before"><img src="images/g-roses.jpg" alt="Before Launch" loading="lazy"><span class="label">Before (Earth)</span></div>
+                    <div class="img-wrapper after" id="compare-overlay"><img src="images/g-dried.jpg" alt="After Launch" loading="lazy"><span class="label">After (Space)</span></div>
                     <input type="range" min="0" max="100" value="50" class="slider" id="compare-slider">
                     <div class="slider-button" id="slider-button"><span>&lt;&gt;</span></div>
                 </div>
@@ -232,93 +179,59 @@
         </div>
     </section>
 
-    <!-- 4. GALLERY -->
+    <!-- Gallery -->
     <section id="gallery">
         <h2 class="section-title js-scroll">Gallery</h2>
         <div class="container">
             <div class="gallery-grid">
-                <!-- Gallery Items -->
                 <div class="gallery-item js-scroll" data-title-ja="成層圏からの眺望" data-title-en="Flight View" data-desc-ja="高度25,346m、気温マイナス38.8℃。過酷な環境下でのフライト映像。" data-desc-en="The container reached 25,346 meters." data-img="images/g-stratosphere.jpg">
                     <img src="images/g-stratosphere.jpg" alt="Stratosphere" loading="lazy">
-                    <div class="gallery-label">
-                        <span lang="ja">成層圏からの眺望</span>
-                        <span lang="en">Flight View</span>
-                    </div>
+                    <div class="gallery-label"><span lang="ja">成層圏からの眺望</span><span lang="en">Flight View</span></div>
                 </div>
                 <div class="gallery-item js-scroll" data-title-ja="愛知県産スプレーバラ" data-title-en="Spray Roses" data-desc-ja="日本一の生産額を誇る愛知県のバラを選定。" data-desc-en="We chose Spray Roses from Aichi." data-img="images/g-roses.jpg">
                     <img src="images/g-roses.jpg" alt="Roses" loading="lazy">
-                    <div class="gallery-label">
-                        <span lang="ja">スプレーバラ</span>
-                        <span lang="en">Spray Roses</span>
-                    </div>
+                    <div class="gallery-label"><span lang="ja">スプレーバラ</span><span lang="en">Spray Roses</span></div>
                 </div>
                 <div class="gallery-item js-scroll" data-title-ja="実験結果：色の変化" data-title-en="The Result" data-desc-ja="帰還した花は、鮮やかな色からアンティークのような黄金色へ変化しました。" data-desc-en="The flowers changed to an antique-like color." data-img="images/g-dried.jpg">
                     <img src="images/g-dried.jpg" alt="Result" loading="lazy">
-                    <div class="gallery-label">
-                        <span lang="ja">実験結果</span>
-                        <span lang="en">Result</span>
-                    </div>
+                    <div class="gallery-label"><span lang="ja">実験結果</span><span lang="en">Result</span></div>
                 </div>
                 <div class="gallery-item js-scroll" data-title-ja="ボトルフラワー" data-title-en="Bottle Flower" data-desc-ja="宇宙を旅した物語をボトルに封じ込めました。" data-desc-en="We put these flowers in bottles." data-img="images/g-bottle.jpg">
                     <img src="images/g-bottle.jpg" alt="Product" loading="lazy">
-                    <div class="gallery-label">
-                        <span lang="ja">製品化：ボトルフラワー</span>
-                        <span lang="en">Bottle Flower</span>
-                    </div>
+                    <div class="gallery-label"><span lang="ja">製品化：ボトルフラワー</span><span lang="en">Bottle Flower</span></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 5. FUTURE / BLOG -->
+    <!-- Future Outlook -->
     <section id="future" class="bg-dark">
         <h2 class="section-title js-scroll">Future Outlook</h2>
         <div class="container">
             <div class="blog-grid">
                 <article class="blog-card js-scroll">
-                    <div class="blog-img">
-                        <img src="images/item1.jpg" loading="lazy" onerror="this.src='https://placehold.co/400x250/111/444?text=Hypothesis'">
-                    </div>
+                    <div class="blog-img"><img src="images/item1.jpg" loading="lazy" onerror="this.src='https://placehold.co/400x250/111/444?text=Hypothesis'"></div>
                     <div class="blog-content">
                         <span class="date">New Hypothesis</span>
-                        <h3>
-                            <span lang="ja">新たな仮説：宇宙エイジング</span>
-                            <span lang="en">New Hypothesis: Space Aging</span>
-                        </h3>
-                        <p>
-                            <span lang="ja">成層圏は単なる乾燥機ではなく、地上では再現できない特殊なエイジング（変化）を与える場所だと再定義しました。</span>
-                            <span lang="en">The stratosphere is a place for special "aging".</span>
-                        </p>
+                        <h3><span lang="ja">新たな仮説：宇宙エイジング</span><span lang="en">New Hypothesis: Space Aging</span></h3>
                     </div>
                 </article>
                 <article class="blog-card js-scroll">
-                    <div class="blog-img">
-                        <img src="images/item2.jpg" loading="lazy" onerror="this.src='https://placehold.co/400x250/111/444?text=Brand+Story'">
-                    </div>
+                    <div class="blog-img"><img src="images/item2.jpg" loading="lazy" onerror="this.src='https://placehold.co/400x250/111/444?text=Brand+Story'"></div>
                     <div class="blog-content">
                         <span class="date">Brand Story</span>
-                        <h3>
-                            <span lang="ja">ブランドストーリーの進化</span>
-                            <span lang="en">Evolution of Brand Story</span>
-                        </h3>
-                        <p>
-                            <span lang="ja">過酷な宇宙環境を耐え抜いた「たくましさ」や「変化」こそが価値です。世界に一つだけの「宇宙品質」を目指します。</span>
-                            <span lang="en">The value lies in the "resilience" and "change".</span>
-                        </p>
+                        <h3><span lang="ja">ブランドストーリーの進化</span><span lang="en">Evolution of Brand Story</span></h3>
                     </div>
                 </article>
             </div>
         </div>
     </section>
 
-    <!-- 6. INSTAGRAM -->
+    <!-- Instagram -->
     <section id="instagram-feed">
         <h2 class="section-title js-scroll">Instagram</h2>
         <div class="container text-center">
-            <p class="lead-text js-scroll" style="margin-bottom: 30px;">
-                <span lang="ja">最新の活動記録をチェック</span>
-                <span lang="en">Check out our latest activities</span>
-            </p>
+            <p class="lead-text js-scroll" style="margin-bottom: 30px;"><span lang="ja">最新の活動記録をチェック</span><span lang="en">Check out our latest activities</span></p>
             <div class="insta-widget-wrapper js-scroll">
                 <script src="https://snapwidget.com/js/snapwidget.js"></script>
                 <iframe src="https://snapwidget.com/embed/1118472" class="snapwidget-widget" allowtransparency="true" frameborder="0" scrolling="no" style="border:none; overflow:hidden; width:100%; height:500px" title="Posts from Instagram"></iframe>
@@ -327,7 +240,7 @@
         </div>
     </section>
 
-    <!-- 7. FAQ -->
+    <!-- FAQ -->
     <section id="faq" class="bg-dark">
         <h2 class="section-title js-scroll">Q&A</h2>
         <div class="container" style="max-width: 800px;">
@@ -337,70 +250,38 @@
                         <span lang="ja">商品はどこで購入できますか？</span><span lang="en">Where can I buy products?</span>
                         <span class="icon">+</span>
                     </button>
-                    <div class="faq-answer">
-                        <p>
-                            <span lang="ja">現在、オンラインストアでの販売準備を進めています。準備が整い次第、本サイトおよびInstagramにてお知らせいたします。</span>
-                            <span lang="en">We are currently preparing our online store. Updates will be announced here and on Instagram.</span>
-                        </p>
-                    </div>
+                    <div class="faq-answer"><p><span lang="ja">現在、オンラインストアでの販売準備を進めています。準備が整い次第、本サイトおよびInstagramにてお知らせいたします。</span><span lang="en">We are currently preparing our online store. Updates will be announced here and on Instagram.</span></p></div>
                 </div>
                 <div class="faq-item js-scroll">
                     <button class="faq-question">
                         <span lang="ja">取材依頼は可能ですか？</span><span lang="en">Can we interview you?</span>
                         <span class="icon">+</span>
                     </button>
-                    <div class="faq-answer">
-                        <p>
-                            <span lang="ja">はい、歓迎いたします。下記のメールアドレスまでお気軽にご連絡ください。</span>
-                            <span lang="en">Yes, we welcome it. Please contact us via the email below.</span>
-                        </p>
-                    </div>
+                    <div class="faq-answer"><p><span lang="ja">はい、歓迎いたします。下記のメールアドレスまでお気軽にご連絡ください。</span><span lang="en">Yes, we welcome it. Please contact us via the email below.</span></p></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Supporting -->
+    <!-- Supporters -->
     <section id="supporters">
         <h2 class="section-title js-scroll">Supporting</h2>
         <div class="container">
             <div class="supporters-box js-scroll">
                 <h3 class="sora-title">
-                    <a href="https://tongali.net/soralab2025/" target="_blank" class="sora-link-text">
-                        そらLab 2025
-                        <span class="link-icon">↗</span>
-                    </a>
+                    <a href="https://tongali.net/soralab2025/" target="_blank" class="sora-link-text">そらLab 2025<span class="link-icon">↗</span></a>
                 </h3>
-                <p class="sora-sub">
-                    <span lang="ja">起業家人材育成事業　高校生ディープテックプログラム</span>
-                    <span lang="en">Entrepreneurship Education Project</span>
-                </p>
-                
+                <p class="sora-sub"><span lang="ja">起業家人材育成事業　高校生ディープテックプログラム</span><span lang="en">Entrepreneurship Education Project</span></p>
                 <div class="credits-list">
-                    <div class="credit-row">
-                        <div class="role-cell"><span lang="ja">主催</span><span lang="en">Organizer</span></div>
-                        <div class="name-cell">
-                            <span lang="ja">名古屋市 / 名古屋大学</span>
-                            <span lang="en">Nagoya City / Nagoya University</span>
-                        </div>
-                    </div>
-                    <div class="credit-row">
-                        <div class="role-cell"><span lang="ja">運営</span><span lang="en">Operation</span></div>
-                        <div class="name-cell">
-                            <span lang="ja">株式会社 GOCCO. / 株式会社ドングルズ</span>
-                            <span lang="en">GOCCO. inc. / Dongles Inc.</span>
-                        </div>
-                    </div>
-                    <div class="credit-row">
-                        <div class="role-cell"><span lang="ja">協力</span><span lang="en">Cooperation</span></div>
-                        <div class="name-cell">Tongali</div>
-                    </div>
+                    <div class="credit-row"><div class="role-cell"><span lang="ja">主催</span><span lang="en">Organizer</span></div><div class="name-cell"><span lang="ja">名古屋市 / 名古屋大学</span><span lang="en">Nagoya City / Nagoya University</span></div></div>
+                    <div class="credit-row"><div class="role-cell"><span lang="ja">運営</span><span lang="en">Operation</span></div><div class="name-cell"><span lang="ja">株式会社 GOCCO. / 株式会社ドングルズ</span><span lang="en">GOCCO. inc. / Dongles Inc.</span></div></div>
+                    <div class="credit-row"><div class="role-cell"><span lang="ja">協力</span><span lang="en">Cooperation</span></div><div class="name-cell">Tongali</div></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 8. CONTACT -->
+    <!-- Contact (Centered Email) -->
     <section id="contact">
         <h2 class="section-title js-scroll">Contact</h2>
         <div class="container contact-container js-scroll">
@@ -409,16 +290,12 @@
                 <span lang="en">For inquiries, please contact us via email.</span>
             </p>
             <div class="email-box js-scroll">
-                <a href="mailto:seisouken2025@gmail.com" class="email-link">
-                    seisouken2025@gmail.com
-                </a>
+                <a href="mailto:seisouken2025@gmail.com" class="email-link">seisouken2025@gmail.com</a>
             </div>
             <div class="social-links" style="margin-top: 60px; text-align:center;">
                 <p style="margin-bottom: 20px; font-size: 0.9rem; letter-spacing: 0.1em; font-family:var(--font-en);">Follow Us</p>
                 <a href="https://www.instagram.com/sorahana_project/" target="_blank" class="social-icon-link" aria-label="Instagram">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                        <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
                 </a>
             </div>
         </div>
@@ -426,20 +303,18 @@
 
     <!-- Footer -->
     <footer>
-        <div class="footer-links">
-            <a href="privacy.html">Privacy Policy</a>
-        </div>
+        <div class="footer-links"><a href="privacy.html">Privacy Policy</a></div>
         <p>&copy; 2026 Sorahana Project</p>
     </footer>
 
-    <!-- Back to Top (Rocket) -->
+    <!-- Back to Top -->
     <a href="#" id="back-to-top" class="back-to-top">
         <img src="images/rocket.png" alt="Top" style="width: 100%; height: 100%; object-fit: contain;">
     </a>
 
     <!-- Spaceship Elements -->
-    <div id="starfield"></div> <!-- Warp Starfield -->
-    <div id="hud-cursor"> <!-- Pro HUD Cursor -->
+    <div id="starfield"></div>
+    <div id="hud-cursor">
         <div class="cursor-circle"></div>
         <div class="cursor-crosshair"></div>
         <div class="cursor-label">SYSTEM READY</div>
@@ -460,17 +335,9 @@
     <!-- Lenis (Smooth Scroll) -->
     <script src="https://unpkg.com/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script> 
     <script>
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smooth: true,
-            smoothTouch: false
-        });
+        const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smooth: true, smoothTouch: false });
         window.lenis = lenis;
-        function raf(time) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
         requestAnimationFrame(raf);
     </script>
 
