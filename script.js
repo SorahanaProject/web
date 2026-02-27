@@ -39,18 +39,21 @@ window.addEventListener('load', () => {
     startLoadingAnimation(loader, container);
 });
 
-// ★★★ ハイパースペースの星生成（ローディング用のみ保持） ★★★
+// ★★★ ハイパースペースの星生成（数を増やす） ★★★
 function initHyperspaceStars() {
     const hyperContainer = document.getElementById('hyperspace');
     if (!hyperContainer) return;
 
-    for (let i = 0; i < 200; i++) { 
+    // 星の数を増やす（迫力を出すため）
+    for (let i = 0; i < 400; i++) { 
         const s = document.createElement('div');
         s.className = 'hyper-star';
         
-        // 画面全体に散らす
-        const x = (Math.random() - 0.5) * window.innerWidth * 1.5;
-        const y = (Math.random() - 0.5) * window.innerHeight * 1.5;
+        // 中心から放射状に広がるように配置
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * window.innerWidth * 0.8; // 広範囲に
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
         
         s.style.setProperty('--tx', x + 'px');
         s.style.setProperty('--ty', y + 'px');
@@ -60,7 +63,7 @@ function initHyperspaceStars() {
 }
 
 function startLoadingAnimation(loader, container) {
-    const duration = 2800;
+    const duration = 2500; // カウントアップ時間
     const startTime = performance.now();
 
     function updateCounter(currentTime) {
@@ -81,21 +84,30 @@ function startLoadingAnimation(loader, container) {
         if (progress < 1) {
             requestAnimationFrame(updateCounter);
         } else {
-            // カウント完了 -> ジャンプ
-            setTimeout(() => {
-                if(loader) {
-                    loader.classList.add('loaded'); // ジャンプ発動
-                    
-                    setTimeout(() => {
-                        loader.style.display = 'none';
-                        initTextScramble();
-                        initScrollAnimation();
-                    }, 1200); 
-                } else {
-                    initScrollAnimation();
+            // カウント完了時のシーケンス開始
+            if(loader) {
+                // 1. 星が出現 (Phase: Stars)
+                setTimeout(() => {
+                    loader.classList.add('phase-stars');
+                }, 100);
+
+                // 2. ワープ開始 & ホワイトアウト (Phase: Warp)
+                // 星が出てから少し間を置いて発動
+                setTimeout(() => {
+                    loader.classList.add('phase-warp');
+                }, 1200); 
+
+                // 3. ローダー終了 (非表示にしてメイン画面へ)
+                // ホワイトアウトが完了したタイミングで
+                setTimeout(() => {
+                    loader.style.display = 'none';
                     initTextScramble();
-                }
-            }, 500); 
+                    initScrollAnimation();
+                }, 2200); 
+            } else {
+                initScrollAnimation();
+                initTextScramble();
+            }
         }
     }
     requestAnimationFrame(updateCounter);
