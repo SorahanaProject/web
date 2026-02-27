@@ -39,21 +39,22 @@ window.addEventListener('load', () => {
     startLoadingAnimation(loader, container);
 });
 
-// ★★★ ハイパースペースの星生成（数を増やす） ★★★
+// ★★★ ハイパースペースの星生成（修正：完全ランダム配置） ★★★
 function initHyperspaceStars() {
     const hyperContainer = document.getElementById('hyperspace');
     if (!hyperContainer) return;
 
-    // 星の数を増やす（迫力を出すため）
-    for (let i = 0; i < 400; i++) { 
+    // 星の数を設定
+    const starCount = 500; 
+
+    for (let i = 0; i < starCount; i++) { 
         const s = document.createElement('div');
         s.className = 'hyper-star';
         
-        // 中心から放射状に広がるように配置
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.random() * window.innerWidth * 0.8; // 広範囲に
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
+        // 画面の中心(0,0)から、画面幅の3倍程度の範囲にランダムに配置
+        // (Math.random() - 0.5) で -0.5 ~ 0.5 を作り、広範囲に掛ける
+        const x = (Math.random() - 0.5) * window.innerWidth * 3;
+        const y = (Math.random() - 0.5) * window.innerHeight * 3;
         
         s.style.setProperty('--tx', x + 'px');
         s.style.setProperty('--ty', y + 'px');
@@ -63,13 +64,16 @@ function initHyperspaceStars() {
 }
 
 function startLoadingAnimation(loader, container) {
-    const duration = 2500; // カウントアップ時間
+    const duration = 2500; // カウントアップにかかる時間
     const startTime = performance.now();
 
     function updateCounter(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
+        
+        // イージング（最後の方でゆっくりになる）
         const ease = 1 - Math.pow(1 - progress, 4);
+        
         const currentAlt = Math.floor(ease * TARGET_ALTITUDE);
         const displayAlt = (progress >= 1) ? TARGET_ALTITUDE : currentAlt;
         const altString = String(displayAlt).padStart(5, '0');
@@ -84,27 +88,29 @@ function startLoadingAnimation(loader, container) {
         if (progress < 1) {
             requestAnimationFrame(updateCounter);
         } else {
-            // カウント完了時のシーケンス開始
+            // カウント完了後の演出シーケンス
             if(loader) {
-                // 1. 星が出現 (Phase: Stars)
+                // Step 1: 星を出現させる (class: phase-stars)
+                // カウントが終わってすぐ実行
                 setTimeout(() => {
                     loader.classList.add('phase-stars');
                 }, 100);
 
-                // 2. ワープ開始 & ホワイトアウト (Phase: Warp)
-                // 星が出てから少し間を置いて発動
+                // Step 2: ワープ開始 & ホワイトアウト (class: phase-warp)
+                // 星が出てから少し待って(1.5秒後)発動
                 setTimeout(() => {
                     loader.classList.add('phase-warp');
-                }, 1200); 
+                }, 1600); 
 
-                // 3. ローダー終了 (非表示にしてメイン画面へ)
-                // ホワイトアウトが完了したタイミングで
+                // Step 3: ローダー終了・画面遷移
+                // ホワイトアウトが完了する頃(ワープ開始から1.2秒後)に実行
                 setTimeout(() => {
-                    loader.style.display = 'none';
+                    loader.style.display = 'none'; // ローダーを消す
                     initTextScramble();
                     initScrollAnimation();
-                }, 2200); 
+                }, 2800); 
             } else {
+                // ローダーが無い場合（即時表示）
                 initScrollAnimation();
                 initTextScramble();
             }
