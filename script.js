@@ -17,29 +17,28 @@ window.addEventListener('load', () => {
 
     if (langBtn) { langBtn.textContent = isEnglish ? 'JP' : 'EN'; }
     
+    // 星生成（数は多めに）
     initHyperspaceStars();
+    
     startLoadingAnimation(loader, container);
 });
 
-// ★★★ ハイパースペースの星生成（ランダム配置強化） ★★★
+// ★★★ ハイパースペースの星生成（画面全体に分散・数200） ★★★
 function initHyperspaceStars() {
     const hyperContainer = document.getElementById('hyperspace');
     if (!hyperContainer) return;
 
-    for (let i = 0; i < 80; i++) { 
+    for (let i = 0; i < 200; i++) { // 星の数を200に増加
         const s = document.createElement('div');
         s.className = 'hyper-star';
         
-        // 中心から放射状に配置 (中心付近は避けるが、広く散らす)
-        const angle = Math.random() * Math.PI * 2;
-        // ルートを使って均等分布に近づける
-        const dist = 60 + Math.pow(Math.random(), 0.5) * 450; 
+        // 画面全体に散らす (XY座標をランダムに)
+        // 中心(0,0)から -50vw ~ +50vw の範囲
+        const x = (Math.random() - 0.5) * window.innerWidth * 1.5;
+        const y = (Math.random() - 0.5) * window.innerHeight * 1.5;
         
-        const tx = Math.cos(angle) * dist + 'px';
-        const ty = Math.sin(angle) * dist + 'px';
-        
-        s.style.setProperty('--tx', tx);
-        s.style.setProperty('--ty', ty);
+        s.style.setProperty('--tx', x + 'px');
+        s.style.setProperty('--ty', y + 'px');
         
         hyperContainer.appendChild(s);
     }
@@ -119,10 +118,20 @@ class TextScramble {
     randomChar() { return this.chars[Math.floor(Math.random() * this.chars.length)]; }
 }
 function initTextScramble() {
-    const el = document.querySelector('.data-tag span[lang="ja"]');
-    if(el) {
-        const fx = new TextScramble(el);
+    const el = document.querySelector('.data-tag span[lang="ja"]'); // 言語に合わせて選択
+    const elEn = document.querySelector('.data-tag span[lang="en"]');
+    
+    // 現在表示されている方を対象にする
+    const target = (document.body.classList.contains('en')) ? elEn : el;
+
+    if(target) {
+        const fx = new TextScramble(target);
         const phrases = ['ALT: 25,346m / TEMP: -38.8℃', 'SYSTEM: NORMAL', 'STATUS: LAUNCHED'];
+        if(document.body.classList.contains('en')) {
+             // 英語モードなら単位を変える
+             phrases[0] = 'ALT: 83,156ft / TEMP: -37.8℉';
+        }
+
         let counter = 0;
         const next = () => {
             fx.setText(phrases[counter]).then(() => { setTimeout(next, 3000); });
@@ -132,7 +141,7 @@ function initTextScramble() {
     }
 }
 
-// Background Warp Stars (Static)
+// Background Warp Stars
 const starContainer = document.getElementById('starfield');
 const stars = [];
 if (starContainer) {
