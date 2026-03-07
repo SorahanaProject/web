@@ -260,3 +260,65 @@ document.addEventListener('click', (e) => {
         document.body.appendChild(p); setTimeout(()=>p.remove(), 1000);
     }
 });
+/* 
+ * 1. パララックス効果 (画像と文字の速度差)
+ * Lenisのスクロールイベント、またはwindowのscrollイベント内で実行
+ */
+window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+
+    // ギャラリー画像などをスクロール速度に合わせてゆっくり動かす
+    document.querySelectorAll('.gallery-item img').forEach((img) => {
+        const speed = 0.05; // 移動量
+        const rect = img.parentElement.getBoundingClientRect();
+        // 画面内にある時だけ計算
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+            const offset = (window.innerHeight - rect.top) * speed;
+            img.style.transform = `translateY(${offset}px) scale(1.1)`;
+        }
+    });
+});
+
+/*
+ * 2. 遊び心：マウスストーカーに「宇宙の塵（スターダスト）」を追加
+ * カーソルが動くと、キラキラした軌跡が残る
+ */
+const createStardust = (x, y) => {
+    const particle = document.createElement('div');
+    particle.style.position = 'fixed';
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.width = Math.random() * 3 + 'px'; // 1〜3px
+    particle.style.height = particle.style.width;
+    particle.style.background = Math.random() > 0.9 ? '#D4AF37' : '#fff'; // たまに金色
+    particle.style.borderRadius = '50%';
+    particle.style.pointerEvents = 'none';
+    particle.style.zIndex = '999999';
+    particle.style.boxShadow = '0 0 6px rgba(255,255,255,0.8)';
+    
+    document.body.appendChild(particle);
+
+    // アニメーション
+    const destX = (Math.random() - 0.5) * 60;
+    const destY = (Math.random() - 0.5) * 60;
+
+    const animation = particle.animate([
+        { transform: `translate(0, 0) scale(1)`, opacity: 0.8 },
+        { transform: `translate(${destX}px, ${destY}px) scale(0)`, opacity: 0 }
+    ], {
+        duration: 1000 + Math.random() * 1000,
+        easing: 'cubic-bezier(0, .9, .57, 1)'
+    });
+
+    animation.onfinish = () => particle.remove();
+};
+
+// マウス移動イベントに追加（既存のsparkleより繊細な動きにする）
+let isThrottled = false;
+document.addEventListener('mousemove', (e) => {
+    if (!isThrottled) {
+        createStardust(e.clientX, e.clientY);
+        isThrottled = true;
+        setTimeout(() => isThrottled = false, 40); // 頻度調整
+    }
+});
