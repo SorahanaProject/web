@@ -444,3 +444,47 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     nav.active { right: 0; } nav ul { flex-direction: column; text-align: center; gap: 30px; }
     .email-link { font-size: 1rem; padding: 20px 30px; width: 80%; }
 }
+/* プロ品質の文字詰め */
+h1, h2, h3, .lead-text {
+    font-feature-settings: "palt"; /* プロポーショナルメトリクス */
+    letter-spacing: 0.08em;
+}
+
+/* 日本語と英語でフォントサイズを微調整（日本語の方が大きく見えるため） */
+span[lang="en"] {
+    font-size: 1.05em; /* 英語を少し大きくしてバランスを取る */
+}
+
+/* 画像にシネマティックな出現アニメーションを追加 */
+.gallery-item img, .timeline-img {
+    transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), filter 1.2s ease;
+    width: 110%; /* パララックス用に少し大きく */
+    height: 110%;
+    object-fit: cover;
+}
+
+/* 画像の親要素にマスクをかける */
+.gallery-item, .timeline-content {
+    overflow: hidden; 
+}
+
+/* ホバー時の「吸い付き」感を強化 */
+.magnet-btn {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* バウンスさせる */
+}
+
+/* 無重力浮遊アニメーションの定義 */
+@keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-10px) rotate(0.5deg); }
+    66% { transform: translateY(5px) rotate(-0.5deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+
+/* 特定の画像に適用（遅延をつけてランダム感を出す） */
+.timeline-img, .exp-card {
+    animation: float 8s ease-in-out infinite;
+}
+.timeline-item:nth-child(even) .timeline-img {
+    animation-delay: 1s; /* ずらす */
+}
