@@ -1,185 +1,177 @@
 // --- START OF FILE script.js ---
 
-// === 1. 初期設定 & Lenis (慣性スクロール) ===
+// 設定値（定数は先に定義してもOK）
+const TARGET_ALTITUDE_M = 25346;
+const TARGET_ALTITUDE_FT = 83156;
 
-// 言語設定（初期ロード時）
-const savedLang = localStorage.getItem('lang') || 'ja';
-if (savedLang === 'en') {
-    document.body.classList.add('en');
-}
-
-// 設定値
-const isEnglish = document.body.classList.contains('en');
-const TARGET_ALTITUDE = isEnglish ? 83156 : 25346;
-const UNIT_TEXT = isEnglish ? 'ft' : 'm';
-
-// Lenisの初期化
-if (typeof Lenis !== 'undefined') {
-    const lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smooth: true,
-        smoothTouch: false
-    });
-    window.lenis = lenis;
-
-    // Lenisのスクロールループ
-    function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-
-    // Lenisのスクロールイベントにパララックスなどの連動処理を登録
-    lenis.on('scroll', (e) => {
-        updateHUD(e.scroll);      // HUD（高度計）の更新
-        updateParallax(e.scroll); // パララックス効果
-    });
-} else {
-    // Lenisがない場合のフォールバック（標準スクロール）
-    window.addEventListener('scroll', () => {
-        updateHUD(window.scrollY);
-        updateParallax(window.scrollY);
-    });
-}
-
-
-// === 2. メイン実行処理 (DOM読み込み完了後) ===
-
+// === メイン実行処理 (HTML読み込み完了後に実行) ===
 document.addEventListener('DOMContentLoaded', () => {
-    // 言語切り替えボタン
-    initLanguageSwitcher();
     
-    // システム起動ローダー開始
+    // 1. 言語設定の初期化（ここでbodyを操作する）
+    initLanguageSettings();
+
+    // 2. Lenis (慣性スクロール) の初期化
+    initLenis();
+
+    // 3. システム起動ローダー開始
     initBootSequence();
 
-    // HUD（カーソル・計器）初期化
+    // 4. UI・インタラクション初期化
     initHUDInteractions();
-    
-    // 比較スライダー（Before/After）
     initCompareSlider();
-
-    // その他のUI（ハンバーガーメニュー、Topへ戻るなど）
     initUI();
 });
 
 
-// === 3. システム起動ローダー (Boot Sequence) ===
+// === 機能別関数 ===
 
+function initLanguageSettings() {
+    // ローカルストレージから言語設定を取得
+    const savedLang = localStorage.getItem('lang') || 'ja';
+    if (savedLang === 'en') {
+        document.body.classList.add('en');
+    }
+    
+    // 言語切り替えボタンのイベント設定
+    const langBtn = document.getElementById('langBtn');
+    if (langBtn) { 
+        langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
+        langBtn.addEventListener('click', () => {
+            const isEn = document.body.classList.toggle('en');
+            localStorage.setItem('lang', isEn ? 'en' : 'ja');
+            langBtn.textContent = isEn ? 'JP' : 'EN';
+            location.reload(); // リロードして反映
+        });
+    }
+}
+
+function initLenis() {
+    if (typeof Lenis !== 'undefined') {
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smooth: true,
+            smoothTouch: false
+        });
+        window.lenis = lenis;
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // スクロール連動イベント
+        lenis.on('scroll', (e) => {
+            updateHUD(e.scroll);
+            updateParallax(e.scroll);
+        });
+    } else {
+        // Lenisがない場合（標準スクロール）
+        window.addEventListener('scroll', () => {
+            updateHUD(window.scrollY);
+            updateParallax(window.scrollY);
+        });
+    }
+}
+
+// === システム起動ローダー ===
 function initBootSequence() {
     const screen = document.getElementById('boot-screen');
     const log = document.getElementById('boot-log');
     const fill = document.querySelector('.boot-progress-fill');
     const percent = document.querySelector('.boot-percent');
     
-    // 画面要素がない場合は処理を中断（エラー防止）
-    if (!screen) {
+    // 要素が見つからない場合は、ローダーを飛ばしてサイトを表示
+    if (!screen || !fill || !percent) {
+        console.warn('Boot Loader elements not found. Skipping animation.');
+        if(screen) screen.style.display = 'none';
         initAfterLoad(); 
         return;
     }
 
-    // 表示するログ（ハッカー風演出）
     const logs = [
-        "SYSTEM_CHECK_INIT...",
-        "LOADING_KERNEL_MODULES...",
-        "MOUNTING_FILESYSTEM...",
-        "CHECKING_MEMORY_INTEGRITY...",
-        "CONNECTING_TO_SATELLITE...",
-        "ESTABLISHING_SECURE_LINK...",
-        "LOADING_ASSETS_TEXTURES...",
-        "CALIBRATING_SENSORS...",
-        "ATMOSPHERIC_PRESSURE: NORMAL",
-        "OXYGEN_LEVELS: 100%",
-        "TARGET_COORDINATES: LOCKED",
-        "SYSTEM_READY."
+        "SYSTEM_CHECK_INIT...", "LOADING_KERNEL_MODULES...", "MOUNTING_FILESYSTEM...",
+        "CHECKING_MEMORY_INTEGRITY...", "CONNECTING_TO_SATELLITE...", "ESTABLISHING_SECURE_LINK...",
+        "LOADING_ASSETS_TEXTURES...", "CALIBRATING_SENSORS...", "ATMOSPHERIC_PRESSURE: NORMAL",
+        "OXYGEN_LEVELS: 100%", "TARGET_COORDINATES: LOCKED", "SYSTEM_READY."
     ];
 
     let progress = 0;
     let logIndex = 0;
 
+    // アニメーションループ
     const interval = setInterval(() => {
-        // 進捗をランダムに進める（不規則なロード感を演出）
         progress += Math.random() * 4; 
         if (progress > 100) progress = 100;
 
-        // バーと数値を更新
-        if(fill) fill.style.width = `${progress}%`;
-        if(percent) percent.textContent = `${Math.floor(progress)}%`;
+        // 表示更新
+        fill.style.width = `${progress}%`;
+        percent.textContent = `${Math.floor(progress)}%`;
 
-        // ログを追加（進捗に合わせて）
-        if (progress > (logIndex * (100 / logs.length)) && logIndex < logs.length) {
+        // ログ更新
+        if (log && progress > (logIndex * (100 / logs.length)) && logIndex < logs.length) {
             const p = document.createElement('div');
             p.className = 'boot-line';
             p.textContent = `> ${logs[logIndex]}`;
-            // 最後の行だけ白くする
             if (logIndex === logs.length - 1) {
                 p.style.color = '#fff';
                 p.classList.add('blink');
             }
-            if(log) log.prepend(p); // 新しいログを上に追加
+            log.prepend(p);
             logIndex++;
         }
 
-        // 完了処理
+        // 完了時
         if (progress >= 100) {
             clearInterval(interval);
             setTimeout(() => {
-                screen.classList.add('loaded'); // 画面フェードアウト
-                initAfterLoad(); // ロード後の演出開始
+                screen.classList.add('loaded'); // CSSでフェードアウト
+                initAfterLoad();
             }, 600);
         }
-    }, 60); // 更新頻度
+    }, 60);
 }
 
-// ロード完了後に開始するアニメーション群
 function initAfterLoad() {
-    initTextScramble();    // 文字化け演出
-    initScrollAnimation(); // 要素のフェードイン
+    initTextScramble();
+    initScrollAnimation();
 }
 
-
-// === 4. HUD & インタラクション制御 ===
-
-// スクロール連動：高度計更新
+// === HUD & UI制御 ===
 function updateHUD(scrollTop) {
+    const isEnglish = document.body.classList.contains('en');
+    const targetAlt = isEnglish ? TARGET_ALTITUDE_FT : TARGET_ALTITUDE_M;
     const altDisplay = document.getElementById('live-altitude');
     const indicator = document.getElementById('scroll-indicator');
     const header = document.getElementById('header');
     
-    // ドキュメント全体の高さから現在の進行度(0.0〜1.0)を計算
     const docHeight = document.body.scrollHeight - window.innerHeight;
-    const scrollPercent = Math.max(0, Math.min(1, scrollTop / docHeight)); // 0-1に制限
+    const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
 
-    // 現在の高度計算
-    const currentAlt = Math.floor(scrollPercent * TARGET_ALTITUDE);
-    
-    // 5桁のゼロ埋め表示
-    if(altDisplay) altDisplay.textContent = String(currentAlt).padStart(5, '0');
-
-    // 右側のバーのインジケータ移動
-    if(indicator) {
-        indicator.style.top = `${scrollPercent * 100}%`;
+    // 高度更新
+    if(altDisplay) {
+        const currentAlt = Math.floor(scrollPercent * targetAlt);
+        altDisplay.textContent = String(currentAlt).padStart(5, '0');
     }
 
-    // スクロールプログレスバー（上部）
+    if(indicator) indicator.style.top = `${scrollPercent * 100}%`;
+
     const progressBar = document.getElementById('scroll-progress');
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
 
-    // ヘッダーの背景色制御
     if(header) {
         if(scrollTop > 50) header.classList.add('scrolled');
         else header.classList.remove('scrolled');
     }
 
-    // バック・トゥ・トップボタンの表示
     const btt = document.getElementById('back-to-top');
     if(btt) {
         if(scrollTop > 400) btt.classList.add('show');
         else btt.classList.remove('show');
     }
 
-    // 遊び心：高度（スクロール量）に応じてHUDの色を変える
-    // 例：成層圏（半分以上）に行くと警告色（白/赤）になるなど
+    // 高度に応じたHUDの色変化
     if (scrollPercent > 0.6) {
         document.documentElement.style.setProperty('--hud-color', '#fff'); 
     } else {
@@ -187,34 +179,21 @@ function updateHUD(scrollTop) {
     }
 }
 
-// マウスカーソルとロックオン機能
 function initHUDInteractions() {
     const cursor = document.getElementById('hud-cursor-target');
     
-    // PC（幅1025px以上）のみ有効
     if (window.matchMedia("(min-width: 1025px)").matches && cursor) {
-        
-        // カーソル追従（少し遅延させて重みを出す）
         document.addEventListener('mousemove', (e) => {
-            // HUDカーソル移動
             cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-            
-            // 遊び心：スターダスト（塵）を生成
             createStardust(e.clientX, e.clientY);
         });
 
-        // ロックオン演出（リンクやボタンにホバー時）
         const targets = document.querySelectorAll('a, button, .gallery-item, .map-overlay-btn');
         targets.forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                cursor.classList.add('locked');
-            });
-            el.addEventListener('mouseleave', () => {
-                cursor.classList.remove('locked');
-            });
+            el.addEventListener('mouseenter', () => cursor.classList.add('locked'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
         });
         
-        // 磁石ボタン（ボタンがマウスに吸い付く）
         const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
         magnets.forEach((magnet) => {
             magnet.classList.add('magnet-btn');
@@ -224,71 +203,50 @@ function initHUDInteractions() {
                 const y = (e.clientY - (rect.top + rect.height / 2)) / 5;
                 magnet.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
             });
-            magnet.addEventListener('mouseleave', () => { 
-                magnet.style.transform = 'translate(0, 0) scale(1)'; 
-            });
+            magnet.addEventListener('mouseleave', () => magnet.style.transform = 'translate(0, 0) scale(1)');
         });
     }
 }
 
-// 遊び心：マウスストーカー（宇宙の塵）
+// === 演出エフェクト ===
 let isThrottled = false;
 function createStardust(x, y) {
-    if (isThrottled) return; // 処理を間引く（負荷軽減）
+    if (isThrottled) return;
     isThrottled = true;
     setTimeout(() => isThrottled = false, 50);
 
     const particle = document.createElement('div');
-    particle.style.position = 'fixed';
-    particle.style.left = x + 'px';
-    particle.style.top = y + 'px';
-    particle.style.width = Math.random() * 3 + 'px';
-    particle.style.height = particle.style.width;
-    particle.style.background = Math.random() > 0.8 ? '#D4AF37' : '#fff'; // たまに金色
-    particle.style.borderRadius = '50%';
-    particle.style.pointerEvents = 'none';
-    particle.style.zIndex = '999999';
-    particle.style.boxShadow = '0 0 6px rgba(255,255,255,0.8)';
-    
+    Object.assign(particle.style, {
+        position: 'fixed', left: x + 'px', top: y + 'px',
+        width: (Math.random() * 3) + 'px', height: (Math.random() * 3) + 'px',
+        background: Math.random() > 0.8 ? '#D4AF37' : '#fff',
+        borderRadius: '50%', pointerEvents: 'none', zIndex: '999999',
+        boxShadow: '0 0 6px rgba(255,255,255,0.8)'
+    });
     document.body.appendChild(particle);
 
-    // 拡散アニメーション
     const destX = (Math.random() - 0.5) * 60;
     const destY = (Math.random() - 0.5) * 60;
 
     const animation = particle.animate([
         { transform: `translate(0, 0) scale(1)`, opacity: 0.8 },
         { transform: `translate(${destX}px, ${destY}px) scale(0)`, opacity: 0 }
-    ], {
-        duration: 1000 + Math.random() * 1000,
-        easing: 'cubic-bezier(0, .9, .57, 1)'
-    });
+    ], { duration: 1000 + Math.random() * 1000, easing: 'cubic-bezier(0, .9, .57, 1)' });
 
     animation.onfinish = () => particle.remove();
 }
 
-
-// === 5. ビジュアルエフェクト (パララックス & Text Scramble) ===
-
-// パララックス（視差効果）
 function updateParallax(scrollTop) {
-    // ギャラリー画像などをスクロール速度に合わせてゆっくり動かす
     const parallaxImages = document.querySelectorAll('.gallery-item img, .timeline-img');
-    
     parallaxImages.forEach((img) => {
-        const speed = 0.08; // 移動係数
         const rect = img.parentElement.getBoundingClientRect();
-        
-        // 画面内にある時だけ計算
         if (rect.top < window.innerHeight && rect.bottom > 0) {
-            // 親要素の中心からの距離に応じて動かす
-            const offset = (window.innerHeight - rect.top) * speed;
-            img.style.transform = `translateY(${offset}px) scale(1.1)`; // scaleは隙間防止
+            const offset = (window.innerHeight - rect.top) * 0.08;
+            img.style.transform = `translateY(${offset}px) scale(1.1)`;
         }
     });
 }
 
-// テキストスクランブル演出 (Text Scramble)
 class TextScramble {
     constructor(el) { this.el = el; this.chars = '!<>-_\\/[]{}—=+*^?#________'; this.update = this.update.bind(this); }
     setText(newText) {
@@ -324,19 +282,15 @@ class TextScramble {
 function initTextScramble() {
     const el = document.querySelector('.data-tag span[lang="ja"]');
     const elEn = document.querySelector('.data-tag span[lang="en"]');
-    // 現在表示されている方を対象にする
     const target = (document.body.classList.contains('en')) ? elEn : el;
+    const isEnglish = document.body.classList.contains('en');
 
     if(target) {
         const fx = new TextScramble(target);
-        // 表示するメッセージのリスト
         const phrases = [
             isEnglish ? 'ALT: 83,156ft / TEMP: -37.8℉' : 'ALT: 25,346m / TEMP: -38.8℃',
-            'SYSTEM: NORMAL',
-            'STATUS: LAUNCHED',
-            'TRAJECTORY: STABLE'
+            'SYSTEM: NORMAL', 'STATUS: LAUNCHED', 'TRAJECTORY: STABLE'
         ];
-        
         let counter = 0;
         const next = () => {
             fx.setText(phrases[counter]).then(() => { setTimeout(next, 3000); });
@@ -346,7 +300,6 @@ function initTextScramble() {
     }
 }
 
-// スクロール時のフェードイン (IntersectionObserver)
 function initScrollAnimation() {
     const obs = new IntersectionObserver((entries) => {
         entries.forEach(entry => { 
@@ -359,23 +312,6 @@ function initScrollAnimation() {
     document.querySelectorAll('.js-scroll').forEach(el => obs.observe(el));
 }
 
-
-// === 6. UI & ユーティリティ ===
-
-function initLanguageSwitcher() {
-    const langBtn = document.getElementById('langBtn');
-    if (langBtn) { 
-        langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
-        langBtn.addEventListener('click', () => {
-            const isEn = document.body.classList.toggle('en');
-            localStorage.setItem('lang', isEn ? 'en' : 'ja');
-            langBtn.textContent = isEn ? 'JP' : 'EN';
-            // ページリロードして反映（スクランブルテキスト等の再初期化のため）
-            location.reload();
-        });
-    }
-}
-
 function initCompareSlider() {
     const sld = document.getElementById('compare-slider');
     if(sld) sld.addEventListener('input', (e) => {
@@ -386,60 +322,41 @@ function initCompareSlider() {
 }
 
 function initUI() {
-    // ハンバーガーメニュー
     const ham = document.getElementById('hamburger'); 
     const nv = document.getElementById('nav-menu');
     if(ham && nv) {
-        ham.addEventListener('click', () => { 
-            ham.classList.toggle('active'); 
-            nv.classList.toggle('active'); 
-        });
-        nv.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { 
-            ham.classList.remove('active'); 
-            nv.classList.remove('active'); 
-        }));
+        ham.addEventListener('click', () => { ham.classList.toggle('active'); nv.classList.toggle('active'); });
+        nv.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { ham.classList.remove('active'); nv.classList.remove('active'); }));
     }
 
-    // バック・トゥ・トップ (ロケット発射)
     const btt = document.getElementById('back-to-top');
     if(btt) btt.addEventListener('click', (e) => {
         e.preventDefault(); 
-        btt.classList.add('launch'); // ロケット発射アニメーション
-        
+        btt.classList.add('launch');
         if(typeof window.lenis !== 'undefined' && window.lenis) {
             window.lenis.scrollTo(0, {duration: 3}); 
         } else {
             window.scrollTo({top:0, behavior:'smooth'});
         }
-        
-        // アニメーションが終わる頃にクラスを削除
         setTimeout(() => { btt.classList.remove('launch', 'show'); }, 3500);
     });
 
-    // ギャラリーモーダル
     const modal = document.getElementById('gallery-modal');
     if (modal) {
         const modalImg = document.getElementById('modal-img');
         const modalTitle = document.getElementById('modal-title');
         const modalDesc = document.getElementById('modal-desc');
         const closeBtn = document.querySelector('.close-modal');
-
         document.querySelectorAll('.gallery-item').forEach(item => {
             item.addEventListener('click', () => {
                 const isEn = document.body.classList.contains('en');
-                const title = isEn ? item.dataset.titleEn : item.dataset.titleJa;
-                const desc = isEn ? item.dataset.descEn : item.dataset.descJa;
-                
                 modalImg.src = item.dataset.img;
-                modalTitle.textContent = title;
-                modalDesc.textContent = desc;
+                modalTitle.textContent = isEn ? item.dataset.titleEn : item.dataset.titleJa;
+                modalDesc.textContent = isEn ? item.dataset.descEn : item.dataset.descJa;
                 modal.classList.add('show');
             });
         });
-
         closeBtn.addEventListener('click', () => modal.classList.remove('show'));
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.classList.remove('show');
-        });
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
     }
 }
