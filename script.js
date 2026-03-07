@@ -3,6 +3,9 @@
 const TARGET_ALTITUDE_M = 25346;
 const TARGET_ALTITUDE_FT = 83156;
 
+// スクロール方向検知用の変数
+let lastScrollTop = 0;
+
 // === メイン実行処理 ===
 document.addEventListener('DOMContentLoaded', () => {
     initLanguageSettings();
@@ -11,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHUDInteractions();
     initCompareSlider();
     initUI();
-    initFAQ(); // Q&A機能を追加
+    initFAQ();
 });
 
 // === 機能別関数 ===
@@ -48,12 +51,12 @@ function initLenis() {
         requestAnimationFrame(raf);
         lenis.on('scroll', (e) => {
             updateHUD(e.scroll);
-            updateParallax(e.scroll);
+            // updateParallax(e.scroll); ← 写真を動かす処理を削除
         });
     } else {
         window.addEventListener('scroll', () => {
             updateHUD(window.scrollY);
-            updateParallax(window.scrollY);
+            // updateParallax(window.scrollY); ← 写真を動かす処理を削除
         });
     }
 }
@@ -115,7 +118,7 @@ function initAfterLoad() {
     initScrollAnimation();
 }
 
-// === HUD & UI制御 (修正: 逆転ロジック & 表示切替) ===
+// === HUD & UI制御 ===
 function updateHUD(scrollTop) {
     const isEnglish = document.body.classList.contains('en');
     const targetAlt = isEnglish ? TARGET_ALTITUDE_FT : TARGET_ALTITUDE_M;
@@ -128,10 +131,9 @@ function updateHUD(scrollTop) {
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
 
-    // 1. HUD表示制御: トップページ(Hero)を超えたら表示
+    // 1. HUD表示制御
     if (hudLayer && hero) {
         const heroHeight = hero.offsetHeight;
-        // 少し余裕を持たせて、ヒーローセクションを8割過ぎたら表示
         if (scrollTop > heroHeight * 0.8) {
             hudLayer.classList.add('visible');
         } else {
@@ -139,9 +141,8 @@ function updateHUD(scrollTop) {
         }
     }
 
-    // 2. 高度計: 逆転ロジック (上:最大 -> 下:0)
+    // 2. 高度計 (逆転ロジック)
     if(altDisplay) {
-        // (1 - 進行度) を掛けることで、スクロールするほど数値が減る
         const currentAlt = Math.floor((1 - scrollPercent) * targetAlt);
         altDisplay.textContent = String(currentAlt).padStart(5, '0');
     }
@@ -151,9 +152,21 @@ function updateHUD(scrollTop) {
     const progressBar = document.getElementById('scroll-progress');
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
 
+    // 3. ヘッダーのスクロール制御（隠す・出す）
     if(header) {
+        // 背景色の制御
         if(scrollTop > 50) header.classList.add('scrolled');
         else header.classList.remove('scrolled');
+
+        // 出し入れの制御
+        if (scrollTop > lastScrollTop && scrollTop > 100) {
+            // 下にスクロール & ある程度進んだら隠す
+            header.classList.add('header-hidden');
+        } else {
+            // 上にスクロールしたら出す
+            header.classList.remove('header-hidden');
+        }
+        lastScrollTop = scrollTop; // 位置を更新
     }
 
     const btt = document.getElementById('back-to-top');
@@ -162,7 +175,7 @@ function updateHUD(scrollTop) {
         else btt.classList.remove('show');
     }
 
-    // HUDの色制御 (高度が下がってきたら色を変える演出)
+    // HUDの色制御
     if (scrollPercent > 0.8) {
         document.documentElement.style.setProperty('--hud-color', '#fff'); 
     } else {
@@ -170,32 +183,28 @@ function updateHUD(scrollTop) {
     }
 }
 
-// === FAQ (Q&A) の開閉ロジックを追加 ===
+// === FAQ ===
 function initFAQ() {
     const questions = document.querySelectorAll('.faq-question');
     questions.forEach(q => {
         q.addEventListener('click', () => {
             const item = q.parentElement;
             const answer = item.querySelector('.faq-answer');
-            
-            // クラスの付け替えで矢印などを制御
             item.classList.toggle('active');
-            
-            // 高さのアニメーション制御
             if (item.classList.contains('active')) {
-                // コンテンツの高さに合わせて開く
                 answer.style.maxHeight = answer.scrollHeight + 'px';
             } else {
-                // 閉じる
                 answer.style.maxHeight = null;
             }
         });
     });
 }
 
+// === HUD Interactions (Cursor & Magnet Button) ===
 function initHUDInteractions() {
     const cursor = document.getElementById('hud-cursor-target');
     
+    // PCのみ
     if (window.matchMedia("(min-width: 1025px)").matches && cursor) {
         document.addEventListener('mousemove', (e) => {
             cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
@@ -208,16 +217,22 @@ function initHUDInteractions() {
             el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
         });
         
+        // 修正：動くボタンが確実に戻るように
         const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
         magnets.forEach((magnet) => {
             magnet.classList.add('magnet-btn');
+            
             magnet.addEventListener('mousemove', (e) => {
                 const rect = magnet.getBoundingClientRect();
                 const x = (e.clientX - (rect.left + rect.width / 2)) / 5;
                 const y = (e.clientY - (rect.top + rect.height / 2)) / 5;
-                magnet.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+                magnet.style.transform = `translate3d(${x}px, ${y}px, 0) scale(1.1)`;
             });
-            magnet.addEventListener('mouseleave', () => magnet.style.transform = 'translate(0, 0) scale(1)');
+
+            magnet.addEventListener('mouseleave', () => {
+                // 明示的にリセット
+                magnet.style.transform = 'translate3d(0, 0, 0) scale(1)';
+            });
         });
     }
 }
@@ -249,16 +264,7 @@ function createStardust(x, y) {
     animation.onfinish = () => particle.remove();
 }
 
-function updateParallax(scrollTop) {
-    const parallaxImages = document.querySelectorAll('.gallery-item img, .timeline-img');
-    parallaxImages.forEach((img) => {
-        const rect = img.parentElement.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-            const offset = (window.innerHeight - rect.top) * 0.08;
-            img.style.transform = `translateY(${offset}px) scale(1.1)`;
-        }
-    });
-}
+// updateParallax 関数は削除しました
 
 class TextScramble {
     constructor(el) { this.el = el; this.chars = '!<>-_\\/[]{}—=+*^?#________'; this.update = this.update.bind(this); }
