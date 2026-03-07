@@ -1,5 +1,7 @@
 // --- START OF FILE script.js ---
 
+// === 1. 初期設定 & Lenis (慣性スクロール) ===
+
 // 言語設定（初期ロード時）
 const savedLang = localStorage.getItem('lang') || 'ja';
 if (savedLang === 'en') {
@@ -11,115 +13,282 @@ const isEnglish = document.body.classList.contains('en');
 const TARGET_ALTITUDE = isEnglish ? 83156 : 25346;
 const UNIT_TEXT = isEnglish ? 'ft' : 'm';
 
-// ローディング制御
-window.addEventListener('load', () => {
-    const loader = document.getElementById('loader');
-    const container = document.getElementById('digit-container');
-    const langBtn = document.getElementById('langBtn');
+// Lenisの初期化
+if (typeof Lenis !== 'undefined') {
+    const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smooth: true,
+        smoothTouch: false
+    });
+    window.lenis = lenis;
 
-    // 言語ボタンの初期テキスト設定
-    if (langBtn) { 
-        langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
-        
-        // ★【修正箇所】言語切り替えクリックイベント追加
-        langBtn.addEventListener('click', () => {
-            // クラスのトグル
-            const isEn = document.body.classList.toggle('en');
-            // ローカルストレージへの保存
-            localStorage.setItem('lang', isEn ? 'en' : 'ja');
-            // ボタンの文字を変更
-            langBtn.textContent = isEn ? 'JP' : 'EN';
-        });
+    // Lenisのスクロールループ
+    function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
     }
+    requestAnimationFrame(raf);
+
+    // Lenisのスクロールイベントにパララックスなどの連動処理を登録
+    lenis.on('scroll', (e) => {
+        updateHUD(e.scroll);      // HUD（高度計）の更新
+        updateParallax(e.scroll); // パララックス効果
+    });
+} else {
+    // Lenisがない場合のフォールバック（標準スクロール）
+    window.addEventListener('scroll', () => {
+        updateHUD(window.scrollY);
+        updateParallax(window.scrollY);
+    });
+}
+
+
+// === 2. メイン実行処理 (DOM読み込み完了後) ===
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 言語切り替えボタン
+    initLanguageSwitcher();
     
-    // 星（Hyperspace Loader用）生成 ※背景の星は削除済み
-    initHyperspaceStars();
+    // システム起動ローダー開始
+    initBootSequence();
+
+    // HUD（カーソル・計器）初期化
+    initHUDInteractions();
     
-    // カウントアップ開始
-    startLoadingAnimation(loader, container);
+    // 比較スライダー（Before/After）
+    initCompareSlider();
+
+    // その他のUI（ハンバーガーメニュー、Topへ戻るなど）
+    initUI();
 });
 
-// ★★★ ハイパースペースの星生成（修正：完全ランダム配置） ★★★
-function initHyperspaceStars() {
-    const hyperContainer = document.getElementById('hyperspace');
-    if (!hyperContainer) return;
 
-    // 星の数を設定
-    const starCount = 500; 
+// === 3. システム起動ローダー (Boot Sequence) ===
 
-    for (let i = 0; i < starCount; i++) { 
-        const s = document.createElement('div');
-        s.className = 'hyper-star';
-        
-        // 画面の中心(0,0)から、画面幅の3倍程度の範囲にランダムに配置
-        // (Math.random() - 0.5) で -0.5 ~ 0.5 を作り、広範囲に掛ける
-        const x = (Math.random() - 0.5) * window.innerWidth * 3;
-        const y = (Math.random() - 0.5) * window.innerHeight * 3;
-        
-        s.style.setProperty('--tx', x + 'px');
-        s.style.setProperty('--ty', y + 'px');
-        
-        hyperContainer.appendChild(s);
+function initBootSequence() {
+    const screen = document.getElementById('boot-screen');
+    const log = document.getElementById('boot-log');
+    const fill = document.querySelector('.boot-progress-fill');
+    const percent = document.querySelector('.boot-percent');
+    
+    // 画面要素がない場合は処理を中断（エラー防止）
+    if (!screen) {
+        initAfterLoad(); 
+        return;
     }
-}
 
-function startLoadingAnimation(loader, container) {
-    const duration = 2500; // カウントアップにかかる時間
-    const startTime = performance.now();
+    // 表示するログ（ハッカー風演出）
+    const logs = [
+        "SYSTEM_CHECK_INIT...",
+        "LOADING_KERNEL_MODULES...",
+        "MOUNTING_FILESYSTEM...",
+        "CHECKING_MEMORY_INTEGRITY...",
+        "CONNECTING_TO_SATELLITE...",
+        "ESTABLISHING_SECURE_LINK...",
+        "LOADING_ASSETS_TEXTURES...",
+        "CALIBRATING_SENSORS...",
+        "ATMOSPHERIC_PRESSURE: NORMAL",
+        "OXYGEN_LEVELS: 100%",
+        "TARGET_COORDINATES: LOCKED",
+        "SYSTEM_READY."
+    ];
 
-    function updateCounter(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        // イージング（最後の方でゆっくりになる）
-        const ease = 1 - Math.pow(1 - progress, 4);
-        
-        const currentAlt = Math.floor(ease * TARGET_ALTITUDE);
-        const displayAlt = (progress >= 1) ? TARGET_ALTITUDE : currentAlt;
-        const altString = String(displayAlt).padStart(5, '0');
-        
-        if (container) {
-            let html = '';
-            for (let char of altString) { html += `<div class="digit-box">${char}</div>`; }
-            html += `<div class="unit-box">${UNIT_TEXT}</div>`;
-            container.innerHTML = html;
-        }
+    let progress = 0;
+    let logIndex = 0;
 
-        if (progress < 1) {
-            requestAnimationFrame(updateCounter);
-        } else {
-            // カウント完了後の演出シーケンス
-            if(loader) {
-                // Step 1: 星を出現させる (class: phase-stars)
-                // カウントが終わってすぐ実行
-                setTimeout(() => {
-                    loader.classList.add('phase-stars');
-                }, 100);
+    const interval = setInterval(() => {
+        // 進捗をランダムに進める（不規則なロード感を演出）
+        progress += Math.random() * 4; 
+        if (progress > 100) progress = 100;
 
-                // Step 2: ワープ開始 & ホワイトアウト (class: phase-warp)
-                // 星が出てから少し待って(1.5秒後)発動
-                setTimeout(() => {
-                    loader.classList.add('phase-warp');
-                }, 1600); 
+        // バーと数値を更新
+        if(fill) fill.style.width = `${progress}%`;
+        if(percent) percent.textContent = `${Math.floor(progress)}%`;
 
-                // Step 3: ローダー終了・画面遷移
-                // ホワイトアウトが完了する頃(ワープ開始から1.2秒後)に実行
-                setTimeout(() => {
-                    loader.style.display = 'none'; // ローダーを消す
-                    initTextScramble();
-                    initScrollAnimation();
-                }, 2800); 
-            } else {
-                // ローダーが無い場合（即時表示）
-                initScrollAnimation();
-                initTextScramble();
+        // ログを追加（進捗に合わせて）
+        if (progress > (logIndex * (100 / logs.length)) && logIndex < logs.length) {
+            const p = document.createElement('div');
+            p.className = 'boot-line';
+            p.textContent = `> ${logs[logIndex]}`;
+            // 最後の行だけ白くする
+            if (logIndex === logs.length - 1) {
+                p.style.color = '#fff';
+                p.classList.add('blink');
             }
+            if(log) log.prepend(p); // 新しいログを上に追加
+            logIndex++;
         }
-    }
-    requestAnimationFrame(updateCounter);
+
+        // 完了処理
+        if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+                screen.classList.add('loaded'); // 画面フェードアウト
+                initAfterLoad(); // ロード後の演出開始
+            }, 600);
+        }
+    }, 60); // 更新頻度
 }
 
-// Text Scramble
+// ロード完了後に開始するアニメーション群
+function initAfterLoad() {
+    initTextScramble();    // 文字化け演出
+    initScrollAnimation(); // 要素のフェードイン
+}
+
+
+// === 4. HUD & インタラクション制御 ===
+
+// スクロール連動：高度計更新
+function updateHUD(scrollTop) {
+    const altDisplay = document.getElementById('live-altitude');
+    const indicator = document.getElementById('scroll-indicator');
+    const header = document.getElementById('header');
+    
+    // ドキュメント全体の高さから現在の進行度(0.0〜1.0)を計算
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.max(0, Math.min(1, scrollTop / docHeight)); // 0-1に制限
+
+    // 現在の高度計算
+    const currentAlt = Math.floor(scrollPercent * TARGET_ALTITUDE);
+    
+    // 5桁のゼロ埋め表示
+    if(altDisplay) altDisplay.textContent = String(currentAlt).padStart(5, '0');
+
+    // 右側のバーのインジケータ移動
+    if(indicator) {
+        indicator.style.top = `${scrollPercent * 100}%`;
+    }
+
+    // スクロールプログレスバー（上部）
+    const progressBar = document.getElementById('scroll-progress');
+    if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
+
+    // ヘッダーの背景色制御
+    if(header) {
+        if(scrollTop > 50) header.classList.add('scrolled');
+        else header.classList.remove('scrolled');
+    }
+
+    // バック・トゥ・トップボタンの表示
+    const btt = document.getElementById('back-to-top');
+    if(btt) {
+        if(scrollTop > 400) btt.classList.add('show');
+        else btt.classList.remove('show');
+    }
+
+    // 遊び心：高度（スクロール量）に応じてHUDの色を変える
+    // 例：成層圏（半分以上）に行くと警告色（白/赤）になるなど
+    if (scrollPercent > 0.6) {
+        document.documentElement.style.setProperty('--hud-color', '#fff'); 
+    } else {
+        document.documentElement.style.setProperty('--hud-color', 'rgba(212, 175, 55, 0.8)');
+    }
+}
+
+// マウスカーソルとロックオン機能
+function initHUDInteractions() {
+    const cursor = document.getElementById('hud-cursor-target');
+    
+    // PC（幅1025px以上）のみ有効
+    if (window.matchMedia("(min-width: 1025px)").matches && cursor) {
+        
+        // カーソル追従（少し遅延させて重みを出す）
+        document.addEventListener('mousemove', (e) => {
+            // HUDカーソル移動
+            cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+            
+            // 遊び心：スターダスト（塵）を生成
+            createStardust(e.clientX, e.clientY);
+        });
+
+        // ロックオン演出（リンクやボタンにホバー時）
+        const targets = document.querySelectorAll('a, button, .gallery-item, .map-overlay-btn');
+        targets.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.classList.add('locked');
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.classList.remove('locked');
+            });
+        });
+        
+        // 磁石ボタン（ボタンがマウスに吸い付く）
+        const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
+        magnets.forEach((magnet) => {
+            magnet.classList.add('magnet-btn');
+            magnet.addEventListener('mousemove', (e) => {
+                const rect = magnet.getBoundingClientRect();
+                const x = (e.clientX - (rect.left + rect.width / 2)) / 5;
+                const y = (e.clientY - (rect.top + rect.height / 2)) / 5;
+                magnet.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+            });
+            magnet.addEventListener('mouseleave', () => { 
+                magnet.style.transform = 'translate(0, 0) scale(1)'; 
+            });
+        });
+    }
+}
+
+// 遊び心：マウスストーカー（宇宙の塵）
+let isThrottled = false;
+function createStardust(x, y) {
+    if (isThrottled) return; // 処理を間引く（負荷軽減）
+    isThrottled = true;
+    setTimeout(() => isThrottled = false, 50);
+
+    const particle = document.createElement('div');
+    particle.style.position = 'fixed';
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.width = Math.random() * 3 + 'px';
+    particle.style.height = particle.style.width;
+    particle.style.background = Math.random() > 0.8 ? '#D4AF37' : '#fff'; // たまに金色
+    particle.style.borderRadius = '50%';
+    particle.style.pointerEvents = 'none';
+    particle.style.zIndex = '999999';
+    particle.style.boxShadow = '0 0 6px rgba(255,255,255,0.8)';
+    
+    document.body.appendChild(particle);
+
+    // 拡散アニメーション
+    const destX = (Math.random() - 0.5) * 60;
+    const destY = (Math.random() - 0.5) * 60;
+
+    const animation = particle.animate([
+        { transform: `translate(0, 0) scale(1)`, opacity: 0.8 },
+        { transform: `translate(${destX}px, ${destY}px) scale(0)`, opacity: 0 }
+    ], {
+        duration: 1000 + Math.random() * 1000,
+        easing: 'cubic-bezier(0, .9, .57, 1)'
+    });
+
+    animation.onfinish = () => particle.remove();
+}
+
+
+// === 5. ビジュアルエフェクト (パララックス & Text Scramble) ===
+
+// パララックス（視差効果）
+function updateParallax(scrollTop) {
+    // ギャラリー画像などをスクロール速度に合わせてゆっくり動かす
+    const parallaxImages = document.querySelectorAll('.gallery-item img, .timeline-img');
+    
+    parallaxImages.forEach((img) => {
+        const speed = 0.08; // 移動係数
+        const rect = img.parentElement.getBoundingClientRect();
+        
+        // 画面内にある時だけ計算
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+            // 親要素の中心からの距離に応じて動かす
+            const offset = (window.innerHeight - rect.top) * speed;
+            img.style.transform = `translateY(${offset}px) scale(1.1)`; // scaleは隙間防止
+        }
+    });
+}
+
+// テキストスクランブル演出 (Text Scramble)
 class TextScramble {
     constructor(el) { this.el = el; this.chars = '!<>-_\\/[]{}—=+*^?#________'; this.update = this.update.bind(this); }
     setText(newText) {
@@ -151,6 +320,7 @@ class TextScramble {
     }
     randomChar() { return this.chars[Math.floor(Math.random() * this.chars.length)]; }
 }
+
 function initTextScramble() {
     const el = document.querySelector('.data-tag span[lang="ja"]');
     const elEn = document.querySelector('.data-tag span[lang="en"]');
@@ -159,10 +329,14 @@ function initTextScramble() {
 
     if(target) {
         const fx = new TextScramble(target);
-        const phrases = ['ALT: 25,346m / TEMP: -38.8℃', 'SYSTEM: NORMAL', 'STATUS: LAUNCHED'];
-        if(document.body.classList.contains('en')) {
-             phrases[0] = 'ALT: 83,156ft / TEMP: -37.8℉';
-        }
+        // 表示するメッセージのリスト
+        const phrases = [
+            isEnglish ? 'ALT: 83,156ft / TEMP: -37.8℉' : 'ALT: 25,346m / TEMP: -38.8℃',
+            'SYSTEM: NORMAL',
+            'STATUS: LAUNCHED',
+            'TRAJECTORY: STABLE'
+        ];
+        
         let counter = 0;
         const next = () => {
             fx.setText(phrases[counter]).then(() => { setTimeout(next, 3000); });
@@ -172,153 +346,100 @@ function initTextScramble() {
     }
 }
 
-// ★【削除箇所】ここにあった背景の星（Background Warp Stars）のコードを削除しました
-
-// Other UI Scripts
-let lastSparkleTime = 0;
-document.addEventListener('mousemove', (e) => {
-    const now = Date.now();
-    if (now - lastSparkleTime > 50) { createSparkle(e.clientX, e.clientY); lastSparkleTime = now; }
-});
-function createSparkle(x, y) {
-    const s = document.createElement('div'); s.classList.add('sparkle');
-    s.style.left = (x + (Math.random()-0.5)*15) + 'px'; s.style.top = (y + (Math.random()-0.5)*15) + 'px';
-    const size = Math.random()*4+2; s.style.width = size+'px'; s.style.height = size+'px';
-    document.body.appendChild(s); setTimeout(() => s.remove(), 800);
-}
-
+// スクロール時のフェードイン (IntersectionObserver)
 function initScrollAnimation() {
     const obs = new IntersectionObserver((entries) => {
-        entries.forEach(entry => { if(entry.isIntersecting) { entry.target.classList.add('is-visible'); obs.unobserve(entry.target); }});
+        entries.forEach(entry => { 
+            if(entry.isIntersecting) { 
+                entry.target.classList.add('is-visible'); 
+                obs.unobserve(entry.target); 
+            }
+        });
     }, { threshold: 0.15 });
     document.querySelectorAll('.js-scroll').forEach(el => obs.observe(el));
 }
 
-window.addEventListener('scroll', () => {
-    const top = window.scrollY;
-    const header = document.getElementById('header');
-    if(top > 50) header.classList.add('scrolled'); else header.classList.remove('scrolled');
-    const docH = document.body.scrollHeight - window.innerHeight;
-    const bar = document.getElementById('scroll-progress');
-    if(bar) bar.style.width = (top/docH)*100 + '%';
+
+// === 6. UI & ユーティリティ ===
+
+function initLanguageSwitcher() {
+    const langBtn = document.getElementById('langBtn');
+    if (langBtn) { 
+        langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
+        langBtn.addEventListener('click', () => {
+            const isEn = document.body.classList.toggle('en');
+            localStorage.setItem('lang', isEn ? 'en' : 'ja');
+            langBtn.textContent = isEn ? 'JP' : 'EN';
+            // ページリロードして反映（スクランブルテキスト等の再初期化のため）
+            location.reload();
+        });
+    }
+}
+
+function initCompareSlider() {
+    const sld = document.getElementById('compare-slider');
+    if(sld) sld.addEventListener('input', (e) => {
+        const val = e.target.value;
+        document.getElementById('compare-overlay').style.width = val + "%";
+        document.getElementById('slider-button').style.left = val + "%";
+    });
+}
+
+function initUI() {
+    // ハンバーガーメニュー
+    const ham = document.getElementById('hamburger'); 
+    const nv = document.getElementById('nav-menu');
+    if(ham && nv) {
+        ham.addEventListener('click', () => { 
+            ham.classList.toggle('active'); 
+            nv.classList.toggle('active'); 
+        });
+        nv.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { 
+            ham.classList.remove('active'); 
+            nv.classList.remove('active'); 
+        }));
+    }
+
+    // バック・トゥ・トップ (ロケット発射)
     const btt = document.getElementById('back-to-top');
-    if(btt) { if(top > 400) btt.classList.add('show'); else btt.classList.remove('show'); }
-});
-
-const btt = document.getElementById('back-to-top');
-if(btt) btt.addEventListener('click', (e) => {
-    e.preventDefault(); btt.classList.add('launch');
-    if(typeof window.lenis !== 'undefined' && window.lenis) {
-        window.lenis.scrollTo(0, {duration: 3}); 
-    } else {
-        window.scrollTo({top:0, behavior:'smooth'});
-    }
-    setTimeout(() => { btt.classList.remove('launch', 'show'); }, 3500);
-});
-
-const ham = document.getElementById('hamburger'); const nv = document.getElementById('nav-menu');
-if(ham) {
-    ham.addEventListener('click', () => { ham.classList.toggle('active'); nv.classList.toggle('active'); });
-    nv.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { ham.classList.remove('active'); nv.classList.remove('active'); }));
-}
-
-const sld = document.getElementById('compare-slider');
-if(sld) sld.addEventListener('input', (e) => {
-    const val = e.target.value;
-    document.getElementById('compare-overlay').style.width = val + "%";
-    document.getElementById('slider-button').style.left = val + "%";
-});
-
-const cursor = document.getElementById('hud-cursor');
-if (cursor && window.matchMedia("(min-width: 1025px)").matches) {
-    document.addEventListener('mousemove', (e) => { cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`; }, {passive:true});
-    document.querySelectorAll('a, button, .gallery-item, .exp-card, .btn-insta').forEach(el => {
-        el.addEventListener('mouseenter', () => cursor.classList.add('locked'));
-        el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
-    });
-}
-
-const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
-magnets.forEach((magnet) => {
-    magnet.classList.add('magnet-btn');
-    magnet.addEventListener('mousemove', (e) => {
-        const rect = magnet.getBoundingClientRect();
-        const x = (e.clientX - (rect.left + rect.width / 2)) / 5;
-        const y = (e.clientY - (rect.top + rect.height / 2)) / 5;
-        magnet.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
-    });
-    magnet.addEventListener('mouseleave', () => { magnet.style.transform = 'translate(0, 0) scale(1)'; });
-});
-
-document.addEventListener('click', (e) => {
-    for(let i=0; i<8; i++){
-        const p = document.createElement('div'); p.classList.add('burst-particle');
-        p.style.left = e.clientX+'px'; p.style.top = e.clientY+'px';
-        const a = Math.random()*Math.PI*2; const v = 50+Math.random()*100;
-        p.style.setProperty('--tx', Math.cos(a)*v+'px'); p.style.setProperty('--ty', Math.sin(a)*v+'px');
-        p.style.background = Math.random()>0.5 ? '#D4AF37' : '#fff';
-        document.body.appendChild(p); setTimeout(()=>p.remove(), 1000);
-    }
-});
-/* 
- * 1. パララックス効果 (画像と文字の速度差)
- * Lenisのスクロールイベント、またはwindowのscrollイベント内で実行
- */
-window.addEventListener('scroll', () => {
-    const scrolled = window.scrollY;
-
-    // ギャラリー画像などをスクロール速度に合わせてゆっくり動かす
-    document.querySelectorAll('.gallery-item img').forEach((img) => {
-        const speed = 0.05; // 移動量
-        const rect = img.parentElement.getBoundingClientRect();
-        // 画面内にある時だけ計算
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-            const offset = (window.innerHeight - rect.top) * speed;
-            img.style.transform = `translateY(${offset}px) scale(1.1)`;
+    if(btt) btt.addEventListener('click', (e) => {
+        e.preventDefault(); 
+        btt.classList.add('launch'); // ロケット発射アニメーション
+        
+        if(typeof window.lenis !== 'undefined' && window.lenis) {
+            window.lenis.scrollTo(0, {duration: 3}); 
+        } else {
+            window.scrollTo({top:0, behavior:'smooth'});
         }
-    });
-});
-
-/*
- * 2. 遊び心：マウスストーカーに「宇宙の塵（スターダスト）」を追加
- * カーソルが動くと、キラキラした軌跡が残る
- */
-const createStardust = (x, y) => {
-    const particle = document.createElement('div');
-    particle.style.position = 'fixed';
-    particle.style.left = x + 'px';
-    particle.style.top = y + 'px';
-    particle.style.width = Math.random() * 3 + 'px'; // 1〜3px
-    particle.style.height = particle.style.width;
-    particle.style.background = Math.random() > 0.9 ? '#D4AF37' : '#fff'; // たまに金色
-    particle.style.borderRadius = '50%';
-    particle.style.pointerEvents = 'none';
-    particle.style.zIndex = '999999';
-    particle.style.boxShadow = '0 0 6px rgba(255,255,255,0.8)';
-    
-    document.body.appendChild(particle);
-
-    // アニメーション
-    const destX = (Math.random() - 0.5) * 60;
-    const destY = (Math.random() - 0.5) * 60;
-
-    const animation = particle.animate([
-        { transform: `translate(0, 0) scale(1)`, opacity: 0.8 },
-        { transform: `translate(${destX}px, ${destY}px) scale(0)`, opacity: 0 }
-    ], {
-        duration: 1000 + Math.random() * 1000,
-        easing: 'cubic-bezier(0, .9, .57, 1)'
+        
+        // アニメーションが終わる頃にクラスを削除
+        setTimeout(() => { btt.classList.remove('launch', 'show'); }, 3500);
     });
 
-    animation.onfinish = () => particle.remove();
-};
+    // ギャラリーモーダル
+    const modal = document.getElementById('gallery-modal');
+    if (modal) {
+        const modalImg = document.getElementById('modal-img');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        const closeBtn = document.querySelector('.close-modal');
 
-// マウス移動イベントに追加（既存のsparkleより繊細な動きにする）
-let isThrottled = false;
-document.addEventListener('mousemove', (e) => {
-    if (!isThrottled) {
-        createStardust(e.clientX, e.clientY);
-        isThrottled = true;
-        setTimeout(() => isThrottled = false, 40); // 頻度調整
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const isEn = document.body.classList.contains('en');
+                const title = isEn ? item.dataset.titleEn : item.dataset.titleJa;
+                const desc = isEn ? item.dataset.descEn : item.dataset.descJa;
+                
+                modalImg.src = item.dataset.img;
+                modalTitle.textContent = title;
+                modalDesc.textContent = desc;
+                modal.classList.add('show');
+            });
+        });
+
+        closeBtn.addEventListener('click', () => modal.classList.remove('show'));
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('show');
+        });
     }
-});
+}
