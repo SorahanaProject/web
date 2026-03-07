@@ -1,38 +1,25 @@
 // --- START OF FILE script.js ---
 
-// 設定値（定数は先に定義してもOK）
 const TARGET_ALTITUDE_M = 25346;
 const TARGET_ALTITUDE_FT = 83156;
 
-// === メイン実行処理 (HTML読み込み完了後に実行) ===
+// === メイン実行処理 ===
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. 言語設定の初期化（ここでbodyを操作する）
     initLanguageSettings();
-
-    // 2. Lenis (慣性スクロール) の初期化
     initLenis();
-
-    // 3. システム起動ローダー開始
     initBootSequence();
-
-    // 4. UI・インタラクション初期化
     initHUDInteractions();
     initCompareSlider();
     initUI();
+    initFAQ(); // Q&A機能を追加
 });
 
-
 // === 機能別関数 ===
-
 function initLanguageSettings() {
-    // ローカルストレージから言語設定を取得
     const savedLang = localStorage.getItem('lang') || 'ja';
     if (savedLang === 'en') {
         document.body.classList.add('en');
     }
-    
-    // 言語切り替えボタンのイベント設定
     const langBtn = document.getElementById('langBtn');
     if (langBtn) { 
         langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
@@ -40,7 +27,7 @@ function initLanguageSettings() {
             const isEn = document.body.classList.toggle('en');
             localStorage.setItem('lang', isEn ? 'en' : 'ja');
             langBtn.textContent = isEn ? 'JP' : 'EN';
-            location.reload(); // リロードして反映
+            location.reload();
         });
     }
 }
@@ -54,20 +41,16 @@ function initLenis() {
             smoothTouch: false
         });
         window.lenis = lenis;
-
         function raf(time) {
             lenis.raf(time);
             requestAnimationFrame(raf);
         }
         requestAnimationFrame(raf);
-
-        // スクロール連動イベント
         lenis.on('scroll', (e) => {
             updateHUD(e.scroll);
             updateParallax(e.scroll);
         });
     } else {
-        // Lenisがない場合（標準スクロール）
         window.addEventListener('scroll', () => {
             updateHUD(window.scrollY);
             updateParallax(window.scrollY);
@@ -82,9 +65,7 @@ function initBootSequence() {
     const fill = document.querySelector('.boot-progress-fill');
     const percent = document.querySelector('.boot-percent');
     
-    // 要素が見つからない場合は、ローダーを飛ばしてサイトを表示
     if (!screen || !fill || !percent) {
-        console.warn('Boot Loader elements not found. Skipping animation.');
         if(screen) screen.style.display = 'none';
         initAfterLoad(); 
         return;
@@ -100,16 +81,13 @@ function initBootSequence() {
     let progress = 0;
     let logIndex = 0;
 
-    // アニメーションループ
     const interval = setInterval(() => {
         progress += Math.random() * 4; 
         if (progress > 100) progress = 100;
 
-        // 表示更新
         fill.style.width = `${progress}%`;
         percent.textContent = `${Math.floor(progress)}%`;
 
-        // ログ更新
         if (log && progress > (logIndex * (100 / logs.length)) && logIndex < logs.length) {
             const p = document.createElement('div');
             p.className = 'boot-line';
@@ -122,11 +100,10 @@ function initBootSequence() {
             logIndex++;
         }
 
-        // 完了時
         if (progress >= 100) {
             clearInterval(interval);
             setTimeout(() => {
-                screen.classList.add('loaded'); // CSSでフェードアウト
+                screen.classList.add('loaded');
                 initAfterLoad();
             }, 600);
         }
@@ -138,20 +115,34 @@ function initAfterLoad() {
     initScrollAnimation();
 }
 
-// === HUD & UI制御 ===
+// === HUD & UI制御 (修正: 逆転ロジック & 表示切替) ===
 function updateHUD(scrollTop) {
     const isEnglish = document.body.classList.contains('en');
     const targetAlt = isEnglish ? TARGET_ALTITUDE_FT : TARGET_ALTITUDE_M;
     const altDisplay = document.getElementById('live-altitude');
     const indicator = document.getElementById('scroll-indicator');
     const header = document.getElementById('header');
+    const hudLayer = document.getElementById('hud-layer');
+    const hero = document.getElementById('hero');
     
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
 
-    // 高度更新
+    // 1. HUD表示制御: トップページ(Hero)を超えたら表示
+    if (hudLayer && hero) {
+        const heroHeight = hero.offsetHeight;
+        // 少し余裕を持たせて、ヒーローセクションを8割過ぎたら表示
+        if (scrollTop > heroHeight * 0.8) {
+            hudLayer.classList.add('visible');
+        } else {
+            hudLayer.classList.remove('visible');
+        }
+    }
+
+    // 2. 高度計: 逆転ロジック (上:最大 -> 下:0)
     if(altDisplay) {
-        const currentAlt = Math.floor(scrollPercent * targetAlt);
+        // (1 - 進行度) を掛けることで、スクロールするほど数値が減る
+        const currentAlt = Math.floor((1 - scrollPercent) * targetAlt);
         altDisplay.textContent = String(currentAlt).padStart(5, '0');
     }
 
@@ -171,12 +162,35 @@ function updateHUD(scrollTop) {
         else btt.classList.remove('show');
     }
 
-    // 高度に応じたHUDの色変化
-    if (scrollPercent > 0.6) {
+    // HUDの色制御 (高度が下がってきたら色を変える演出)
+    if (scrollPercent > 0.8) {
         document.documentElement.style.setProperty('--hud-color', '#fff'); 
     } else {
         document.documentElement.style.setProperty('--hud-color', 'rgba(212, 175, 55, 0.8)');
     }
+}
+
+// === FAQ (Q&A) の開閉ロジックを追加 ===
+function initFAQ() {
+    const questions = document.querySelectorAll('.faq-question');
+    questions.forEach(q => {
+        q.addEventListener('click', () => {
+            const item = q.parentElement;
+            const answer = item.querySelector('.faq-answer');
+            
+            // クラスの付け替えで矢印などを制御
+            item.classList.toggle('active');
+            
+            // 高さのアニメーション制御
+            if (item.classList.contains('active')) {
+                // コンテンツの高さに合わせて開く
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+            } else {
+                // 閉じる
+                answer.style.maxHeight = null;
+            }
+        });
+    });
 }
 
 function initHUDInteractions() {
@@ -208,7 +222,6 @@ function initHUDInteractions() {
     }
 }
 
-// === 演出エフェクト ===
 let isThrottled = false;
 function createStardust(x, y) {
     if (isThrottled) return;
