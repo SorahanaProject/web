@@ -1,3 +1,6 @@
+/* --- START OF FILE style.css --- */
+
+/* === 0. Font Import & Variables === */
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
 :root {
@@ -91,10 +94,9 @@ span[lang="en"] { font-size: 1.05em; }
     pointer-events: none; z-index: 10000;
     padding: 20px; box-sizing: border-box;
     font-family: var(--font-tech); mix-blend-mode: screen;
-    opacity: 0; /* 【変更】初期状態は非表示（トップページ対策） */
-    transition: opacity 0.8s ease;
+    opacity: 0; transition: opacity 0.8s ease;
 }
-#hud-layer.visible { opacity: 1; } /* クラス付与で表示 */
+#hud-layer.visible { opacity: 1; }
 
 .hud-corner { position: absolute; width: 40px; height: 40px; border: 1px solid var(--hud-color); opacity: 0.7; box-shadow: 0 0 5px var(--hud-glow); }
 .top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
@@ -121,7 +123,7 @@ span[lang="en"] { font-size: 1.05em; }
 }
 
 #hud-cursor-target {
-    position: fixed; pointer-events: none; z-index: 11001;
+    position: fixed; pointer-events: none; z-index: 11001; /* ヘッダーより上に */
     transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s; display: none;
 }
 @media (min-width: 1025px) { #hud-cursor-target { display: block; } }
@@ -133,12 +135,20 @@ span[lang="en"] { font-size: 1.05em; }
 #hud-cursor-target.locked .target-line { display: none; }
 @keyframes rotateLock { 0%{transform: translate(-50%,-50%) rotate(0deg);} 100%{transform: translate(-50%,-50%) rotate(360deg);} }
 
-/* === 5. Layout & Components === */
+/* === 5. Header & Navigation === */
 header {
-    position: fixed; top: 0; width: 100%; padding: 20px 0; z-index: 11000;
-    transition: all 0.4s ease; background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+    position: fixed; top: 0; width: 100%; padding: 20px 0; z-index: 11000; /* HUD枠より上に */
+    transition: transform 0.4s ease, background 0.4s ease, padding 0.4s ease;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
 }
-header.scrolled { background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(15px); padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+header.scrolled {
+    background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(15px);
+    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+header.header-hidden {
+    transform: translateY(-100%); /* スクロールダウンで隠す */
+}
+
 .header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 .logo-link { display: flex; align-items: center; text-decoration: none; }
 .logo-img { height: 50px; transition: all 0.4s ease; }
@@ -147,6 +157,7 @@ nav ul { display: flex; list-style: none; gap: 30px; margin: 0; padding: 0; }
 nav a { font-family: var(--font-en); font-size: 0.9rem; letter-spacing: 0.05em; position: relative; color: #fff; text-decoration: none; text-shadow: 0 0 5px rgba(0,0,0,0.5); transition: color 0.3s; }
 nav a:hover { color: var(--accent-color); }
 
+/* === 6. Hero Section === */
 .hero { position: relative; height: 100vh; display: flex; justify-content: flex-end; align-items: center; text-align: left; overflow: hidden; z-index: 2; }
 .hero-bg-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 #hero-video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; transform: translate(-50%, -50%); object-fit: cover; z-index: -2; }
@@ -164,11 +175,12 @@ nav a:hover { color: var(--accent-color); }
 .scroll-down { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); color: #fff; font-family: var(--font-en); font-size: 0.8rem; animation: bounce 2s infinite; }
 @keyframes bounce { 0%, 100% { transform: translate(-50%, 0); opacity: 0.5; } 50% { transform: translate(-50%, 10px); opacity: 1; } }
 
+/* === 7. Content Sections === */
 section { padding: 120px 20px; position: relative; z-index: 2; }
 .container { max-width: 1000px; margin: 0 auto; position: relative; z-index: 2; }
 .lead-text { font-size: 1.15rem; line-height: 2.2; letter-spacing: 0.05em; text-align: center; width: 100%; display: block; color: #ddd; }
 
-/* Timeline & Gallery Effects */
+/* Timeline */
 .timeline { position: relative; max-width: 800px; margin: 0 auto 100px auto; padding: 20px 0; }
 .timeline::before { content: ''; position: absolute; top: 0; left: 20px; height: 100%; width: 1px; background: linear-gradient(to bottom, transparent, var(--accent-color), transparent); opacity: 0.5; }
 .timeline-item { position: relative; margin-bottom: 60px; padding-left: 60px; }
@@ -187,6 +199,7 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
     .timeline-item:nth-child(even) .timeline-dot { left: -10px; }
 }
 
+/* Experiment & Map */
 .experiment-vertical-view { display: flex; flex-direction: column; gap: 60px; align-items: center; margin-bottom: 100px; width: 100%; max-width: 900px; margin-left: auto; margin-right: auto; }
 .exp-card { position: relative; width: 100%; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); background: #000; z-index: 2; }
 .exp-card img { width: 100%; height: auto; display: block; transition: transform 0.5s, opacity 0.5s; opacity: 0.85; filter: saturate(0.8) contrast(1.1); }
@@ -198,6 +211,7 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .map-overlay-btn { position: absolute; top: 68%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid var(--accent-color); padding: 12px 35px; border-radius: 50px; font-family: var(--font-en); font-weight: 600; z-index: 10; pointer-events: auto; transition: 0.3s; }
 .map-link:hover .map-overlay-btn { background: var(--accent-color); color: #000; transform: translate(-50%, -50%) scale(1.05); }
 
+/* Compare Slider */
 .compare-container { position: relative; width: 100%; max-width: 600px; height: 400px; margin: 0 auto; overflow: hidden; border-radius: 12px; border: 1px solid var(--glass-border); }
 .img-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; }
 .img-wrapper.after { width: 50%; border-right: 2px solid var(--accent-color); z-index: 2; }
@@ -205,6 +219,7 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .slider { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: col-resize; z-index: 10; }
 .slider-button { position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; background: var(--accent-color); border-radius: 50%; transform: translate(-50%, -50%); z-index: 5; display: flex; justify-content: center; align-items: center; pointer-events: none; }
 
+/* Gallery */
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
 .gallery-item { position: relative; height: 350px; overflow: hidden; border-radius: 8px; z-index: 2; background: #000; }
 .gallery-item img { width: 110%; height: 110%; object-fit: cover; transition: 0.8s; filter: saturate(0.8) contrast(1.1); }
@@ -213,7 +228,7 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .gallery-label span { display: block; font-family: var(--font-en); color: #fff; font-size: 1.1rem; }
 .gallery-item:hover .gallery-label span { color: var(--accent-color); }
 
-/* Blog */
+/* Blog Cards */
 .blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; }
 .blog-card { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 12px; overflow: hidden; transition: 0.4s; }
 .blog-card:hover { transform: translateY(-10px); border-color: var(--accent-color); }
@@ -254,12 +269,14 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .social-icon-link svg { width: 100%; height: 100%; fill: var(--accent-color); transition: 0.3s; }
 .social-icon-link:hover { transform: scale(1.2); } .social-icon-link:hover svg { fill: #fff; filter: drop-shadow(0 0 15px var(--accent-color)); }
 
-/* Footer & Modal */
+/* === 8. Footer & Modal === */
 footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; color: #666; }
+
 .back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; z-index: 999; opacity: 0; pointer-events: none; transition: 0.3s; }
 .back-to-top.show { opacity: 1; pointer-events: auto; }
 .back-to-top.launch { animation: launchRocket 1s forwards ease-in; }
 @keyframes launchRocket { 0% { transform: translateY(0); } 100% { transform: translateY(-100vh); opacity: 0; } }
+
 .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
 .modal.show { display: flex; opacity: 1; }
 .modal-content { background: #0a0a0a; border: 1px solid #333; padding: 30px; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; text-align: center; border-radius: 8px; }
@@ -269,37 +286,38 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
 /* Scroll Progress */
 #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent-color), #fff); width: 0%; z-index: 100000; transition: width 0.1s; }
 
-/* Fade In Elements */
+/* === 9. Animation & Effects === */
 .js-scroll { opacity: 0; transform: translateY(30px) scale(0.98); filter: blur(5px); transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.165, 0.84, 0.44, 1), filter 1.2s ease; }
 .js-scroll.is-visible { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 
-/* Animation Keyframes */
-@keyframes float { 0% { transform: translateY(0px) rotate(0deg); } 33% { transform: translateY(-10px) rotate(0.5deg); } 66% { transform: translateY(5px) rotate(-0.5deg); } 100% { transform: translateY(0px) rotate(0deg); } }
-.timeline-img, .exp-card { animation: float 8s ease-in-out infinite; }
-.timeline-item:nth-child(even) .timeline-img { animation-delay: 1s; }
-.magnet-btn { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.magnet-btn { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: inline-block; }
 
-/* Mobile */
+/* === 10. Mobile Responsive === */
 @media (max-width: 768px) {
     section { padding: 80px 15px; }
     .section-title { font-size: 2.2rem; }
     .hero { justify-content: center; text-align: center; }
     .hero-content { max-width: 90%; margin-right: 0; padding: 40px 20px; background: rgba(0,0,0,0.6); border-left: none; border-bottom: 3px solid var(--accent-color); }
     .hero h1 span[lang="ja"] { font-size: 2rem; }
+    
     .timeline { margin-bottom: 50px; } .timeline::before { left: 10px; }
     .timeline-item { width: 100%; padding-left: 35px; padding-right: 0 !important; text-align: left !important; }
     .timeline-item:nth-child(odd) .timeline-dot, .timeline-item:nth-child(even) .timeline-dot { left: 2px; right: auto; }
+    
     .map-container .exp-caption { top: 50%; }
     .map-overlay-btn { display: none !important; }
+    
     .hud-side-left, .hud-corner { display: none; }
     .hud-side-right { top: auto; bottom: 10px; right: 10px; transform: none; }
     .alt-value { font-size: 1.2rem; }
+    
     .hamburger { display: block; cursor: pointer; width: 30px; height: 25px; position: relative; z-index: 200; }
     .hamburger span { position: absolute; width: 100%; height: 2px; background: #fff; transition: 0.3s; }
     .hamburger span:nth-child(1) { top: 0; } .hamburger span:nth-child(2) { top: 11px; } .hamburger span:nth-child(3) { bottom: 0; }
     .hamburger.active span:nth-child(1) { transform: rotate(45deg); top: 11px; } 
     .hamburger.active span:nth-child(2) { opacity: 0; } 
     .hamburger.active span:nth-child(3) { transform: rotate(-45deg); bottom: 11px; }
+    
     nav { position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; background: rgba(5,5,5,0.98); display: flex; justify-content: center; align-items: center; transition: 0.4s; }
     nav.active { right: 0; } nav ul { flex-direction: column; text-align: center; gap: 30px; }
     .email-link { font-size: 1rem; padding: 20px 30px; width: 80%; }
