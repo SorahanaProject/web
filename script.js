@@ -51,12 +51,10 @@ function initLenis() {
         requestAnimationFrame(raf);
         lenis.on('scroll', (e) => {
             updateHUD(e.scroll);
-            // updateParallax(e.scroll); ← 写真を動かす処理を削除
         });
     } else {
         window.addEventListener('scroll', () => {
             updateHUD(window.scrollY);
-            // updateParallax(window.scrollY); ← 写真を動かす処理を削除
         });
     }
 }
@@ -160,13 +158,11 @@ function updateHUD(scrollTop) {
 
         // 出し入れの制御
         if (scrollTop > lastScrollTop && scrollTop > 100) {
-            // 下にスクロール & ある程度進んだら隠す
             header.classList.add('header-hidden');
         } else {
-            // 上にスクロールしたら出す
             header.classList.remove('header-hidden');
         }
-        lastScrollTop = scrollTop; // 位置を更新
+        lastScrollTop = scrollTop;
     }
 
     const btt = document.getElementById('back-to-top');
@@ -207,7 +203,8 @@ function initHUDInteractions() {
     // PCのみ
     if (window.matchMedia("(min-width: 1025px)").matches && cursor) {
         document.addEventListener('mousemove', (e) => {
-            cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+            // 中心合わせのため translate(-50%, -50%) をJS側で含める
+            cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
             createStardust(e.clientX, e.clientY);
         });
 
@@ -230,7 +227,6 @@ function initHUDInteractions() {
             });
 
             magnet.addEventListener('mouseleave', () => {
-                // 明示的にリセット
                 magnet.style.transform = 'translate3d(0, 0, 0) scale(1)';
             });
         });
@@ -263,8 +259,6 @@ function createStardust(x, y) {
 
     animation.onfinish = () => particle.remove();
 }
-
-// updateParallax 関数は削除しました
 
 class TextScramble {
     constructor(el) { this.el = el; this.chars = '!<>-_\\/[]{}—=+*^?#________'; this.update = this.update.bind(this); }
