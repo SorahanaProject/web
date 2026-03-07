@@ -125,6 +125,7 @@ function updateHUD(scrollTop) {
     const header = document.getElementById('header');
     const hudLayer = document.getElementById('hud-layer');
     const hero = document.getElementById('hero');
+    const rocket = document.getElementById('hud-rocket-tracker');
     
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
@@ -145,18 +146,18 @@ function updateHUD(scrollTop) {
         altDisplay.textContent = String(currentAlt).padStart(5, '0');
     }
 
+    // スクロールバーとロケット位置
     if(indicator) indicator.style.top = `${scrollPercent * 100}%`;
+    if(rocket) rocket.style.top = `${scrollPercent * 100}%`;
 
     const progressBar = document.getElementById('scroll-progress');
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
 
     // 3. ヘッダーのスクロール制御（隠す・出す）
     if(header) {
-        // 背景色の制御
         if(scrollTop > 50) header.classList.add('scrolled');
         else header.classList.remove('scrolled');
 
-        // 出し入れの制御
         if (scrollTop > lastScrollTop && scrollTop > 100) {
             header.classList.add('header-hidden');
         } else {
@@ -196,14 +197,24 @@ function initFAQ() {
     });
 }
 
-// === HUD Interactions (Cursor & Magnet Button) ===
+// === HUD Interactions (Cursor & Magnet Button & Rocket) ===
 function initHUDInteractions() {
     const cursor = document.getElementById('hud-cursor-target');
     
-    // PCのみ
+    // ロケット要素をHUDに追加
+    const scrollBar = document.querySelector('.hud-scroll-bar');
+    if (scrollBar && !document.getElementById('hud-rocket-tracker')) {
+        const rocket = document.createElement('img');
+        rocket.src = 'images/rocket.png';
+        rocket.className = 'hud-rocket';
+        rocket.id = 'hud-rocket-tracker';
+        rocket.alt = 'Rocket Tracker';
+        scrollBar.appendChild(rocket);
+    }
+    
+    // PCのみカーソル制御
     if (window.matchMedia("(min-width: 1025px)").matches && cursor) {
         document.addEventListener('mousemove', (e) => {
-            // 中心合わせのため translate(-50%, -50%) をJS側で含める
             cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
             createStardust(e.clientX, e.clientY);
         });
@@ -214,7 +225,6 @@ function initHUDInteractions() {
             el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
         });
         
-        // 修正：動くボタンが確実に戻るように
         const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
         magnets.forEach((magnet) => {
             magnet.classList.add('magnet-btn');
