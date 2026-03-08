@@ -112,10 +112,23 @@ function initAfterLoad() {
     initScrollAnimation();
 }
 
+// === script.js の updateHUD 関数をこれに置き換え ===
+
 function updateHUD(scrollTop) {
     const isEnglish = document.body.classList.contains('en');
+    
+    // 設定値の切り替え
     const targetAlt = isEnglish ? TARGET_ALTITUDE_FT : TARGET_ALTITUDE_M;
+    const tempValText = isEnglish ? '-37.8' : '-38.8';
+    const tempUnitText = isEnglish ? '°F' : '°C';
+    const altUnitText = isEnglish ? 'ft' : 'm';
+
+    // 要素の取得
     const altDisplay = document.getElementById('live-altitude');
+    const altUnitDisplay = document.getElementById('hud-alt-unit'); // 追加
+    const tempValDisplay = document.getElementById('hud-temp-val'); // 追加
+    const tempUnitDisplay = document.getElementById('hud-temp-unit'); // 追加
+    
     const indicator = document.getElementById('scroll-indicator');
     const header = document.getElementById('header');
     const hudLayer = document.getElementById('hud-layer');
@@ -124,6 +137,12 @@ function updateHUD(scrollTop) {
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
 
+    // 1. 単位と気温の表記更新（常時更新）
+    if(altUnitDisplay) altUnitDisplay.textContent = altUnitText;
+    if(tempValDisplay) tempValDisplay.textContent = tempValText;
+    if(tempUnitDisplay) tempUnitDisplay.textContent = tempUnitText;
+
+    // 2. HUD表示制御
     if (hudLayer && hero) {
         const heroHeight = hero.offsetHeight;
         if (scrollTop > heroHeight * 0.8) {
@@ -133,6 +152,7 @@ function updateHUD(scrollTop) {
         }
     }
 
+    // 3. 高度計 (逆転ロジック)
     if(altDisplay) {
         const currentAlt = Math.floor((1 - scrollPercent) * targetAlt);
         altDisplay.textContent = String(currentAlt).padStart(5, '0');
@@ -143,6 +163,7 @@ function updateHUD(scrollTop) {
     const progressBar = document.getElementById('scroll-progress');
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
 
+    // 4. ヘッダー制御
     if(header) {
         if(scrollTop > 50) header.classList.add('scrolled');
         else header.classList.remove('scrolled');
@@ -161,6 +182,7 @@ function updateHUD(scrollTop) {
         else btt.classList.remove('show');
     }
 
+    // 色制御
     if (scrollPercent > 0.8) {
         document.documentElement.style.setProperty('--hud-color', '#fff'); 
     } else {
