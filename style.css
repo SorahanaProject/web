@@ -1,4 +1,4 @@
-/* --- START OF FILE style.css (Stabilized Version) --- */
+/* --- START OF FILE style.css --- */
 
 /* === 0. Font Import & Variables === */
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
@@ -18,37 +18,35 @@
     --bg-grid: rgba(255, 255, 255, 0.03);
 }
 
-/* === 1. Base Setup & Reset (ここを強化) === */
+/* === 1. Base Setup & Reset === */
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
     height: 100%; width: 100%;
-    background-color: #050505;
-    background-image: linear-gradient(to bottom, #000000 0%, #1a1a1a 100%);
-    background-attachment: fixed;
+    /* 背景色はcanvas(#starfield)側に移動して干渉を防ぐ */
+    background: transparent;
     overflow-y: scroll;
-    overflow-x: hidden; /* 横スクロールを強制禁止 */
     scrollbar-width: none;
 }
 html.lenis { height: auto; }
 ::-webkit-scrollbar { display: none; }
 
 body {
-    margin: 0; padding: 0;
-    background-color: transparent; color: var(--text-color);
-    font-family: var(--font-jp); 
-    overflow-x: hidden; /* 二重で防止 */
-    font-feature-settings: "palt"; letter-spacing: 0.05em; 
-    position: relative; z-index: 1;
+    margin: 0; background-color: transparent; color: var(--text-color);
+    font-family: var(--font-jp); overflow-x: hidden;
+    font-feature-settings: "palt"; letter-spacing: 0.05em; position: relative; z-index: 1;
 }
 
-/* 画像が親要素からはみ出すのを防ぐ */
-img, video {
-    max-width: 100%;
-    height: auto;
-    display: block;
+/* 背景の星空キャンバス */
+#starfield {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1; /* コンテンツの直下 */
+    pointer-events: none;
+    /* 宇宙の背景色をここに設定 */
+    background-image: linear-gradient(to bottom, #000000 0%, #1a1a1a 100%);
 }
 
+/* PCのみ標準カーソルを非表示 */
 @media (min-width: 1025px) {
     body, a, button, .exp-card, .gallery-item, .map-overlay-btn {
         cursor: none !important;
@@ -64,11 +62,11 @@ body::after {
 }
 
 /* === 2. Typography === */
-h1, h2, h3 { letter-spacing: 0.15em; font-feature-settings: "palt"; margin-top: 0; }
+h1, h2, h3 { letter-spacing: 0.15em; font-feature-settings: "palt"; }
 h1 span[lang="ja"], h1 span[lang="en"] { display: block; }
 
 .section-title {
-    font-family: var(--font-en); text-align: center; font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 80px; 
+    font-family: var(--font-en); text-align: center; font-size: 3rem; margin-bottom: 80px; 
     color: var(--accent-color); letter-spacing: 0.15em;
     background: linear-gradient(110deg, #aa771c 10%, #fcf6ba 30%, #D4AF37 50%, #fcf6ba 70%, #aa771c 90%);
     background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
@@ -88,6 +86,8 @@ span[lang="en"] { font-size: 1.05em; }
     display: flex; justify-content: center; align-items: center;
     font-family: var(--font-tech); color: var(--hud-color);
 }
+#boot-screen.loaded { pointer-events: none; transition: opacity 0.5s 0.5s; opacity: 0; }
+#boot-screen.loaded .boot-container { transform: scale(1.1); opacity: 0; transition: 0.5s; }
 .boot-container { width: 300px; max-width: 90%; }
 .boot-logo { font-size: 1.2rem; margin-bottom: 20px; letter-spacing: 2px; border-bottom: 1px solid var(--hud-color); padding-bottom: 5px; }
 .boot-progress-bar { width: 100%; height: 2px; background: #333; margin-bottom: 10px; position: relative; }
@@ -98,12 +98,11 @@ span[lang="en"] { font-size: 1.05em; }
 @keyframes blink { from { opacity: 1; } to { opacity: 0.3; } }
 .boot-status { display: flex; justify-content: space-between; font-size: 0.8rem; }
 
-/* === 4. HUD Overlay (Layout Fixes) === */
+/* === 4. HUD Overlay === */
 #hud-layer {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; /* クリックを阻害しない */
-    z-index: 10000;
-    padding: 20px; 
+    pointer-events: none; z-index: 10000;
+    padding: 20px; box-sizing: border-box;
     font-family: var(--font-tech); mix-blend-mode: screen;
     opacity: 0; transition: opacity 0.8s ease;
 }
@@ -122,7 +121,7 @@ span[lang="en"] { font-size: 1.05em; }
 
 .alt-meter { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
 .alt-line { width: 30px; height: 1px; background: var(--hud-color); }
-.alt-value { font-size: 2rem; width: 120px; text-align: right; }
+.alt-value { font-size: 2rem; width: 120px; }
 .hud-scroll-bar { position: absolute; right: -20px; top: -100px; height: 200px; width: 2px; background: rgba(255,255,255,0.1); }
 .hud-scroll-indicator { position: absolute; top: 0; left: -2px; width: 6px; height: 20px; background: var(--hud-color); }
 
@@ -144,24 +143,32 @@ span[lang="en"] { font-size: 1.05em; }
     border: 1px solid var(--accent-color); border-radius: 50%; transition: 0.2s; 
     box-shadow: 0 0 10px var(--hud-glow);
 }
-.cursor-crosshair { position: absolute; top: 0; left: 0; opacity: 0; transition: 0.2s; }
+.cursor-crosshair { 
+    position: absolute; top: 0; left: 0; opacity: 0; transition: 0.2s; 
+}
+/* 十字線を赤色に変更 */
 .cursor-crosshair::before, .cursor-crosshair::after { 
-    content: ''; position: absolute; background: #ff3333; 
-    top: 50%; left: 50%; transform: translate(-50%, -50%); 
+    content: ''; position: absolute; background: #ff3333; top: 50%; left: 50%; transform: translate(-50%, -50%); 
 }
 .cursor-crosshair::before { width: 40px; height: 1px; } 
 .cursor-crosshair::after { width: 1px; height: 40px; }
 
+/* カーソルラベル（赤色・視認性向上） */
 .cursor-label { 
-    position: absolute; top: 30px; left: 30px; 
-    color: #ff3333; font-family: var(--font-tech); font-size: 0.85rem; font-weight: bold; letter-spacing: 0.1em;
+    position: absolute; top: 30px; left: 30px; color: #ff3333; 
+    font-family: var(--font-tech); font-size: 0.85rem; font-weight: bold; letter-spacing: 0.1em;
     opacity: 0; transition: 0.2s; white-space: nowrap; 
-    background: rgba(0, 0, 0, 0.7); padding: 4px 8px; 
-    border: 1px solid rgba(255, 51, 51, 0.5); border-radius: 4px; 
+    background: rgba(0, 0, 0, 0.7); padding: 4px 8px;
+    border: 1px solid rgba(255, 51, 51, 0.5); border-radius: 4px;
     text-shadow: 0 0 5px rgba(255, 51, 51, 0.8);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
 }
-#hud-cursor.locked .cursor-circle { width: 50px; height: 50px; top: -25px; left: -25px; border-color: #ff3333; border-width: 2px; transform: rotate(45deg); }
+
+#hud-cursor.locked .cursor-circle { 
+    width: 50px; height: 50px; top: -25px; left: -25px; 
+    border-color: #ff3333; border-width: 2px; transform: rotate(45deg); 
+}
 #hud-cursor.locked .cursor-crosshair, #hud-cursor.locked .cursor-label { opacity: 1; }
 
 /* === 5. Header & Navigation === */
@@ -184,8 +191,8 @@ nav ul { display: flex; list-style: none; gap: 30px; margin: 0; padding: 0; }
 nav a { font-family: var(--font-en); font-size: 0.9rem; letter-spacing: 0.05em; position: relative; color: #fff; text-decoration: none; text-shadow: 0 0 5px rgba(0,0,0,0.5); transition: color 0.3s; }
 nav a:hover { color: var(--accent-color); }
 
-/* === 6. Hero Section === */
-.hero { position: relative; height: 100vh; width: 100%; display: flex; justify-content: flex-end; align-items: center; text-align: left; overflow: hidden; z-index: 2; }
+/* === 6. Hero & Sections === */
+.hero { position: relative; height: 100vh; display: flex; justify-content: flex-end; align-items: center; text-align: left; overflow: hidden; z-index: 2; }
 .hero-bg-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 #hero-video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; transform: translate(-50%, -50%); object-fit: cover; z-index: -2; }
 .hero-bg { width: 100%; height: 100%; object-fit: cover; z-index: -1; }
@@ -202,19 +209,28 @@ nav a:hover { color: var(--accent-color); }
 .scroll-down { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); color: #fff; font-family: var(--font-en); font-size: 0.8rem; animation: bounce 2s infinite; }
 @keyframes bounce { 0%, 100% { transform: translate(-50%, 0); opacity: 0.5; } 50% { transform: translate(-50%, 10px); opacity: 1; } }
 
-/* === 7. Content Sections === */
-section { padding: 120px 20px; position: relative; z-index: 2; width: 100%; }
+section { padding: 120px 20px; position: relative; z-index: 2; }
 .container { max-width: 1000px; margin: 0 auto; position: relative; z-index: 2; }
 .lead-text { font-size: 1.15rem; line-height: 2.2; letter-spacing: 0.05em; text-align: center; width: 100%; display: block; color: #ddd; }
 
-/* Timeline */
+/* Timeline修正: 画像の位置ズレ防止とパララックス対応 */
 .timeline { position: relative; max-width: 800px; margin: 0 auto 100px auto; padding: 20px 0; }
 .timeline::before { content: ''; position: absolute; top: 0; left: 20px; height: 100%; width: 1px; background: linear-gradient(to bottom, transparent, var(--accent-color), transparent); opacity: 0.5; }
-.timeline-item { position: relative; margin-bottom: 60px; padding-left: 60px; box-sizing: border-box; }
+.timeline-item { position: relative; margin-bottom: 60px; padding-left: 60px; }
 .timeline-dot { position: absolute; top: 0; left: 11px; width: 18px; height: 18px; background: #000; border: 2px solid var(--accent-color); border-radius: 50%; z-index: 2; }
-.timeline-content { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 30px; border-radius: 12px; transition: transform 0.3s; overflow: hidden; width: 100%; }
+.timeline-content { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 30px; border-radius: 12px; transition: transform 0.3s; overflow: hidden; }
 .timeline-content:hover { border-color: var(--accent-color); transform: translateY(-5px); }
-.timeline-img { width: 100%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
+
+/* 画像を中央配置にするための修正 */
+.timeline-img { 
+    width: 110%; /* パララックス用に拡大 */
+    height: 220px; 
+    object-fit: cover; 
+    border-radius: 8px; 
+    margin-bottom: 20px; 
+    position: relative;
+    left: -5%; /* 幅110%の中心を合わせる */
+}
 .timeline-content .phase { display: block; font-family: var(--font-en); color: var(--accent-color); font-size: 0.8rem; letter-spacing: 0.2em; margin-bottom: 10px; text-transform: uppercase; }
 
 @media (min-width: 769px) {
@@ -226,7 +242,6 @@ section { padding: 120px 20px; position: relative; z-index: 2; width: 100%; }
     .timeline-item:nth-child(even) .timeline-dot { left: -10px; }
 }
 
-/* Vertical View & Cards */
 .experiment-vertical-view { display: flex; flex-direction: column; gap: 60px; align-items: center; margin-bottom: 100px; width: 100%; max-width: 900px; margin-left: auto; margin-right: auto; }
 .exp-card { position: relative; width: 100%; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); background: #000; z-index: 2; }
 .exp-card img { width: 100%; height: auto; display: block; }
@@ -234,13 +249,20 @@ section { padding: 120px 20px; position: relative; z-index: 2; width: 100%; }
 .exp-caption h3 { font-family: var(--font-en); color: var(--accent-color); margin: 0 0 10px 0; font-size: clamp(1.8rem, 4vw, 2.8rem); text-shadow: 0 0 20px rgba(0,0,0,0.9); }
 .exp-caption p { margin: 0; font-size: 1.1rem; color: #fff; font-weight: 500; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
 
-.map-container { position: relative; z-index: 2; }
-.map-link { display: block; width: 100%; position: relative; text-decoration: none; }
+.map-link { display: block; width: 100%; text-decoration: none; position: relative; }
+
+/* ボタン表示修正：z-indexを強化し、画像の上に確実に表示 */
 .map-overlay-btn { 
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-    background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid var(--accent-color); 
-    padding: 12px 35px; border-radius: 50px; font-family: var(--font-en); font-weight: 600; 
-    z-index: 20; pointer-events: auto; transition: 0.3s; width: max-content;
+    position: absolute; 
+    top: 68%; left: 50%; 
+    transform: translate(-50%, -50%); 
+    background: rgba(0, 0, 0, 0.7); color: #fff; 
+    border: 1px solid var(--accent-color); 
+    padding: 12px 35px; border-radius: 50px; 
+    font-family: var(--font-en); font-weight: 600; 
+    z-index: 100; /* 画像より手前に */
+    pointer-events: auto; 
+    transition: 0.3s; 
 }
 .map-link:hover .map-overlay-btn { background: var(--accent-color); color: #000; }
 
@@ -253,8 +275,8 @@ section { padding: 120px 20px; position: relative; z-index: 2; width: 100%; }
 
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
 .gallery-item { position: relative; height: 350px; overflow: hidden; border-radius: 8px; z-index: 2; background: #000; }
-.gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-.gallery-label { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); padding: 30px 10px; text-align: center; pointer-events: none; }
+.gallery-item img { width: 110%; height: 110%; object-fit: cover; left: -5%; position: relative; }
+.gallery-label { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); padding: 30px 10px; text-align: center; }
 .gallery-label span { display: block; font-family: var(--font-en); color: #fff; font-size: 1.1rem; }
 .gallery-item:hover .gallery-label span { color: var(--accent-color); }
 
@@ -296,16 +318,12 @@ section { padding: 120px 20px; position: relative; z-index: 2; width: 100%; }
 .social-icon-link svg { width: 100%; height: 100%; fill: var(--accent-color); transition: 0.3s; }
 .social-icon-link:hover { transform: scale(1.2); } .social-icon-link:hover svg { fill: #fff; filter: drop-shadow(0 0 15px var(--accent-color)); }
 
-/* === 8. Footer & Modal === */
+/* Footer */
 footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; color: #666; }
 
 .back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; z-index: 999; opacity: 0; pointer-events: none; transition: 0.3s; }
-.back-to-top.show { 
-    opacity: 1; pointer-events: auto; 
-    animation: rocketIdle 2s ease-in-out infinite; 
-}
+.back-to-top.show { opacity: 1; pointer-events: auto; animation: rocketIdle 2s ease-in-out infinite; }
 .back-to-top.launch { animation: launchRocket 1s forwards ease-in !important; }
-
 @keyframes rocketIdle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 @keyframes launchRocket { 0% { transform: translateY(0); } 100% { transform: translateY(-100vh); opacity: 0; } }
 
@@ -315,56 +333,33 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
 .close-modal { position: absolute; top: 15px; right: 25px; color: #888; font-size: 30px; cursor: pointer; }
 .modal-body img { max-height: 60vh; width: auto; max-width: 100%; }
 
-/* Scroll Progress */
 #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent-color), #fff); width: 0%; z-index: 100000; transition: width 0.1s; }
 
-/* === 9. Starfield & Glitch === */
-#starfield {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    z-index: -1; pointer-events: none; opacity: 0.6;
-}
-
-@keyframes glitch-anim {
-    0% { clip-path: inset(0 0 0 0); transform: translate(0); filter: hue-rotate(0deg); }
-    10% { clip-path: inset(10% 0 85% 0); transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
-    20% { clip-path: inset(85% 0 10% 0); transform: translate(2px, -2px); filter: contrast(2); }
-    30% { clip-path: inset(30% 0 50% 0); transform: translate(-2px, 0); }
-    40% { clip-path: inset(50% 0 30% 0); transform: translate(2px, 2px); filter: hue-rotate(-90deg); }
-    50% { clip-path: inset(10% 0 60% 0); transform: translate(0); }
-    100% { clip-path: inset(0 0 0 0); transform: translate(0); filter: none; }
-}
-.glitch-effect {
-    animation: glitch-anim 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-}
-
+.js-scroll { opacity: 0; transform: translateY(30px) scale(0.98); filter: blur(5px); transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.165, 0.84, 0.44, 1), filter 1.2s ease; }
+.js-scroll.is-visible { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 .magnet-btn { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: inline-block; }
 
-/* === 10. Mobile Responsive === */
+/* Mobile */
 @media (max-width: 768px) {
     section { padding: 80px 15px; }
     .section-title { font-size: 2.2rem; }
     .hero { justify-content: center; text-align: center; }
     .hero-content { max-width: 90%; margin-right: 0; padding: 40px 20px; background: rgba(0,0,0,0.6); border-left: none; border-bottom: 3px solid var(--accent-color); }
     .hero h1 span[lang="ja"] { font-size: 2rem; }
-    
     .timeline { margin-bottom: 50px; } .timeline::before { left: 10px; }
     .timeline-item { width: 100%; padding-left: 35px; padding-right: 0 !important; text-align: left !important; }
     .timeline-item:nth-child(odd) .timeline-dot, .timeline-item:nth-child(even) .timeline-dot { left: 2px; right: auto; }
-    
     .map-container .exp-caption { top: 50%; }
     .map-overlay-btn { display: none !important; }
-    
     .hud-side-left, .hud-corner { display: none; }
     .hud-side-right { top: auto; bottom: 10px; right: 10px; transform: none; }
     .alt-value { font-size: 1.2rem; }
-    
     .hamburger { display: block; cursor: pointer; width: 30px; height: 25px; position: relative; z-index: 200; }
     .hamburger span { position: absolute; width: 100%; height: 2px; background: #fff; transition: 0.3s; }
     .hamburger span:nth-child(1) { top: 0; } .hamburger span:nth-child(2) { top: 11px; } .hamburger span:nth-child(3) { bottom: 0; }
     .hamburger.active span:nth-child(1) { transform: rotate(45deg); top: 11px; } 
     .hamburger.active span:nth-child(2) { opacity: 0; } 
     .hamburger.active span:nth-child(3) { transform: rotate(-45deg); bottom: 11px; }
-    
     nav { position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; background: rgba(5,5,5,0.98); display: flex; justify-content: center; align-items: center; transition: 0.4s; }
     nav.active { right: 0; } nav ul { flex-direction: column; text-align: center; gap: 30px; }
     .email-link { font-size: 1rem; padding: 20px 30px; width: 80%; }
