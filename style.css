@@ -143,12 +143,12 @@ span[lang="en"] { font-size: 1.05em; }
     position: absolute; top: 0; left: 0; opacity: 0; transition: 0.2s; 
 }
 .cursor-crosshair::before, .cursor-crosshair::after { 
-    content: ''; position: absolute; background: var(--accent-color); top: 50%; left: 50%; transform: translate(-50%, -50%); 
+    content: ''; position: absolute; background: #ff3333; top: 50%; left: 50%; transform: translate(-50%, -50%); 
 }
 .cursor-crosshair::before { width: 40px; height: 1px; } 
 .cursor-crosshair::after { width: 1px; height: 40px; }
 .cursor-label { 
-    position: absolute; top: 20px; left: 20px; color: var(--accent-color); 
+    position: absolute; top: 20px; left: 20px; color: #ff3333; 
     font-family: var(--font-tech); font-size: 0.7rem; opacity: 0; transition: 0.2s; white-space: nowrap; 
 }
 
