@@ -1,97 +1,85 @@
-// --- START OF FILE script.js ---
+// --- START OF FILE script.js (GSAP Version) ---
 
 const TARGET_ALTITUDE_M = 25346;
 const TARGET_ALTITUDE_FT = 83156;
 
-let lastScrollTop = 0;
+// GSAPのプラグイン登録
+gsap.registerPlugin(ScrollTrigger);
 
 document.addEventListener('DOMContentLoaded', () => {
     initLanguageSettings();
-    initLenis();
+    
+    // LenisとGSAPの連携セットアップ
+    initSmoothScroll();
+    
+    // システム起動ローダー（完了後にGSAPアニメーション開始）
     initBootSequence();
+
+    // HUD・UI・インタラクション
     initHUDInteractions();
     initCompareSlider();
     initUI();
     initFAQ();
 });
 
-function initLanguageSettings() {
-    const savedLang = localStorage.getItem('lang') || 'ja';
-    if (savedLang === 'en') {
-        document.body.classList.add('en');
-    }
-    const langBtn = document.getElementById('langBtn');
-    if (langBtn) { 
-        langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
-        langBtn.addEventListener('click', () => {
-            const isEn = document.body.classList.toggle('en');
-            localStorage.setItem('lang', isEn ? 'en' : 'ja');
-            langBtn.textContent = isEn ? 'JP' : 'EN';
-            location.reload();
-        });
-    }
+// === 1. Lenis & GSAP ScrollTrigger Setup ===
+function initSmoothScroll() {
+    const lenis = new Lenis({
+        duration: 1.5, // 少しゆったりさせて高級感を出す
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smooth: true,
+    });
+
+    // LenisのスクロールイベントでScrollTriggerを更新
+    lenis.on('scroll', ScrollTrigger.update);
+
+    // GSAPのTickerにLenisをフックさせる
+    gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+    });
+    
+    // GSAPのラグ修正
+    gsap.ticker.lagSmoothing(0);
+
+    // カスタムHUDの更新もここで行う
+    lenis.on('scroll', (e) => {
+        updateHUD(e.scroll);
+    });
+
+    window.lenis = lenis;
 }
 
-function initLenis() {
-    if (typeof Lenis !== 'undefined') {
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smooth: true,
-            smoothTouch: false
-        });
-        window.lenis = lenis;
-        function raf(time) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
-        requestAnimationFrame(raf);
-        lenis.on('scroll', (e) => {
-            updateHUD(e.scroll);
-        });
-    } else {
-        window.addEventListener('scroll', () => {
-            updateHUD(window.scrollY);
-        });
-    }
-}
-
+// === 2. Boot Loader & Hero Animation ===
 function initBootSequence() {
     const screen = document.getElementById('boot-screen');
     const log = document.getElementById('boot-log');
     const fill = document.querySelector('.boot-progress-fill');
     const percent = document.querySelector('.boot-percent');
     
-    if (!screen || !fill || !percent) {
-        if(screen) screen.style.display = 'none';
-        initAfterLoad(); 
-        return;
-    }
+    if (!screen) { initSiteAnimations(); return; }
 
     const logs = [
-        "SYSTEM_CHECK_INIT...", "LOADING_KERNEL_MODULES...", "MOUNTING_FILESYSTEM...",
-        "CHECKING_MEMORY_INTEGRITY...", "CONNECTING_TO_SATELLITE...", "ESTABLISHING_SECURE_LINK...",
-        "LOADING_ASSETS_TEXTURES...", "CALIBRATING_SENSORS...", "ATMOSPHERIC_PRESSURE: NORMAL",
-        "OXYGEN_LEVELS: 100%", "TARGET_COORDINATES: LOCKED", "SYSTEM_READY."
+        "SYSTEM_CHECK_INIT...", "LOADING_KERNEL_MODULES...", "CONNECTING_TO_SATELLITE...",
+        "ESTABLISHING_SECURE_LINK...", "LOADING_ASSETS...", "CALIBRATING_SENSORS...",
+        "ATMOSPHERIC_PRESSURE: NORMAL", "TARGET_COORDINATES: LOCKED", "SYSTEM_READY."
     ];
 
     let progress = 0;
     let logIndex = 0;
 
     const interval = setInterval(() => {
-        progress += Math.random() * 4; 
+        progress += Math.random() * 5; 
         if (progress > 100) progress = 100;
 
-        fill.style.width = `${progress}%`;
-        percent.textContent = `${Math.floor(progress)}%`;
+        if(fill) fill.style.width = `${progress}%`;
+        if(percent) percent.textContent = `${Math.floor(progress)}%`;
 
         if (log && progress > (logIndex * (100 / logs.length)) && logIndex < logs.length) {
             const p = document.createElement('div');
             p.className = 'boot-line';
             p.textContent = `> ${logs[logIndex]}`;
             if (logIndex === logs.length - 1) {
-                p.style.color = '#fff';
-                p.classList.add('blink');
+                p.style.color = '#fff'; p.classList.add('blink');
             }
             log.prepend(p);
             logIndex++;
@@ -100,34 +88,130 @@ function initBootSequence() {
         if (progress >= 100) {
             clearInterval(interval);
             setTimeout(() => {
-                screen.classList.add('loaded');
-                initAfterLoad();
-            }, 600);
+                // ローダーフェードアウト
+                gsap.to(screen, {
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: "power2.inOut",
+                    onComplete: () => {
+                        screen.style.display = 'none';
+                        // サイトのアニメーション開始
+                        initSiteAnimations();
+                    }
+                });
+            }, 500);
         }
-    }, 60);
+    }, 50);
 }
 
-function initAfterLoad() {
+// === 3. GSAP Site Animations (The "Pro" Look) ===
+function initSiteAnimations() {
     initTextScramble();
-    initScrollAnimation();
+
+    // A. ヒーローセクションのオープニング演出
+    const tl = gsap.timeline();
+    
+    tl.from(".hero-content .data-tag", { 
+        y: 20, opacity: 0, duration: 0.8, ease: "power3.out" 
+    })
+    .from(".hero-content h1 span", { 
+        y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "power4.out" 
+    }, "-=0.6")
+    .from(".hero-content .hero-desc", { 
+        y: 20, opacity: 0, duration: 0.8, ease: "power3.out" 
+    }, "-=0.6")
+    .from(".scroll-down", { 
+        y: -20, opacity: 0, duration: 0.8 
+    }, "-=0.4");
+
+    // B. 各セクションのタイトルとテキストの出現演出
+    // クラス .js-scroll がついている要素（または主要要素）を対象に
+    const revealElements = document.querySelectorAll(".section-title, .lead-text, .timeline-content, .gallery-item, .blog-card");
+
+    revealElements.forEach((elem) => {
+        // 初期状態をCSSではなくGSAPでセット（チラつき防止）
+        gsap.set(elem, { autoAlpha: 0, y: 50 });
+
+        ScrollTrigger.create({
+            trigger: elem,
+            start: "top 85%", // 画面の下15%に入ったら開始
+            once: true, // 一回だけ再生
+            onEnter: () => {
+                gsap.to(elem, {
+                    duration: 1.2,
+                    y: 0,
+                    autoAlpha: 1,
+                    ease: "power3.out",
+                    overwrite: "auto"
+                });
+            }
+        });
+    });
+
+    // C. 画像のパララックス & スケール演出（高級感の要）
+    // 枠内で画像がゆっくり動く（固定はせず、視差効果のみ）
+    const parallaxImages = document.querySelectorAll(".gallery-item img, .timeline-img, .exp-card img");
+    
+    parallaxImages.forEach((img) => {
+        // 親要素より画像を大きく設定済み(CSS)
+        gsap.to(img, {
+            yPercent: 15, // 下に15%分だけゆっくり動く
+            ease: "none",
+            scrollTrigger: {
+                trigger: img.parentElement,
+                start: "top bottom", // 画面下に入った瞬間から
+                end: "bottom top",   // 画面上に出るまで
+                scrub: true,         // スクロール量に完全連動
+            }
+        });
+        
+        // 表示時のズームアウト（出現演出）
+        gsap.fromTo(img, 
+            { scale: 1.3 },
+            { 
+                scale: 1.0, 
+                duration: 1.5, 
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: img.parentElement,
+                    start: "top 90%",
+                }
+            }
+        );
+    });
+
+    // D. タイムラインの線が伸びる演出
+    gsap.utils.toArray(".timeline-item").forEach((item) => {
+        const dot = item.querySelector(".timeline-dot");
+        if(dot) {
+            gsap.from(dot, {
+                scale: 0,
+                duration: 0.5,
+                ease: "back.out(1.7)",
+                scrollTrigger: {
+                    trigger: item,
+                    start: "top 80%",
+                }
+            });
+        }
+    });
 }
 
-// === script.js の updateHUD 関数をこれに置き換え ===
+// === 4. HUD Logic (Updated) ===
+let lastScrollTop = 0;
 
 function updateHUD(scrollTop) {
     const isEnglish = document.body.classList.contains('en');
     
-    // 設定値の切り替え
     const targetAlt = isEnglish ? TARGET_ALTITUDE_FT : TARGET_ALTITUDE_M;
     const tempValText = isEnglish ? '-37.8' : '-38.8';
     const tempUnitText = isEnglish ? '°F' : '°C';
     const altUnitText = isEnglish ? 'ft' : 'm';
 
-    // 要素の取得
     const altDisplay = document.getElementById('live-altitude');
-    const altUnitDisplay = document.getElementById('hud-alt-unit'); // 追加
-    const tempValDisplay = document.getElementById('hud-temp-val'); // 追加
-    const tempUnitDisplay = document.getElementById('hud-temp-unit'); // 追加
+    const altUnitDisplay = document.getElementById('hud-alt-unit');
+    const tempValDisplay = document.getElementById('hud-temp-val');
+    const tempUnitDisplay = document.getElementById('hud-temp-unit');
     
     const indicator = document.getElementById('scroll-indicator');
     const header = document.getElementById('header');
@@ -137,12 +221,12 @@ function updateHUD(scrollTop) {
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
 
-    // 1. 単位と気温の表記更新（常時更新）
+    // テキスト更新
     if(altUnitDisplay) altUnitDisplay.textContent = altUnitText;
     if(tempValDisplay) tempValDisplay.textContent = tempValText;
     if(tempUnitDisplay) tempUnitDisplay.textContent = tempUnitText;
 
-    // 2. HUD表示制御
+    // HUD表示制御
     if (hudLayer && hero) {
         const heroHeight = hero.offsetHeight;
         if (scrollTop > heroHeight * 0.8) {
@@ -152,7 +236,7 @@ function updateHUD(scrollTop) {
         }
     }
 
-    // 3. 高度計 (逆転ロジック)
+    // 高度計 (逆転ロジック)
     if(altDisplay) {
         const currentAlt = Math.floor((1 - scrollPercent) * targetAlt);
         altDisplay.textContent = String(currentAlt).padStart(5, '0');
@@ -163,7 +247,7 @@ function updateHUD(scrollTop) {
     const progressBar = document.getElementById('scroll-progress');
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
 
-    // 4. ヘッダー制御
+    // ヘッダー制御
     if(header) {
         if(scrollTop > 50) header.classList.add('scrolled');
         else header.classList.remove('scrolled');
@@ -176,6 +260,7 @@ function updateHUD(scrollTop) {
         lastScrollTop = scrollTop;
     }
 
+    // ロケットボタン
     const btt = document.getElementById('back-to-top');
     if(btt) {
         if(scrollTop > 400) btt.classList.add('show');
@@ -190,103 +275,21 @@ function updateHUD(scrollTop) {
     }
 }
 
-function initFAQ() {
-    const questions = document.querySelectorAll('.faq-question');
-    questions.forEach(q => {
-        q.addEventListener('click', () => {
-            const item = q.parentElement;
-            const answer = item.querySelector('.faq-answer');
-            item.classList.toggle('active');
-            if (item.classList.contains('active')) {
-                answer.style.maxHeight = answer.scrollHeight + 'px';
-            } else {
-                answer.style.maxHeight = null;
-            }
-        });
-    });
-}
+// === 5. Other Functions (Language, FAQ, UI) ===
 
-// === HUD INTERACTIONS (Original Cursor & Effects) ===
-function initHUDInteractions() {
-    const cursor = document.getElementById('hud-cursor');
-    
-    // PCのみ有効
-    if (window.matchMedia("(min-width: 1025px)").matches && cursor) {
-        
-        // 1. カーソル追従
-        document.addEventListener('mousemove', (e) => {
-            // CSS側で translate(-50%, -50%) していないため、JSで補正するか、
-            // CSSの .cursor-circle 等が position:absolute で調整されている前提で座標を渡す
-            // ここでは単純に座標を渡す（CSS側の調整に委ねる）
-            cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-            createStardust(e.clientX, e.clientY);
-        });
-
-        // 2. ロックオン演出
-        const targets = document.querySelectorAll('a, button, .gallery-item, .map-overlay-btn');
-        targets.forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('locked'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
-        });
-        
-        // 3. マグネットボタン（吸い付き演出）の修正版
-        const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
-        
-        magnets.forEach((magnet) => {
-            magnet.classList.add('magnet-btn');
-            
-            // ★重要：もともとCSSで中央寄せ(translate -50%, -50%)されている要素か判定
-            const isCentered = magnet.classList.contains('map-overlay-btn') || magnet.classList.contains('scroll-down');
-
-            magnet.addEventListener('mousemove', (e) => {
-                const rect = magnet.getBoundingClientRect();
-                // 現在の中心位置を取得
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                
-                // マウスとの距離を計算
-                const x = (e.clientX - centerX) / 5;
-                const y = (e.clientY - centerY) / 5;
-                
-                // ★修正点：中央寄せ要素なら、その設定(translate -50%, -50%)を残したまま動かす
-                const baseTransform = isCentered ? 'translate(-50%, -50%)' : '';
-                magnet.style.transform = `${baseTransform} translate3d(${x}px, ${y}px, 0) scale(1.1)`;
-            });
-
-            magnet.addEventListener('mouseleave', () => {
-                // ★修正点：リセット時も中央寄せ設定を戻す
-                const baseTransform = isCentered ? 'translate(-50%, -50%)' : '';
-                magnet.style.transform = `${baseTransform} translate3d(0, 0, 0) scale(1)`;
-            });
+function initLanguageSettings() {
+    const savedLang = localStorage.getItem('lang') || 'ja';
+    if (savedLang === 'en') { document.body.classList.add('en'); }
+    const langBtn = document.getElementById('langBtn');
+    if (langBtn) { 
+        langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
+        langBtn.addEventListener('click', () => {
+            const isEn = document.body.classList.toggle('en');
+            localStorage.setItem('lang', isEn ? 'en' : 'ja');
+            langBtn.textContent = isEn ? 'JP' : 'EN';
+            location.reload();
         });
     }
-}
-
-let isThrottled = false;
-function createStardust(x, y) {
-    if (isThrottled) return;
-    isThrottled = true;
-    setTimeout(() => isThrottled = false, 50);
-
-    const particle = document.createElement('div');
-    Object.assign(particle.style, {
-        position: 'fixed', left: x + 'px', top: y + 'px',
-        width: (Math.random() * 3) + 'px', height: (Math.random() * 3) + 'px',
-        background: Math.random() > 0.8 ? '#D4AF37' : '#fff',
-        borderRadius: '50%', pointerEvents: 'none', zIndex: '999999',
-        boxShadow: '0 0 6px rgba(255,255,255,0.8)'
-    });
-    document.body.appendChild(particle);
-
-    const destX = (Math.random() - 0.5) * 60;
-    const destY = (Math.random() - 0.5) * 60;
-
-    const animation = particle.animate([
-        { transform: `translate(0, 0) scale(1)`, opacity: 0.8 },
-        { transform: `translate(${destX}px, ${destY}px) scale(0)`, opacity: 0 }
-    ], { duration: 1000 + Math.random() * 1000, easing: 'cubic-bezier(0, .9, .57, 1)' });
-
-    animation.onfinish = () => particle.remove();
 }
 
 class TextScramble {
@@ -342,18 +345,6 @@ function initTextScramble() {
     }
 }
 
-function initScrollAnimation() {
-    const obs = new IntersectionObserver((entries) => {
-        entries.forEach(entry => { 
-            if(entry.isIntersecting) { 
-                entry.target.classList.add('is-visible'); 
-                obs.unobserve(entry.target); 
-            }
-        });
-    }, { threshold: 0.15 });
-    document.querySelectorAll('.js-scroll').forEach(el => obs.observe(el));
-}
-
 function initCompareSlider() {
     const sld = document.getElementById('compare-slider');
     if(sld) sld.addEventListener('input', (e) => {
@@ -401,4 +392,105 @@ function initUI() {
         closeBtn.addEventListener('click', () => modal.classList.remove('show'));
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
     }
+}
+
+function initFAQ() {
+    const questions = document.querySelectorAll('.faq-question');
+    questions.forEach(q => {
+        q.addEventListener('click', () => {
+            const item = q.parentElement;
+            const answer = item.querySelector('.faq-answer');
+            item.classList.toggle('active');
+            if (item.classList.contains('active')) {
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+            } else {
+                answer.style.maxHeight = null;
+            }
+        });
+    });
+}
+
+// === Interaction Logic (Cursor & Buttons) ===
+function initHUDInteractions() {
+    const cursor = document.getElementById('hud-cursor');
+    
+    if (window.matchMedia("(min-width: 1025px)").matches && cursor) {
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+            createStardust(e.clientX, e.clientY);
+        });
+
+        const targets = document.querySelectorAll('a, button, .gallery-item, .map-overlay-btn');
+        targets.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('locked'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
+        });
+        
+        const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
+        magnets.forEach((magnet) => {
+            magnet.classList.add('magnet-btn');
+            
+            const isCentered = magnet.classList.contains('map-overlay-btn') || magnet.classList.contains('scroll-down');
+
+            magnet.addEventListener('mousemove', (e) => {
+                const rect = magnet.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const x = (e.clientX - centerX) / 5;
+                const y = (e.clientY - centerY) / 5;
+                
+                const baseTransform = isCentered ? 'translate(-50%, -50%)' : '';
+                // GSAPで滑らかに動かす
+                gsap.to(magnet, {
+                    x: x, 
+                    y: y, 
+                    scale: 1.1, 
+                    duration: 0.3, 
+                    ease: "power2.out" 
+                });
+            });
+
+            magnet.addEventListener('mouseleave', () => {
+                // 元に戻す
+                gsap.to(magnet, {
+                    x: 0, 
+                    y: 0, 
+                    scale: 1, 
+                    duration: 0.5, 
+                    ease: "elastic.out(1, 0.5)" 
+                });
+            });
+        });
+    }
+}
+
+let isThrottled = false;
+function createStardust(x, y) {
+    if (isThrottled) return;
+    isThrottled = true;
+    setTimeout(() => isThrottled = false, 50);
+
+    const particle = document.createElement('div');
+    Object.assign(particle.style, {
+        position: 'fixed', left: x + 'px', top: y + 'px',
+        width: (Math.random() * 3) + 'px', height: (Math.random() * 3) + 'px',
+        background: Math.random() > 0.8 ? '#D4AF37' : '#fff',
+        borderRadius: '50%', pointerEvents: 'none', zIndex: '999999',
+        boxShadow: '0 0 6px rgba(255,255,255,0.8)'
+    });
+    document.body.appendChild(particle);
+
+    const destX = (Math.random() - 0.5) * 60;
+    const destY = (Math.random() - 0.5) * 60;
+
+    // GSAPでパーティクルアニメーション
+    gsap.to(particle, {
+        x: destX,
+        y: destY,
+        scale: 0,
+        opacity: 0,
+        duration: 1 + Math.random(),
+        ease: "power2.out",
+        onComplete: () => particle.remove()
+    });
 }
