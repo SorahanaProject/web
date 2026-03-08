@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 星空の描画
     initStarfield();
+
+    // カードホバー時の拡大エフェクト
+    initCardHoverEffects();
+    
 });
 
 // === 1. Lenis & GSAP ScrollTrigger Setup ===
@@ -567,4 +571,33 @@ function initStarfield() {
         requestAnimationFrame(animate);
     }
     animate();
+}
+
+function initCardHoverEffects() {
+    const cards = document.querySelectorAll('.exp-card');
+    
+    cards.forEach(card => {
+        const img = card.querySelector('img');
+        if (!img) return;
+
+        // ホバー時：パララックスの位置(yPercent)を維持したまま拡大
+        card.addEventListener('mouseenter', () => {
+            gsap.to(img, {
+                scale: 1.05,
+                duration: 0.5,
+                ease: "power2.out",
+                overwrite: "auto" // 他のアニメーションと競合しないようにする
+            });
+        });
+
+        // ホバー解除時：元に戻す
+        card.addEventListener('mouseleave', () => {
+            gsap.to(img, {
+                scale: 1.0,
+                duration: 0.5,
+                ease: "power2.out",
+                overwrite: "auto"
+            });
+        });
+    });
 }
