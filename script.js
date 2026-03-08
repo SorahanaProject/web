@@ -3,10 +3,8 @@
 const TARGET_ALTITUDE_M = 25346;
 const TARGET_ALTITUDE_FT = 83156;
 
-// スクロール方向検知用の変数
 let lastScrollTop = 0;
 
-// === メイン実行処理 ===
 document.addEventListener('DOMContentLoaded', () => {
     initLanguageSettings();
     initLenis();
@@ -17,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initFAQ();
 });
 
-// === 機能別関数 ===
 function initLanguageSettings() {
     const savedLang = localStorage.getItem('lang') || 'ja';
     if (savedLang === 'en') {
@@ -59,7 +56,6 @@ function initLenis() {
     }
 }
 
-// === システム起動ローダー ===
 function initBootSequence() {
     const screen = document.getElementById('boot-screen');
     const log = document.getElementById('boot-log');
@@ -116,7 +112,6 @@ function initAfterLoad() {
     initScrollAnimation();
 }
 
-// === HUD & UI制御 ===
 function updateHUD(scrollTop) {
     const isEnglish = document.body.classList.contains('en');
     const targetAlt = isEnglish ? TARGET_ALTITUDE_FT : TARGET_ALTITUDE_M;
@@ -125,12 +120,10 @@ function updateHUD(scrollTop) {
     const header = document.getElementById('header');
     const hudLayer = document.getElementById('hud-layer');
     const hero = document.getElementById('hero');
-    const rocket = document.getElementById('hud-rocket-tracker');
     
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
 
-    // 1. HUD表示制御
     if (hudLayer && hero) {
         const heroHeight = hero.offsetHeight;
         if (scrollTop > heroHeight * 0.8) {
@@ -140,20 +133,16 @@ function updateHUD(scrollTop) {
         }
     }
 
-    // 2. 高度計 (逆転ロジック)
     if(altDisplay) {
         const currentAlt = Math.floor((1 - scrollPercent) * targetAlt);
         altDisplay.textContent = String(currentAlt).padStart(5, '0');
     }
 
-    // スクロールバーとロケット位置
     if(indicator) indicator.style.top = `${scrollPercent * 100}%`;
-    if(rocket) rocket.style.top = `${scrollPercent * 100}%`;
 
     const progressBar = document.getElementById('scroll-progress');
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
 
-    // 3. ヘッダーのスクロール制御（隠す・出す）
     if(header) {
         if(scrollTop > 50) header.classList.add('scrolled');
         else header.classList.remove('scrolled');
@@ -172,7 +161,6 @@ function updateHUD(scrollTop) {
         else btt.classList.remove('show');
     }
 
-    // HUDの色制御
     if (scrollPercent > 0.8) {
         document.documentElement.style.setProperty('--hud-color', '#fff'); 
     } else {
@@ -180,7 +168,6 @@ function updateHUD(scrollTop) {
     }
 }
 
-// === FAQ ===
 function initFAQ() {
     const questions = document.querySelectorAll('.faq-question');
     questions.forEach(q => {
@@ -197,25 +184,14 @@ function initFAQ() {
     });
 }
 
-// === HUD Interactions (Cursor & Magnet Button & Rocket) ===
+// === HUD INTERACTIONS (Original Cursor & Effects) ===
 function initHUDInteractions() {
-    const cursor = document.getElementById('hud-cursor-target');
+    const cursor = document.getElementById('hud-cursor');
     
-    // ロケット要素をHUDに追加
-    const scrollBar = document.querySelector('.hud-scroll-bar');
-    if (scrollBar && !document.getElementById('hud-rocket-tracker')) {
-        const rocket = document.createElement('img');
-        rocket.src = 'images/rocket.png';
-        rocket.className = 'hud-rocket';
-        rocket.id = 'hud-rocket-tracker';
-        rocket.alt = 'Rocket Tracker';
-        scrollBar.appendChild(rocket);
-    }
-    
-    // PCのみカーソル制御
     if (window.matchMedia("(min-width: 1025px)").matches && cursor) {
         document.addEventListener('mousemove', (e) => {
-            cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+            // translate3dで位置を更新（-50%補正は不要、CSSのcircle側で調整済み）
+            cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
             createStardust(e.clientX, e.clientY);
         });
 
