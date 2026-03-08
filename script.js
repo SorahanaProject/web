@@ -1,53 +1,36 @@
-// --- START OF FILE script.js (GSAP Version) ---
+// --- START OF FILE script.js ---
 
 const TARGET_ALTITUDE_M = 25346;
 const TARGET_ALTITUDE_FT = 83156;
 
-// GSAPのプラグイン登録
 gsap.registerPlugin(ScrollTrigger);
 
 document.addEventListener('DOMContentLoaded', () => {
     initLanguageSettings();
-    
-    // LenisとGSAPの連携セットアップ
     initSmoothScroll();
-    
-    // システム起動ローダー（完了後にGSAPアニメーション開始）
     initBootSequence();
-
-    // HUD・UI・インタラクション
     initHUDInteractions();
     initCompareSlider();
     initUI();
     initFAQ();
-
-    initStarfield(); //
+    initStarfield(); // 星空生成
 });
 
 // === 1. Lenis & GSAP ScrollTrigger Setup ===
 function initSmoothScroll() {
     const lenis = new Lenis({
-        duration: 1.5, // 少しゆったりさせて高級感を出す
+        duration: 1.5,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smooth: true,
     });
-
-    // LenisのスクロールイベントでScrollTriggerを更新
     lenis.on('scroll', ScrollTrigger.update);
-
-    // GSAPのTickerにLenisをフックさせる
     gsap.ticker.add((time) => {
         lenis.raf(time * 1000);
     });
-    
-    // GSAPのラグ修正
     gsap.ticker.lagSmoothing(0);
-
-    // カスタムHUDの更新もここで行う
     lenis.on('scroll', (e) => {
         updateHUD(e.scroll);
     });
-
     window.lenis = lenis;
 }
 
@@ -90,14 +73,10 @@ function initBootSequence() {
         if (progress >= 100) {
             clearInterval(interval);
             setTimeout(() => {
-                // ローダーフェードアウト
                 gsap.to(screen, {
-                    opacity: 0,
-                    duration: 0.8,
-                    ease: "power2.inOut",
+                    opacity: 0, duration: 0.8, ease: "power2.inOut",
                     onComplete: () => {
                         screen.style.display = 'none';
-                        // サイトのアニメーション開始
                         initSiteAnimations();
                     }
                 });
@@ -106,69 +85,55 @@ function initBootSequence() {
     }, 50);
 }
 
-// === 3. GSAP Site Animations (Updated with Glitch) ===
+// === 3. GSAP Site Animations ===
 function initSiteAnimations() {
     initTextScramble();
 
-    // A. ヒーローセクション
+    // A. Hero
     const tl = gsap.timeline();
     tl.from(".hero-content .data-tag", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" })
       .from(".hero-content h1 span", { y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "power4.out" }, "-=0.6")
       .from(".hero-content .hero-desc", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
       .from(".scroll-down", { y: -20, opacity: 0, duration: 0.8 }, "-=0.4");
 
-    // B. 各セクションの出現
+    // B. Sections
     const revealElements = document.querySelectorAll(".section-title, .lead-text, .timeline-content, .gallery-item, .blog-card");
     revealElements.forEach((elem) => {
         gsap.set(elem, { autoAlpha: 0, y: 50 });
         ScrollTrigger.create({
-            trigger: elem,
-            start: "top 85%",
-            once: true,
+            trigger: elem, start: "top 85%", once: true,
             onEnter: () => {
                 gsap.to(elem, { duration: 1.2, y: 0, autoAlpha: 1, ease: "power3.out", overwrite: "auto" });
             }
         });
     });
 
-    // C. 画像のパララックス & グリッチエフェクト (★ここを変更)
+    // C. Parallax & Glitch
     const parallaxImages = document.querySelectorAll(".gallery-item img, .timeline-img, .exp-card img");
     
     parallaxImages.forEach((img) => {
-        // パララックス
         gsap.to(img, {
-            yPercent: 15,
-            ease: "none",
+            yPercent: 15, ease: "none",
             scrollTrigger: {
-                trigger: img.parentElement,
-                start: "top bottom",
-                end: "bottom top",
-                scrub: true,
+                trigger: img.parentElement, start: "top bottom", end: "bottom top", scrub: true,
             }
         });
         
-        // 出現時のズーム & グリッチ
         ScrollTrigger.create({
-            trigger: img.parentElement,
-            start: "top 85%",
-            once: true,
+            trigger: img.parentElement, start: "top 80%", once: true,
             onEnter: () => {
-                // ズームイン
                 gsap.fromTo(img, 
                     { scale: 1.3 },
                     { scale: 1.0, duration: 1.5, ease: "power2.out" }
                 );
-                
-                // ★グリッチエフェクト発動（クラスを付けて、少ししたら消す）
+                // Glitch effect trigger
                 img.classList.add('glitch-effect');
-                setTimeout(() => {
-                    img.classList.remove('glitch-effect');
-                }, 400); // 0.4秒後に削除
+                setTimeout(() => { img.classList.remove('glitch-effect'); }, 600);
             }
         });
     });
 
-    // D. タイムラインの線
+    // D. Timeline
     gsap.utils.toArray(".timeline-item").forEach((item) => {
         const dot = item.querySelector(".timeline-dot");
         if(dot) {
@@ -180,56 +145,7 @@ function initSiteAnimations() {
     });
 }
 
-    // C. 画像のパララックス & スケール演出（高級感の要）
-    // 枠内で画像がゆっくり動く（固定はせず、視差効果のみ）
-    const parallaxImages = document.querySelectorAll(".gallery-item img, .timeline-img, .exp-card img");
-    
-    parallaxImages.forEach((img) => {
-        // 親要素より画像を大きく設定済み(CSS)
-        gsap.to(img, {
-            yPercent: 15, // 下に15%分だけゆっくり動く
-            ease: "none",
-            scrollTrigger: {
-                trigger: img.parentElement,
-                start: "top bottom", // 画面下に入った瞬間から
-                end: "bottom top",   // 画面上に出るまで
-                scrub: true,         // スクロール量に完全連動
-            }
-        });
-        
-        // 表示時のズームアウト（出現演出）
-        gsap.fromTo(img, 
-            { scale: 1.3 },
-            { 
-                scale: 1.0, 
-                duration: 1.5, 
-                ease: "power2.out",
-                scrollTrigger: {
-                    trigger: img.parentElement,
-                    start: "top 90%",
-                }
-            }
-        );
-    });
-
-    // D. タイムラインの線が伸びる演出
-    gsap.utils.toArray(".timeline-item").forEach((item) => {
-        const dot = item.querySelector(".timeline-dot");
-        if(dot) {
-            gsap.from(dot, {
-                scale: 0,
-                duration: 0.5,
-                ease: "back.out(1.7)",
-                scrollTrigger: {
-                    trigger: item,
-                    start: "top 80%",
-                }
-            });
-        }
-    });
-}
-
-// === 4. HUD Logic (Updated) ===
+// === 4. HUD Logic ===
 let lastScrollTop = 0;
 
 function updateHUD(scrollTop) {
@@ -253,12 +169,10 @@ function updateHUD(scrollTop) {
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
 
-    // テキスト更新
     if(altUnitDisplay) altUnitDisplay.textContent = altUnitText;
     if(tempValDisplay) tempValDisplay.textContent = tempValText;
     if(tempUnitDisplay) tempUnitDisplay.textContent = tempUnitText;
 
-    // HUD表示制御
     if (hudLayer && hero) {
         const heroHeight = hero.offsetHeight;
         if (scrollTop > heroHeight * 0.8) {
@@ -268,7 +182,6 @@ function updateHUD(scrollTop) {
         }
     }
 
-    // 高度計 (逆転ロジック)
     if(altDisplay) {
         const currentAlt = Math.floor((1 - scrollPercent) * targetAlt);
         altDisplay.textContent = String(currentAlt).padStart(5, '0');
@@ -279,7 +192,6 @@ function updateHUD(scrollTop) {
     const progressBar = document.getElementById('scroll-progress');
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
 
-    // ヘッダー制御
     if(header) {
         if(scrollTop > 50) header.classList.add('scrolled');
         else header.classList.remove('scrolled');
@@ -292,14 +204,12 @@ function updateHUD(scrollTop) {
         lastScrollTop = scrollTop;
     }
 
-    // ロケットボタン
     const btt = document.getElementById('back-to-top');
     if(btt) {
         if(scrollTop > 400) btt.classList.add('show');
         else btt.classList.remove('show');
     }
 
-    // 色制御
     if (scrollPercent > 0.8) {
         document.documentElement.style.setProperty('--hud-color', '#fff'); 
     } else {
@@ -307,7 +217,7 @@ function updateHUD(scrollTop) {
     }
 }
 
-// === 5. Other Functions (Language, FAQ, UI) ===
+// === 5. Other Functions ===
 
 function initLanguageSettings() {
     const savedLang = localStorage.getItem('lang') || 'ja';
@@ -442,7 +352,7 @@ function initFAQ() {
     });
 }
 
-// === Interaction Logic (Cursor & Buttons) ===
+// === Interaction Logic ===
 function initHUDInteractions() {
     const cursor = document.getElementById('hud-cursor');
     
@@ -462,6 +372,7 @@ function initHUDInteractions() {
         magnets.forEach((magnet) => {
             magnet.classList.add('magnet-btn');
             
+            // 中央配置要素の判定
             const isCentered = magnet.classList.contains('map-overlay-btn') || magnet.classList.contains('scroll-down');
 
             magnet.addEventListener('mousemove', (e) => {
@@ -471,26 +382,14 @@ function initHUDInteractions() {
                 const x = (e.clientX - centerX) / 5;
                 const y = (e.clientY - centerY) / 5;
                 
+                // 元の配置(baseTransform)を考慮して動かす
                 const baseTransform = isCentered ? 'translate(-50%, -50%)' : '';
-                // GSAPで滑らかに動かす
-                gsap.to(magnet, {
-                    x: x, 
-                    y: y, 
-                    scale: 1.1, 
-                    duration: 0.3, 
-                    ease: "power2.out" 
-                });
+                magnet.style.transform = `${baseTransform} translate3d(${x}px, ${y}px, 0) scale(1.1)`;
             });
 
             magnet.addEventListener('mouseleave', () => {
-                // 元に戻す
-                gsap.to(magnet, {
-                    x: 0, 
-                    y: 0, 
-                    scale: 1, 
-                    duration: 0.5, 
-                    ease: "elastic.out(1, 0.5)" 
-                });
+                const baseTransform = isCentered ? 'translate(-50%, -50%)' : '';
+                magnet.style.transform = `${baseTransform} translate3d(0, 0, 0) scale(1)`;
             });
         });
     }
@@ -515,30 +414,28 @@ function createStardust(x, y) {
     const destX = (Math.random() - 0.5) * 60;
     const destY = (Math.random() - 0.5) * 60;
 
-    // GSAPでパーティクルアニメーション
     gsap.to(particle, {
-        x: destX,
-        y: destY,
-        scale: 0,
-        opacity: 0,
-        duration: 1 + Math.random(),
-        ease: "power2.out",
-        onComplete: () => particle.remove()
+        x: destX, y: destY, scale: 0, opacity: 0, duration: 1 + Math.random(),
+        ease: "power2.out", onComplete: () => particle.remove()
     });
 }
 
-// === 追加機能：背景の星空 ===
+// === Starfield Animation ===
 function initStarfield() {
-    const canvas = document.getElementById('starfield');
-    if (!canvas) return;
+    // HTMLになければ生成
+    let canvas = document.getElementById('starfield');
+    if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.id = 'starfield';
+        document.body.prepend(canvas);
+    }
 
     const ctx = canvas.getContext('2d');
     let width, height;
     let stars = [];
-    const starCount = 400; // 星の数
-    const baseSpeed = 0.2; // 基本の流れる速度
+    const starCount = 400; 
+    const baseSpeed = 0.2; 
 
-    // リサイズ対応
     function resize() {
         width = window.innerWidth;
         height = window.innerHeight;
@@ -548,55 +445,35 @@ function initStarfield() {
     }
     window.addEventListener('resize', resize);
 
-    // 星の生成
     function initStars() {
         stars = [];
         for (let i = 0; i < starCount; i++) {
             stars.push({
                 x: Math.random() * width,
                 y: Math.random() * height,
-                z: Math.random() * 2 + 0.5, // 奥行き
+                z: Math.random() * 2 + 0.5,
                 alpha: Math.random() * 0.8 + 0.2
             });
         }
     }
-    
-    // 初回実行
     resize();
 
-    // アニメーションループ
     function animate() {
         ctx.clearRect(0, 0, width, height);
-        
-        // Lenisのスクロール速度を取得（スクロールすると星が速く流れる）
-        // 下にスクロール＝降下しているので、星は上に流れる演出にする
         const scrollVel = window.lenis ? window.lenis.velocity : 0;
         const warpFactor = scrollVel * 0.5; 
 
         ctx.fillStyle = '#fff';
-        
         stars.forEach(star => {
-            // 基本速度 + スクロール速度
-            // (scrollVelが正の値のとき上に動かしたいのでマイナスにする)
             star.y -= (baseSpeed * star.z) + (warpFactor * 0.1 * star.z);
+            if (star.y < 0) { star.y = height; star.x = Math.random() * width; }
+            if (star.y > height) { star.y = 0; star.x = Math.random() * width; }
 
-            // 画面外に出たらループさせる
-            if (star.y < 0) {
-                star.y = height;
-                star.x = Math.random() * width;
-            }
-            if (star.y > height) {
-                star.y = 0;
-                star.x = Math.random() * width;
-            }
-
-            // 描画
             ctx.globalAlpha = star.alpha;
             ctx.beginPath();
             ctx.arc(star.x, star.y, star.z * 0.8, 0, Math.PI * 2);
             ctx.fill();
         });
-
         requestAnimationFrame(animate);
     }
     animate();
