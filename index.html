@@ -5,28 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sorahana Project | 宇宙を旅する花の物語</title>
     <meta name="description" content="Sorahana Project（宙花プロジェクト）公式サイト。高度30,000mの成層圏へ花を打ち上げ、世界に一つだけの『宇宙品質』ドライフラワーを作る挑戦の記録です。">
-    
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Noto+Serif+JP:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    
-    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <!-- === 1. Background Starfield (Canvas) === -->
+    <!-- 星空背景 (z-index調整済み) -->
     <canvas id="starfield"></canvas>
-
-    <!-- === 2. System Boot Loader === -->
+    
+    <!-- System Boot Loader -->
     <div id="boot-screen">
         <div class="boot-container">
             <div class="boot-logo">SORAHANA SYSTEM v2.0</div>
             <div class="boot-progress-bar"><div class="boot-progress-fill"></div></div>
-            <div class="boot-terminal" id="boot-log">
-                <!-- JS Log Output -->
-            </div>
+            <div class="boot-terminal" id="boot-log"></div>
             <div class="boot-status">
                 <span>SYSTEM: <span class="blink">INITIALIZING</span></span>
                 <span class="boot-percent">0%</span>
@@ -34,14 +27,13 @@
         </div>
     </div>
 
-    <!-- === 3. Cockpit HUD Overlay === -->
+    <!-- Cockpit HUD Overlay -->
     <div id="hud-layer">
         <div class="hud-corner top-left"></div>
         <div class="hud-corner top-right"></div>
         <div class="hud-corner bottom-left"></div>
         <div class="hud-corner bottom-right"></div>
         
-        <!-- Left Side: Status & Temp -->
         <div class="hud-side-left">
             <div class="hud-label">STATUS</div>
             <div class="hud-value ok">NORMAL</div>
@@ -51,7 +43,6 @@
             </div>
         </div>
 
-        <!-- Right Side: Altitude & Scroll Bar -->
         <div class="hud-side-right">
             <div class="hud-label">ALTITUDE</div>
             <div class="alt-meter">
@@ -68,14 +59,13 @@
         <div class="hud-grid"></div>
     </div>
 
-    <!-- === 4. HUD Cursor === -->
+    <!-- HUD Cursor -->
     <div id="hud-cursor">
         <div class="cursor-circle"></div>
         <div class="cursor-crosshair"></div>
         <div class="cursor-label">SYSTEM READY</div>
     </div>
 
-    <!-- Scroll Progress (Top) -->
     <div id="scroll-progress"></div>
 
     <header id="header">
@@ -103,7 +93,7 @@
     <div id="hero" class="hero">
         <div class="hero-bg-wrapper">
             <video id="hero-video" autoplay loop muted playsinline preload="metadata" poster="images/stratosphere.png">
-                <source src="images/hero-movie.mp4" type="video/mp4">
+                <!-- <source src="images/hero-movie.mp4" type="video/mp4"> -->
             </video>
             <img src="images/stratosphere.png" class="hero-bg" alt="Stratosphere View">
             <div class="hero-overlay"></div>
@@ -206,9 +196,10 @@
                 <div class="exp-card map-container">
                     <a href="https://earth.google.com/earth/d/1Cbov36QXcYHL8I0Sx-0zyBI57k08agBO?usp=sharing" target="_blank" class="map-link">
                         <img src="images/flight-map.jpg" alt="Flight Map" loading="lazy">
+                        <!-- ボタンの配置修正 -->
                         <div class="map-overlay-btn"><span class="icon">🌍</span> View 3D Flight Path</div>
                     </a>
-                    <div class="exp-caption">
+                    <div class="exp-caption" style="pointer-events:none;">
                         <h3>Flight Trajectory</h3>
                         <p><span lang="ja">25,346m Journey</span><span lang="en">83,156ft Journey</span></p>
                     </div>
@@ -355,7 +346,6 @@
         <img src="images/rocket.png" alt="Top" style="width: 100%; height: 100%; object-fit: contain;">
     </a>
 
-    <!-- Modal for Gallery -->
     <div id="gallery-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -367,7 +357,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://unpkg.com/lenis@1.0.45/dist/lenis.min.js"></script> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
