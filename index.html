@@ -5,24 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sorahana Project | 宇宙を旅する花の物語</title>
     <meta name="description" content="Sorahana Project（宙花プロジェクト）公式サイト。高度30,000mの成層圏へ花を打ち上げ、世界に一つだけの『宇宙品質』ドライフラワーを作る挑戦の記録です。">
-    
-    <!-- Google Fonts: Share Tech Mono (HUD用) を追加 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Noto+Serif+JP:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- === NEW: System Boot Loader (起動画面) === -->
+    <!-- System Boot Loader -->
     <div id="boot-screen">
         <div class="boot-container">
             <div class="boot-logo">SORAHANA SYSTEM v2.0</div>
             <div class="boot-progress-bar"><div class="boot-progress-fill"></div></div>
-            <div class="boot-terminal" id="boot-log">
-                <!-- JSでログがここに流れます -->
-            </div>
+            <div class="boot-terminal" id="boot-log"></div>
             <div class="boot-status">
                 <span>SYSTEM: <span class="blink">INITIALIZING</span></span>
                 <span class="boot-percent">0%</span>
@@ -30,15 +25,13 @@
         </div>
     </div>
 
-    <!-- === NEW: Cockpit HUD Overlay (計器レイヤー) === -->
+    <!-- Cockpit HUD Overlay -->
     <div id="hud-layer">
-        <!-- 四隅のフレーム -->
         <div class="hud-corner top-left"></div>
         <div class="hud-corner top-right"></div>
         <div class="hud-corner bottom-left"></div>
         <div class="hud-corner bottom-right"></div>
         
-        <!-- 左サイド：システムステータス -->
         <div class="hud-side-left">
             <div class="hud-label">STATUS</div>
             <div class="hud-value ok">NORMAL</div>
@@ -46,7 +39,6 @@
             <div class="hud-value">-38.8<small>°C</small></div>
         </div>
 
-        <!-- 右サイド：高度計（スクロール連動） -->
         <div class="hud-side-right">
             <div class="hud-label">ALTITUDE</div>
             <div class="alt-meter">
@@ -54,28 +46,26 @@
                 <div class="alt-value"><span id="live-altitude">00000</span><small>m</small></div>
             </div>
             <div class="hud-scroll-bar">
+                <!-- ロケット画像は削除し、シンプルなインジケーターに戻しました -->
                 <div class="hud-scroll-indicator" id="scroll-indicator"></div>
             </div>
         </div>
 
-        <!-- センター照準（マウスストーカー） -->
-        <div id="hud-cursor-target">
-            <div class="target-circle"></div>
-            <div class="target-line h"></div>
-            <div class="target-line v"></div>
-        </div>
-
-        <!-- 背景のグリッド -->
         <div class="hud-grid"></div>
     </div>
 
-    <!-- Scroll Progress Bar (Top) -->
+    <!-- Restored HUD Cursor -->
+    <div id="hud-cursor">
+        <div class="cursor-circle"></div>
+        <div class="cursor-crosshair"></div>
+        <div class="cursor-label">SYSTEM READY</div>
+    </div>
+
     <div id="scroll-progress"></div>
 
     <header id="header">
         <div class="header-container">
             <a href="#hero" class="logo-link">
-                <!-- ロゴ画像がない場合はテキストを表示する処理 -->
                 <img src="images/logo.png" alt="Sorahana Logo" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
                 <span class="logo-text" style="display:none; font-family:'Montserrat'; font-weight:bold; letter-spacing:0.2em; color:#fff;">SORAHANA</span>
             </a>
@@ -97,9 +87,8 @@
 
     <div id="hero" class="hero">
         <div class="hero-bg-wrapper">
-            <!-- 動画ファイル(images/hero-movie.mp4)がない場合は poster画像が表示されます -->
             <video id="hero-video" autoplay loop muted playsinline preload="metadata" poster="images/stratosphere.png">
-                <source src="images/hero-movie.mp4" type="video/mp4">
+                <!-- <source src="images/hero-movie.mp4" type="video/mp4"> -->
             </video>
             <img src="images/stratosphere.png" class="hero-bg" alt="Stratosphere View">
             <div class="hero-overlay"></div>
@@ -333,7 +322,6 @@
             </div>
             <div class="social-links" style="margin-top: 60px; text-align:center;">
                 <p style="margin-bottom: 20px; font-size: 0.9rem; letter-spacing: 0.1em; font-family:var(--font-en);">Follow Us</p>
-                <!-- 修正済みSVGアイコン -->
                 <a href="https://www.instagram.com/sorahana_project/" target="_blank" class="social-icon-link" aria-label="Instagram">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                         <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
@@ -352,7 +340,6 @@
         <img src="images/rocket.png" alt="Top" style="width: 100%; height: 100%; object-fit: contain;">
     </a>
 
-    <!-- Modal for Gallery -->
     <div id="gallery-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -364,10 +351,7 @@
         </div>
     </div>
 
-    <!-- Lenis (Smooth Scroll) -->
     <script src="https://unpkg.com/lenis@1.0.45/dist/lenis.min.js"></script> 
-    
-    <!-- Main Script -->
     <script src="script.js"></script>
 </body>
 </html>
