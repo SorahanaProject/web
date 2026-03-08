@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initCompareSlider();
     initUI();
     initFAQ();
+
+    initStarfield(); //
 });
 
 // === 1. Lenis & GSAP ScrollTrigger Setup ===
@@ -104,49 +106,79 @@ function initBootSequence() {
     }, 50);
 }
 
-// === 3. GSAP Site Animations (The "Pro" Look) ===
+// === 3. GSAP Site Animations (Updated with Glitch) ===
 function initSiteAnimations() {
     initTextScramble();
 
-    // A. ヒーローセクションのオープニング演出
+    // A. ヒーローセクション
     const tl = gsap.timeline();
-    
-    tl.from(".hero-content .data-tag", { 
-        y: 20, opacity: 0, duration: 0.8, ease: "power3.out" 
-    })
-    .from(".hero-content h1 span", { 
-        y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "power4.out" 
-    }, "-=0.6")
-    .from(".hero-content .hero-desc", { 
-        y: 20, opacity: 0, duration: 0.8, ease: "power3.out" 
-    }, "-=0.6")
-    .from(".scroll-down", { 
-        y: -20, opacity: 0, duration: 0.8 
-    }, "-=0.4");
+    tl.from(".hero-content .data-tag", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" })
+      .from(".hero-content h1 span", { y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "power4.out" }, "-=0.6")
+      .from(".hero-content .hero-desc", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
+      .from(".scroll-down", { y: -20, opacity: 0, duration: 0.8 }, "-=0.4");
 
-    // B. 各セクションのタイトルとテキストの出現演出
-    // クラス .js-scroll がついている要素（または主要要素）を対象に
+    // B. 各セクションの出現
     const revealElements = document.querySelectorAll(".section-title, .lead-text, .timeline-content, .gallery-item, .blog-card");
-
     revealElements.forEach((elem) => {
-        // 初期状態をCSSではなくGSAPでセット（チラつき防止）
         gsap.set(elem, { autoAlpha: 0, y: 50 });
-
         ScrollTrigger.create({
             trigger: elem,
-            start: "top 85%", // 画面の下15%に入ったら開始
-            once: true, // 一回だけ再生
+            start: "top 85%",
+            once: true,
             onEnter: () => {
-                gsap.to(elem, {
-                    duration: 1.2,
-                    y: 0,
-                    autoAlpha: 1,
-                    ease: "power3.out",
-                    overwrite: "auto"
-                });
+                gsap.to(elem, { duration: 1.2, y: 0, autoAlpha: 1, ease: "power3.out", overwrite: "auto" });
             }
         });
     });
+
+    // C. 画像のパララックス & グリッチエフェクト (★ここを変更)
+    const parallaxImages = document.querySelectorAll(".gallery-item img, .timeline-img, .exp-card img");
+    
+    parallaxImages.forEach((img) => {
+        // パララックス
+        gsap.to(img, {
+            yPercent: 15,
+            ease: "none",
+            scrollTrigger: {
+                trigger: img.parentElement,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+            }
+        });
+        
+        // 出現時のズーム & グリッチ
+        ScrollTrigger.create({
+            trigger: img.parentElement,
+            start: "top 85%",
+            once: true,
+            onEnter: () => {
+                // ズームイン
+                gsap.fromTo(img, 
+                    { scale: 1.3 },
+                    { scale: 1.0, duration: 1.5, ease: "power2.out" }
+                );
+                
+                // ★グリッチエフェクト発動（クラスを付けて、少ししたら消す）
+                img.classList.add('glitch-effect');
+                setTimeout(() => {
+                    img.classList.remove('glitch-effect');
+                }, 400); // 0.4秒後に削除
+            }
+        });
+    });
+
+    // D. タイムラインの線
+    gsap.utils.toArray(".timeline-item").forEach((item) => {
+        const dot = item.querySelector(".timeline-dot");
+        if(dot) {
+            gsap.from(dot, {
+                scale: 0, duration: 0.5, ease: "back.out(1.7)",
+                scrollTrigger: { trigger: item, start: "top 80%" }
+            });
+        }
+    });
+}
 
     // C. 画像のパララックス & スケール演出（高級感の要）
     // 枠内で画像がゆっくり動く（固定はせず、視差効果のみ）
