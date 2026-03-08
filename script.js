@@ -391,61 +391,70 @@ function initFAQ() {
 // === Interaction Logic (Cursor & Buttons) ===
 function initHUDInteractions() {
     const cursor = document.getElementById('hud-cursor');
-    
-    if (window.matchMedia("(min-width: 1025px)").matches && cursor) {
-        document.addEventListener('mousemove', (e) => {
+    // カーソル要素が存在しなければ終了
+    if (!cursor) return;
+
+    // 1. マウス移動時のカーソル追従・パーティクル
+    document.addEventListener('mousemove', (e) => {
+        // イベント発生時に画面幅がPCサイズ(1025px以上)かチェック
+        if (window.matchMedia("(min-width: 1025px)").matches) {
             cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
             createStardust(e.clientX, e.clientY);
-        });
+        }
+    });
 
-        const targets = document.querySelectorAll('a, button, .gallery-item, .map-overlay-btn');
-        targets.forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('locked'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
-        });
+    // 2. リンクホバー時のカーソル変化
+    const targets = document.querySelectorAll('a, button, .gallery-item, .map-overlay-btn');
+    targets.forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('locked'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
+    });
+
+    // 3. マグネットボタン（吸着エフェクト）
+    const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
+    magnets.forEach((magnet) => {
+        magnet.classList.add('magnet-btn');
         
-        const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
-        magnets.forEach((magnet) => {
-            magnet.classList.add('magnet-btn');
+        // CSSで translate(-50%, -50%) されている要素か判定
+        const isCentered = magnet.classList.contains('map-overlay-btn') || magnet.classList.contains('scroll-down');
+
+        magnet.addEventListener('mousemove', (e) => {
+            // PCサイズのみ動作
+            if (!window.matchMedia("(min-width: 1025px)").matches) return;
+
+            const rect = magnet.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const x = (e.clientX - centerX) / 5;
+            const y = (e.clientY - centerY) / 5;
             
-            // CSSで translate(-50%, -50%) されている要素か判定
-            const isCentered = magnet.classList.contains('map-overlay-btn') || magnet.classList.contains('scroll-down');
-
-            magnet.addEventListener('mousemove', (e) => {
-                const rect = magnet.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                const x = (e.clientX - centerX) / 5;
-                const y = (e.clientY - centerY) / 5;
-                
-                // GSAPで動かす（中央配置の要素は xPercent/yPercent を維持する）
-                gsap.to(magnet, {
-                    x: x, 
-                    y: y, 
-                    xPercent: isCentered ? -50 : 0, // これが無いとtranslate(-50%)が消えて位置がズレる
-                    yPercent: isCentered ? -50 : 0,
-                    scale: 1.1, 
-                    duration: 0.3, 
-                    ease: "power2.out",
-                    overwrite: "auto"
-                });
-            });
-
-            magnet.addEventListener('mouseleave', () => {
-                // 元に戻す際も xPercent/yPercent を指定する
-                gsap.to(magnet, {
-                    x: 0, 
-                    y: 0, 
-                    xPercent: isCentered ? -50 : 0, 
-                    yPercent: isCentered ? -50 : 0,
-                    scale: 1, 
-                    duration: 0.5, 
-                    ease: "elastic.out(1, 0.5)",
-                    overwrite: "auto"
-                });
+            // GSAPで動かす（中央配置の要素は xPercent/yPercent を維持する）
+            gsap.to(magnet, {
+                x: x, 
+                y: y, 
+                xPercent: isCentered ? -50 : 0, 
+                yPercent: isCentered ? -50 : 0,
+                scale: 1.1, 
+                duration: 0.3, 
+                ease: "power2.out",
+                overwrite: "auto"
             });
         });
-    }
+
+        magnet.addEventListener('mouseleave', () => {
+            // 元に戻す際も xPercent/yPercent を指定して位置ズレを防ぐ
+            gsap.to(magnet, {
+                x: 0, 
+                y: 0, 
+                xPercent: isCentered ? -50 : 0, 
+                yPercent: isCentered ? -50 : 0,
+                scale: 1, 
+                duration: 0.5, 
+                ease: "elastic.out(1, 0.5)",
+                overwrite: "auto"
+            });
+        });
+    });
 }
 
 let isThrottled = false;
