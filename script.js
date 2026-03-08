@@ -408,6 +408,7 @@ function initHUDInteractions() {
         magnets.forEach((magnet) => {
             magnet.classList.add('magnet-btn');
             
+            // CSSで translate(-50%, -50%) されている要素か判定
             const isCentered = magnet.classList.contains('map-overlay-btn') || magnet.classList.contains('scroll-down');
 
             magnet.addEventListener('mousemove', (e) => {
@@ -417,24 +418,30 @@ function initHUDInteractions() {
                 const x = (e.clientX - centerX) / 5;
                 const y = (e.clientY - centerY) / 5;
                 
-                // GSAPで滑らかに動かす
+                // GSAPで動かす（中央配置の要素は xPercent/yPercent を維持する）
                 gsap.to(magnet, {
                     x: x, 
                     y: y, 
+                    xPercent: isCentered ? -50 : 0, // これが無いとtranslate(-50%)が消えて位置がズレる
+                    yPercent: isCentered ? -50 : 0,
                     scale: 1.1, 
                     duration: 0.3, 
-                    ease: "power2.out" 
+                    ease: "power2.out",
+                    overwrite: "auto"
                 });
             });
 
             magnet.addEventListener('mouseleave', () => {
-                // 元に戻す
+                // 元に戻す際も xPercent/yPercent を指定する
                 gsap.to(magnet, {
                     x: 0, 
                     y: 0, 
+                    xPercent: isCentered ? -50 : 0, 
+                    yPercent: isCentered ? -50 : 0,
                     scale: 1, 
                     duration: 0.5, 
-                    ease: "elastic.out(1, 0.5)" 
+                    ease: "elastic.out(1, 0.5)",
+                    overwrite: "auto"
                 });
             });
         });
