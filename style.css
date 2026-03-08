@@ -359,6 +359,31 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
 }
 
 /* === 10. Mobile Responsive === */
+@media (max-width: 1200px) {
+    .hero {
+        justify-content: center; /* コンテンツ全体を中央寄せ */
+    }
+    
+    .hero-content {
+        margin-right: 0; /* 右寄せのマージンを解除 */
+        align-items: center; /* Flexboxの子要素(テキスト等)を中央揃え */
+        text-align: center; /* テキスト自体を中央揃え */
+        max-width: 80%; /* 幅を少し広げる */
+        padding: 50px 40px;
+    }
+
+    .hero-desc {
+        text-align: center; /* 説明文も中央揃え */
+    }
+
+    /* データタグ(ALT/TEMP)も中央配置 */
+    .hero-content .data-tag {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+}
+
 @media (max-width: 768px) {
     section { padding: 80px 15px; }
     .section-title { font-size: 2.2rem; }
