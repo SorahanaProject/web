@@ -210,39 +210,52 @@ function initFAQ() {
 function initHUDInteractions() {
     const cursor = document.getElementById('hud-cursor');
     
+    // PCのみ有効
     if (window.matchMedia("(min-width: 1025px)").matches && cursor) {
+        
+        // 1. カーソル追従
         document.addEventListener('mousemove', (e) => {
+            // CSS側で translate(-50%, -50%) していないため、JSで補正するか、
+            // CSSの .cursor-circle 等が position:absolute で調整されている前提で座標を渡す
+            // ここでは単純に座標を渡す（CSS側の調整に委ねる）
             cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
             createStardust(e.clientX, e.clientY);
         });
 
+        // 2. ロックオン演出
         const targets = document.querySelectorAll('a, button, .gallery-item, .map-overlay-btn');
         targets.forEach(el => {
             el.addEventListener('mouseenter', () => cursor.classList.add('locked'));
             el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
         });
         
-        // --- 修正箇所：ボタンの動き ---
+        // 3. マグネットボタン（吸い付き演出）の修正版
         const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
+        
         magnets.forEach((magnet) => {
             magnet.classList.add('magnet-btn');
             
-            // マップボタンなど、CSSで既に transform: translate(-50%, -50%) されている要素の対策
-            // 要素が .map-overlay-btn または .scroll-down なら、元の位置補正を保持する
+            // ★重要：もともとCSSで中央寄せ(translate -50%, -50%)されている要素か判定
             const isCentered = magnet.classList.contains('map-overlay-btn') || magnet.classList.contains('scroll-down');
-            const baseTransform = isCentered ? 'translate(-50%, -50%)' : '';
 
             magnet.addEventListener('mousemove', (e) => {
                 const rect = magnet.getBoundingClientRect();
-                const x = (e.clientX - (rect.left + rect.width / 2)) / 5;
-                const y = (e.clientY - (rect.top + rect.height / 2)) / 5;
+                // 現在の中心位置を取得
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
                 
-                // 元の配置(baseTransform) + マウス追従(x,y)
+                // マウスとの距離を計算
+                const x = (e.clientX - centerX) / 5;
+                const y = (e.clientY - centerY) / 5;
+                
+                // ★修正点：中央寄せ要素なら、その設定(translate -50%, -50%)を残したまま動かす
+                const baseTransform = isCentered ? 'translate(-50%, -50%)' : '';
                 magnet.style.transform = `${baseTransform} translate3d(${x}px, ${y}px, 0) scale(1.1)`;
             });
 
             magnet.addEventListener('mouseleave', () => {
-                // 元の配置に戻す
+                // ★修正点：リセット時も中央寄せ設定を戻す
+                const baseTransform = isCentered ? 'translate(-50%, -50%)' : '';
                 magnet.style.transform = `${baseTransform} translate3d(0, 0, 0) scale(1)`;
             });
         });
