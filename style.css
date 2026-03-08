@@ -393,3 +393,34 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     nav.active { right: 0; } nav ul { flex-direction: column; text-align: center; gap: 30px; }
     .email-link { font-size: 1rem; padding: 20px 30px; width: 80%; }
 }
+
+/* =========================================
+   ADDITION: Starfield & Glitch Effect
+   ========================================= */
+
+/* 1. 動く星空（背景） */
+#starfield {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -10; /* 最背面（グラデーションよりは前、コンテンツより後ろ） */
+    pointer-events: none;
+    opacity: 0.6; /* 星の明るさを調整 */
+}
+
+/* 2. グリッチエフェクト（画像の乱れ） */
+@keyframes glitch-anim {
+    0% { clip-path: inset(0 0 0 0); transform: translate(0); filter: hue-rotate(0deg); }
+    10% { clip-path: inset(10% 0 85% 0); transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
+    20% { clip-path: inset(85% 0 10% 0); transform: translate(2px, -2px); filter: contrast(2); }
+    30% { clip-path: inset(30% 0 50% 0); transform: translate(-2px, 0); }
+    40% { clip-path: inset(50% 0 30% 0); transform: translate(2px, 2px); filter: hue-rotate(-90deg); }
+    50% { clip-path: inset(10% 0 60% 0); transform: translate(0); }
+    100% { clip-path: inset(0 0 0 0); transform: translate(0); filter: none; }
+}
+
+.glitch-effect {
+    animation: glitch-anim 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
