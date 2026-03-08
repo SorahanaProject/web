@@ -32,21 +32,28 @@
         <div class="hud-corner bottom-left"></div>
         <div class="hud-corner bottom-right"></div>
         
+        <!-- 左サイド：システムステータス -->
         <div class="hud-side-left">
             <div class="hud-label">STATUS</div>
             <div class="hud-value ok">NORMAL</div>
             <div class="hud-label" style="margin-top:20px;">TEMP</div>
-            <div class="hud-value">-38.8<small>°C</small></div>
+            <!-- ↓ここを修正（IDを追加） -->
+            <div class="hud-value">
+                <span id="hud-temp-val">-38.8</span><small id="hud-temp-unit">°C</small>
+            </div>
         </div>
 
+        <!-- 右サイド：高度計（スクロール連動） -->
         <div class="hud-side-right">
             <div class="hud-label">ALTITUDE</div>
             <div class="alt-meter">
                 <div class="alt-line"></div>
-                <div class="alt-value"><span id="live-altitude">00000</span><small>m</small></div>
+                <!-- ↓ここを修正（単位にIDを追加） -->
+                <div class="alt-value">
+                    <span id="live-altitude">00000</span><small id="hud-alt-unit">m</small>
+                </div>
             </div>
             <div class="hud-scroll-bar">
-                <!-- ロケット画像は削除し、シンプルなインジケーターに戻しました -->
                 <div class="hud-scroll-indicator" id="scroll-indicator"></div>
             </div>
         </div>
