@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 星空の描画
     initStarfield();
 
-    // カードホバー時の拡大エフェクト
-    initCardHoverEffects();
+    // 拡大エフェクト
+    initImageHoverEffects();
     
 });
 
@@ -573,28 +573,33 @@ function initStarfield() {
     animate();
 }
 
-function initCardHoverEffects() {
-    const cards = document.querySelectorAll('.exp-card');
+function initImageHoverEffects() {
+    // 対象: Galleryのアイテム と Experimentのカード
+    const targets = document.querySelectorAll('.gallery-item, .exp-card');
     
-    cards.forEach(card => {
-        const img = card.querySelector('img');
+    targets.forEach(el => {
+        const img = el.querySelector('img');
         if (!img) return;
 
-        // ホバー時：パララックスの位置(yPercent)を維持したまま拡大
-        card.addEventListener('mouseenter', () => {
+        // クラスによって拡大率を変える
+        // Galleryは少し大きめ(1.1)、Experimentカードは控えめ(1.05)
+        const scaleVal = el.classList.contains('gallery-item') ? 1.1 : 1.05;
+
+        // ホバー時：パララックス位置を維持したまま拡大
+        el.addEventListener('mouseenter', () => {
             gsap.to(img, {
-                scale: 1.05,
-                duration: 0.5,
+                scale: scaleVal,
+                duration: 0.6,
                 ease: "power2.out",
-                overwrite: "auto" // 他のアニメーションと競合しないようにする
+                overwrite: "auto" // スクロールの動きと喧嘩しないように自動調整
             });
         });
 
         // ホバー解除時：元に戻す
-        card.addEventListener('mouseleave', () => {
+        el.addEventListener('mouseleave', () => {
             gsap.to(img, {
                 scale: 1.0,
-                duration: 0.5,
+                duration: 0.6,
                 ease: "power2.out",
                 overwrite: "auto"
             });
