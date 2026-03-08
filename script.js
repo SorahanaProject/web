@@ -190,7 +190,6 @@ function initHUDInteractions() {
     
     if (window.matchMedia("(min-width: 1025px)").matches && cursor) {
         document.addEventListener('mousemove', (e) => {
-            // translate3dで位置を更新（-50%補正は不要、CSSのcircle側で調整済み）
             cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
             createStardust(e.clientX, e.clientY);
         });
@@ -201,19 +200,28 @@ function initHUDInteractions() {
             el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
         });
         
+        // --- 修正箇所：ボタンの動き ---
         const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
         magnets.forEach((magnet) => {
             magnet.classList.add('magnet-btn');
             
+            // マップボタンなど、CSSで既に transform: translate(-50%, -50%) されている要素の対策
+            // 要素が .map-overlay-btn または .scroll-down なら、元の位置補正を保持する
+            const isCentered = magnet.classList.contains('map-overlay-btn') || magnet.classList.contains('scroll-down');
+            const baseTransform = isCentered ? 'translate(-50%, -50%)' : '';
+
             magnet.addEventListener('mousemove', (e) => {
                 const rect = magnet.getBoundingClientRect();
                 const x = (e.clientX - (rect.left + rect.width / 2)) / 5;
                 const y = (e.clientY - (rect.top + rect.height / 2)) / 5;
-                magnet.style.transform = `translate3d(${x}px, ${y}px, 0) scale(1.1)`;
+                
+                // 元の配置(baseTransform) + マウス追従(x,y)
+                magnet.style.transform = `${baseTransform} translate3d(${x}px, ${y}px, 0) scale(1.1)`;
             });
 
             magnet.addEventListener('mouseleave', () => {
-                magnet.style.transform = 'translate3d(0, 0, 0) scale(1)';
+                // 元の配置に戻す
+                magnet.style.transform = `${baseTransform} translate3d(0, 0, 0) scale(1)`;
             });
         });
     }
