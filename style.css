@@ -361,15 +361,20 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
 /* === 10. Mobile Responsive === */
 @media (max-width: 1200px) {
     .hero {
-        justify-content: center; /* コンテンツ全体を中央寄せ */
+        /* コンテンツ全体を中央寄せ */
+        justify-content: center; 
+        text-align: center;
     }
     
     .hero-content {
         margin-right: 0; /* 右寄せのマージンを解除 */
         align-items: center; /* Flexboxの子要素(テキスト等)を中央揃え */
-        text-align: center; /* テキスト自体を中央揃え */
         max-width: 80%; /* 幅を少し広げる */
         padding: 50px 40px;
+    }
+
+ .hero h1 {
+        text-align: center;
     }
 
     .hero-desc {
