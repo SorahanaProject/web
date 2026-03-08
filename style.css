@@ -38,7 +38,6 @@ body {
     font-feature-settings: "palt"; letter-spacing: 0.05em; position: relative; z-index: 1;
 }
 
-/* PCのみ標準カーソルを非表示 */
 @media (min-width: 1025px) {
     body, a, button, .exp-card, .gallery-item, .map-overlay-btn {
         cursor: none !important;
@@ -114,12 +113,8 @@ span[lang="en"] { font-size: 1.05em; }
 .alt-meter { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
 .alt-line { width: 30px; height: 1px; background: var(--hud-color); }
 .alt-value { font-size: 2rem; width: 120px; }
-
-/* 元のシンプルなバーに戻す */
 .hud-scroll-bar { position: absolute; right: -20px; top: -100px; height: 200px; width: 2px; background: rgba(255,255,255,0.1); }
-.hud-scroll-indicator {
-    position: absolute; top: 0; left: -2px; width: 6px; height: 20px; background: var(--hud-color);
-}
+.hud-scroll-indicator { position: absolute; top: 0; left: -2px; width: 6px; height: 20px; background: var(--hud-color); }
 
 .hud-grid {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
@@ -128,7 +123,7 @@ span[lang="en"] { font-size: 1.05em; }
     mask-image: radial-gradient(circle, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 90%);
 }
 
-/* === HUD CURSOR (Restored Original) === */
+/* === HUD CURSOR (Red Theme) === */
 #hud-cursor { 
     display: none; position: fixed; top: 0; left: 0; pointer-events: none; z-index: 11001; transition: opacity 0.3s; 
 }
@@ -139,37 +134,24 @@ span[lang="en"] { font-size: 1.05em; }
     border: 1px solid var(--accent-color); border-radius: 50%; transition: 0.2s; 
     box-shadow: 0 0 10px var(--hud-glow);
 }
-.cursor-crosshair { 
-    position: absolute; top: 0; left: 0; opacity: 0; transition: 0.2s; 
-}
+.cursor-crosshair { position: absolute; top: 0; left: 0; opacity: 0; transition: 0.2s; }
 .cursor-crosshair::before, .cursor-crosshair::after { 
-    content: ''; position: absolute; background: #ff3333; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+    content: ''; position: absolute; 
+    background: #ff3333; /* 赤色に変更 */
+    top: 50%; left: 50%; transform: translate(-50%, -50%); 
 }
 .cursor-crosshair::before { width: 40px; height: 1px; } 
 .cursor-crosshair::after { width: 1px; height: 40px; }
+
 .cursor-label { 
-    position: absolute; 
-    top: 30px;        /* カーソルから少し距離を離す */
-    left: 30px; 
-    color: #ff3333;   /* 文字色 */
-    
-    font-family: var(--font-tech); 
-    font-size: 0.85rem;      /* サイズを大きく (0.7rem -> 0.85rem) */
-    font-weight: bold;       /* 太字にして視認性アップ */
-    letter-spacing: 0.1em;   /* 文字間隔を広げる */
-    
-    opacity: 0; 
-    transition: 0.2s; 
-    white-space: nowrap; 
-    
-    /* === 視認性向上のための追加スタイル === */
-    background: rgba(0, 0, 0, 0.7);       /* 半透明の黒背景を敷く */
-    padding: 4px 8px;                     /* 文字周りの余白 */
-    border: 1px solid rgba(255, 51, 51, 0.5); /* 薄い赤枠 */
-    border-radius: 4px;                   /* 角を少し丸める */
-    text-shadow: 0 0 5px rgba(255, 51, 51, 0.8); /* 文字を発光させる */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);     /* ボックス自体の影 */
-    pointer-events: none; /* マウスイベントを邪魔しない */
+    position: absolute; top: 30px; left: 30px; 
+    color: #ff3333; /* 赤色に変更 */
+    font-family: var(--font-tech); font-size: 0.85rem; font-weight: bold; letter-spacing: 0.1em;
+    opacity: 0; transition: 0.2s; white-space: nowrap; 
+    background: rgba(0, 0, 0, 0.7); padding: 4px 8px; 
+    border: 1px solid rgba(255, 51, 51, 0.5); border-radius: 4px; 
+    text-shadow: 0 0 5px rgba(255, 51, 51, 0.8);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 /* Locked state */
@@ -178,7 +160,6 @@ span[lang="en"] { font-size: 1.05em; }
     border-color: #ff3333; border-width: 2px; transform: rotate(45deg); 
 }
 #hud-cursor.locked .cursor-crosshair, #hud-cursor.locked .cursor-label { opacity: 1; }
-
 
 /* === 5. Header & Navigation === */
 header {
@@ -228,7 +209,8 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .timeline-dot { position: absolute; top: 0; left: 11px; width: 18px; height: 18px; background: #000; border: 2px solid var(--accent-color); border-radius: 50%; z-index: 2; }
 .timeline-content { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 30px; border-radius: 12px; transition: transform 0.3s; overflow: hidden; }
 .timeline-content:hover { border-color: var(--accent-color); transform: translateY(-5px); }
-.timeline-img { width: 110%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1); }
+/* 修正：画像のはみ出し防止のため幅を100%に戻す */
+.timeline-img { width: 100%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
 .timeline-content .phase { display: block; font-family: var(--font-en); color: var(--accent-color); font-size: 0.8rem; letter-spacing: 0.2em; margin-bottom: 10px; text-transform: uppercase; }
 
 @media (min-width: 769px) {
@@ -247,9 +229,18 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .exp-caption { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; text-align: center; pointer-events: none; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .exp-caption h3 { font-family: var(--font-en); color: var(--accent-color); margin: 0 0 10px 0; font-size: clamp(1.8rem, 4vw, 2.8rem); text-shadow: 0 0 20px rgba(0,0,0,0.9); }
 .exp-caption p { margin: 0; font-size: 1.1rem; color: #fff; font-weight: 500; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
-.map-link { display: block; width: 100%; text-decoration: none; }
-.map-overlay-btn { position: absolute; top: 68%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid var(--accent-color); padding: 12px 35px; border-radius: 50px; font-family: var(--font-en); font-weight: 600; z-index: 10; pointer-events: auto; transition: 0.3s; }
-.map-link:hover .map-overlay-btn { background: var(--accent-color); color: #000; transform: translate(-50%, -50%) scale(1.05); }
+
+/* マップボタンの修正：positionを明確に */
+.map-container { position: relative; z-index: 2; }
+.map-link { display: block; width: 100%; position: relative; text-decoration: none; }
+.map-overlay-btn { 
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+    background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid var(--accent-color); 
+    padding: 12px 35px; border-radius: 50px; font-family: var(--font-en); font-weight: 600; 
+    z-index: 20; /* 画像より手前に */
+    pointer-events: auto; transition: 0.3s; 
+}
+.map-link:hover .map-overlay-btn { background: var(--accent-color); color: #000; }
 
 .compare-container { position: relative; width: 100%; max-width: 600px; height: 400px; margin: 0 auto; overflow: hidden; border-radius: 12px; border: 1px solid var(--glass-border); }
 .img-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; }
@@ -307,21 +298,17 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 /* === 8. Footer & Modal === */
 footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; color: #666; }
 
-/* ロケットボタン：アニメーション強化 */
 .back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; z-index: 999; opacity: 0; pointer-events: none; transition: 0.3s; }
-/* 表示時は常に揺らす */
 .back-to-top.show { 
     opacity: 1; pointer-events: auto; 
     animation: rocketIdle 2s ease-in-out infinite; 
 }
-/* 発射時 */
 .back-to-top.launch { animation: launchRocket 1s forwards ease-in !important; }
 
 @keyframes rocketIdle {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
 }
-
 @keyframes launchRocket { 0% { transform: translateY(0); } 100% { transform: translateY(-100vh); opacity: 0; } }
 
 .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
@@ -333,34 +320,31 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
 /* Scroll Progress */
 #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent-color), #fff); width: 0%; z-index: 100000; transition: width 0.1s; }
 
-/* === 9. Animation & Effects (GSAP用に修正) === */
-/* JSでアニメーションさせる要素の初期状態 */
-.gs_reveal {
-    visibility: hidden; /* GSAP読み込みまで隠す（チラつき防止） */
-    will-change: transform, opacity;
+/* === 9. Animation & Effects === */
+.js-scroll { opacity: 0; transform: translateY(30px) scale(0.98); filter: blur(5px); transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.165, 0.84, 0.44, 1), filter 1.2s ease; }
+.js-scroll.is-visible { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+
+.magnet-btn { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: inline-block; }
+
+/* 2. 背景の星空キャンバス */
+#starfield {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1; /* 背景画像の少し手前に設定 */
+    pointer-events: none; opacity: 0.6;
 }
 
-/* 画像の親要素（マスクアニメーション用） */
-.gallery-item, .img-wrapper, .timeline-img-wrapper {
-    overflow: hidden;
-    position: relative;
+/* 3. グリッチエフェクト */
+@keyframes glitch-anim {
+    0% { clip-path: inset(0 0 0 0); transform: translate(0); filter: hue-rotate(0deg); }
+    10% { clip-path: inset(10% 0 85% 0); transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
+    20% { clip-path: inset(85% 0 10% 0); transform: translate(2px, -2px); filter: contrast(2); }
+    30% { clip-path: inset(30% 0 50% 0); transform: translate(-2px, 0); }
+    40% { clip-path: inset(50% 0 30% 0); transform: translate(2px, 2px); filter: hue-rotate(-90deg); }
+    50% { clip-path: inset(10% 0 60% 0); transform: translate(0); }
+    100% { clip-path: inset(0 0 0 0); transform: translate(0); filter: none; }
 }
-
-/* 画像自体（ズームアウトしながら表示する演出用） */
-.gallery-item img, .timeline-img {
-    transform: scale(1.2); /* 最初は少し拡大しておく */
-    transition: none; /* CSS遷移は無効化しGSAPに任せる */
-}
-
-/* テキストの行ごとの演出用 */
-.split-line {
-    overflow: hidden;
-    display: block;
-}
-
-.magnet-btn { 
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
-    display: inline-block; 
+.glitch-effect {
+    animation: glitch-anim 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
 /* === 10. Mobile Responsive === */
@@ -392,35 +376,4 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     nav { position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; background: rgba(5,5,5,0.98); display: flex; justify-content: center; align-items: center; transition: 0.4s; }
     nav.active { right: 0; } nav ul { flex-direction: column; text-align: center; gap: 30px; }
     .email-link { font-size: 1rem; padding: 20px 30px; width: 80%; }
-}
-
-/* =========================================
-   ADDITION: Starfield & Glitch Effect
-   ========================================= */
-
-/* 1. 動く星空（背景） */
-#starfield {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -10; /* 最背面（グラデーションよりは前、コンテンツより後ろ） */
-    pointer-events: none;
-    opacity: 0.6; /* 星の明るさを調整 */
-}
-
-/* 2. グリッチエフェクト（画像の乱れ） */
-@keyframes glitch-anim {
-    0% { clip-path: inset(0 0 0 0); transform: translate(0); filter: hue-rotate(0deg); }
-    10% { clip-path: inset(10% 0 85% 0); transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
-    20% { clip-path: inset(85% 0 10% 0); transform: translate(2px, -2px); filter: contrast(2); }
-    30% { clip-path: inset(30% 0 50% 0); transform: translate(-2px, 0); }
-    40% { clip-path: inset(50% 0 30% 0); transform: translate(2px, 2px); filter: hue-rotate(-90deg); }
-    50% { clip-path: inset(10% 0 60% 0); transform: translate(0); }
-    100% { clip-path: inset(0 0 0 0); transform: translate(0); filter: none; }
-}
-
-.glitch-effect {
-    animation: glitch-anim 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
