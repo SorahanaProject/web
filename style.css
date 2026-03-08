@@ -23,8 +23,8 @@
 
 html {
     height: 100%; width: 100%;
-    /* 背景色はcanvas(#starfield)側に移動して干渉を防ぐ */
-    background: transparent;
+    /* 背景色をbodyではなくhtmlまたは固定要素に設定し、canvasが見えるようにする */
+    background: #000;
     overflow-y: scroll;
     scrollbar-width: none;
 }
@@ -32,18 +32,14 @@ html.lenis { height: auto; }
 ::-webkit-scrollbar { display: none; }
 
 body {
-    margin: 0; background-color: transparent; color: var(--text-color);
+    margin: 0; 
+    /* 背景グラデーションをここに適用しつつ、canvasを透過させる */
+    background-image: linear-gradient(to bottom, #000000 0%, #1a1a1a 100%);
+    background-attachment: fixed;
+    background-color: transparent; 
+    color: var(--text-color);
     font-family: var(--font-jp); overflow-x: hidden;
     font-feature-settings: "palt"; letter-spacing: 0.05em; position: relative; z-index: 1;
-}
-
-/* 背景の星空キャンバス */
-#starfield {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    z-index: -1; /* コンテンツの直下 */
-    pointer-events: none;
-    /* 宇宙の背景色をここに設定 */
-    background-image: linear-gradient(to bottom, #000000 0%, #1a1a1a 100%);
 }
 
 /* PCのみ標準カーソルを非表示 */
@@ -122,8 +118,11 @@ span[lang="en"] { font-size: 1.05em; }
 .alt-meter { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
 .alt-line { width: 30px; height: 1px; background: var(--hud-color); }
 .alt-value { font-size: 2rem; width: 120px; }
+
 .hud-scroll-bar { position: absolute; right: -20px; top: -100px; height: 200px; width: 2px; background: rgba(255,255,255,0.1); }
-.hud-scroll-indicator { position: absolute; top: 0; left: -2px; width: 6px; height: 20px; background: var(--hud-color); }
+.hud-scroll-indicator {
+    position: absolute; top: 0; left: -2px; width: 6px; height: 20px; background: var(--hud-color);
+}
 
 .hud-grid {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
@@ -146,20 +145,27 @@ span[lang="en"] { font-size: 1.05em; }
 .cursor-crosshair { 
     position: absolute; top: 0; left: 0; opacity: 0; transition: 0.2s; 
 }
-/* 十字線を赤色に変更 */
 .cursor-crosshair::before, .cursor-crosshair::after { 
     content: ''; position: absolute; background: #ff3333; top: 50%; left: 50%; transform: translate(-50%, -50%); 
 }
 .cursor-crosshair::before { width: 40px; height: 1px; } 
 .cursor-crosshair::after { width: 1px; height: 40px; }
-
-/* カーソルラベル（赤色・視認性向上） */
 .cursor-label { 
-    position: absolute; top: 30px; left: 30px; color: #ff3333; 
-    font-family: var(--font-tech); font-size: 0.85rem; font-weight: bold; letter-spacing: 0.1em;
-    opacity: 0; transition: 0.2s; white-space: nowrap; 
-    background: rgba(0, 0, 0, 0.7); padding: 4px 8px;
-    border: 1px solid rgba(255, 51, 51, 0.5); border-radius: 4px;
+    position: absolute; 
+    top: 30px;
+    left: 30px; 
+    color: #ff3333;
+    font-family: var(--font-tech); 
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    opacity: 0; 
+    transition: 0.2s; 
+    white-space: nowrap; 
+    background: rgba(0, 0, 0, 0.7);
+    padding: 4px 8px;
+    border: 1px solid rgba(255, 51, 51, 0.5);
+    border-radius: 4px;
     text-shadow: 0 0 5px rgba(255, 51, 51, 0.8);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     pointer-events: none;
@@ -170,6 +176,7 @@ span[lang="en"] { font-size: 1.05em; }
     border-color: #ff3333; border-width: 2px; transform: rotate(45deg); 
 }
 #hud-cursor.locked .cursor-crosshair, #hud-cursor.locked .cursor-label { opacity: 1; }
+
 
 /* === 5. Header & Navigation === */
 header {
@@ -191,7 +198,7 @@ nav ul { display: flex; list-style: none; gap: 30px; margin: 0; padding: 0; }
 nav a { font-family: var(--font-en); font-size: 0.9rem; letter-spacing: 0.05em; position: relative; color: #fff; text-decoration: none; text-shadow: 0 0 5px rgba(0,0,0,0.5); transition: color 0.3s; }
 nav a:hover { color: var(--accent-color); }
 
-/* === 6. Hero & Sections === */
+/* === 6. Content Sections === */
 .hero { position: relative; height: 100vh; display: flex; justify-content: flex-end; align-items: center; text-align: left; overflow: hidden; z-index: 2; }
 .hero-bg-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 #hero-video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; transform: translate(-50%, -50%); object-fit: cover; z-index: -2; }
@@ -213,7 +220,6 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .container { max-width: 1000px; margin: 0 auto; position: relative; z-index: 2; }
 .lead-text { font-size: 1.15rem; line-height: 2.2; letter-spacing: 0.05em; text-align: center; width: 100%; display: block; color: #ddd; }
 
-/* Timeline修正: 画像の位置ズレ防止とパララックス対応 */
 .timeline { position: relative; max-width: 800px; margin: 0 auto 100px auto; padding: 20px 0; }
 .timeline::before { content: ''; position: absolute; top: 0; left: 20px; height: 100%; width: 1px; background: linear-gradient(to bottom, transparent, var(--accent-color), transparent); opacity: 0.5; }
 .timeline-item { position: relative; margin-bottom: 60px; padding-left: 60px; }
@@ -221,16 +227,9 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .timeline-content { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 30px; border-radius: 12px; transition: transform 0.3s; overflow: hidden; }
 .timeline-content:hover { border-color: var(--accent-color); transform: translateY(-5px); }
 
-/* 画像を中央配置にするための修正 */
-.timeline-img { 
-    width: 110%; /* パララックス用に拡大 */
-    height: 220px; 
-    object-fit: cover; 
-    border-radius: 8px; 
-    margin-bottom: 20px; 
-    position: relative;
-    left: -5%; /* 幅110%の中心を合わせる */
-}
+/* The Experimentの画像が右に寄る問題を解決（width 100%, display block） */
+.timeline-img { width: 100%; display: block; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1); }
+
 .timeline-content .phase { display: block; font-family: var(--font-en); color: var(--accent-color); font-size: 0.8rem; letter-spacing: 0.2em; margin-bottom: 10px; text-transform: uppercase; }
 
 @media (min-width: 769px) {
@@ -244,27 +243,33 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 
 .experiment-vertical-view { display: flex; flex-direction: column; gap: 60px; align-items: center; margin-bottom: 100px; width: 100%; max-width: 900px; margin-left: auto; margin-right: auto; }
 .exp-card { position: relative; width: 100%; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); background: #000; z-index: 2; }
-.exp-card img { width: 100%; height: auto; display: block; }
+.exp-card img { width: 100%; height: auto; display: block; transition: transform 0.5s, opacity 0.5s; opacity: 0.85; filter: saturate(0.8) contrast(1.1); }
+.exp-card:hover img { transform: scale(1.05); opacity: 0.6; filter: saturate(1.1) contrast(1.1); }
 .exp-caption { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; text-align: center; pointer-events: none; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .exp-caption h3 { font-family: var(--font-en); color: var(--accent-color); margin: 0 0 10px 0; font-size: clamp(1.8rem, 4vw, 2.8rem); text-shadow: 0 0 20px rgba(0,0,0,0.9); }
 .exp-caption p { margin: 0; font-size: 1.1rem; color: #fff; font-weight: 500; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
-
 .map-link { display: block; width: 100%; text-decoration: none; position: relative; }
 
-/* ボタン表示修正：z-indexを強化し、画像の上に確実に表示 */
+/* ボタンの位置とz-index修正 */
 .map-overlay-btn { 
     position: absolute; 
-    top: 68%; left: 50%; 
+    top: 50%; 
+    left: 50%; 
     transform: translate(-50%, -50%); 
-    background: rgba(0, 0, 0, 0.7); color: #fff; 
+    margin-top: 80px; /* キャプションと被らないように下にずらす */
+    background: rgba(0, 0, 0, 0.7); 
+    color: #fff; 
     border: 1px solid var(--accent-color); 
-    padding: 12px 35px; border-radius: 50px; 
-    font-family: var(--font-en); font-weight: 600; 
-    z-index: 100; /* 画像より手前に */
+    padding: 12px 35px; 
+    border-radius: 50px; 
+    font-family: var(--font-en); 
+    font-weight: 600; 
+    z-index: 20; /* 前面に出す */
     pointer-events: auto; 
-    transition: 0.3s; 
+    transition: 0.3s;
 }
-.map-link:hover .map-overlay-btn { background: var(--accent-color); color: #000; }
+
+.map-link:hover .map-overlay-btn { background: var(--accent-color); color: #000; transform: translate(-50%, -50%) scale(1.05); margin-top: 80px; }
 
 .compare-container { position: relative; width: 100%; max-width: 600px; height: 400px; margin: 0 auto; overflow: hidden; border-radius: 12px; border: 1px solid var(--glass-border); }
 .img-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; }
@@ -275,7 +280,8 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
 .gallery-item { position: relative; height: 350px; overflow: hidden; border-radius: 8px; z-index: 2; background: #000; }
-.gallery-item img { width: 110%; height: 110%; object-fit: cover; left: -5%; position: relative; }
+.gallery-item img { width: 110%; height: 110%; object-fit: cover; transition: 0.8s; filter: saturate(0.8) contrast(1.1); }
+.gallery-item:hover img { transform: scale(1.1); filter: saturate(1.1) contrast(1.1); }
 .gallery-label { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); padding: 30px 10px; text-align: center; }
 .gallery-label span { display: block; font-family: var(--font-en); color: #fff; font-size: 1.1rem; }
 .gallery-item:hover .gallery-label span { color: var(--accent-color); }
@@ -318,13 +324,24 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .social-icon-link svg { width: 100%; height: 100%; fill: var(--accent-color); transition: 0.3s; }
 .social-icon-link:hover { transform: scale(1.2); } .social-icon-link:hover svg { fill: #fff; filter: drop-shadow(0 0 15px var(--accent-color)); }
 
-/* Footer */
+/* === 8. Footer & Modal === */
 footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; color: #666; }
 
+/* ロケットボタン：アニメーション強化 */
 .back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; z-index: 999; opacity: 0; pointer-events: none; transition: 0.3s; }
-.back-to-top.show { opacity: 1; pointer-events: auto; animation: rocketIdle 2s ease-in-out infinite; }
+/* 表示時は常に揺らす */
+.back-to-top.show { 
+    opacity: 1; pointer-events: auto; 
+    animation: rocketIdle 2s ease-in-out infinite; 
+}
+/* 発射時 */
 .back-to-top.launch { animation: launchRocket 1s forwards ease-in !important; }
-@keyframes rocketIdle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+@keyframes rocketIdle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
 @keyframes launchRocket { 0% { transform: translateY(0); } 100% { transform: translateY(-100vh); opacity: 0; } }
 
 .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
@@ -333,34 +350,57 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
 .close-modal { position: absolute; top: 15px; right: 25px; color: #888; font-size: 30px; cursor: pointer; }
 .modal-body img { max-height: 60vh; width: auto; max-width: 100%; }
 
+/* Scroll Progress */
 #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent-color), #fff); width: 0%; z-index: 100000; transition: width 0.1s; }
 
-.js-scroll { opacity: 0; transform: translateY(30px) scale(0.98); filter: blur(5px); transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.165, 0.84, 0.44, 1), filter 1.2s ease; }
-.js-scroll.is-visible { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-.magnet-btn { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: inline-block; }
+.magnet-btn { 
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
+    display: inline-block; 
+}
 
-/* Mobile */
+/* === 10. Mobile Responsive === */
 @media (max-width: 768px) {
     section { padding: 80px 15px; }
     .section-title { font-size: 2.2rem; }
     .hero { justify-content: center; text-align: center; }
     .hero-content { max-width: 90%; margin-right: 0; padding: 40px 20px; background: rgba(0,0,0,0.6); border-left: none; border-bottom: 3px solid var(--accent-color); }
     .hero h1 span[lang="ja"] { font-size: 2rem; }
+    
     .timeline { margin-bottom: 50px; } .timeline::before { left: 10px; }
     .timeline-item { width: 100%; padding-left: 35px; padding-right: 0 !important; text-align: left !important; }
     .timeline-item:nth-child(odd) .timeline-dot, .timeline-item:nth-child(even) .timeline-dot { left: 2px; right: auto; }
+    
     .map-container .exp-caption { top: 50%; }
     .map-overlay-btn { display: none !important; }
+    
     .hud-side-left, .hud-corner { display: none; }
     .hud-side-right { top: auto; bottom: 10px; right: 10px; transform: none; }
     .alt-value { font-size: 1.2rem; }
+    
     .hamburger { display: block; cursor: pointer; width: 30px; height: 25px; position: relative; z-index: 200; }
     .hamburger span { position: absolute; width: 100%; height: 2px; background: #fff; transition: 0.3s; }
     .hamburger span:nth-child(1) { top: 0; } .hamburger span:nth-child(2) { top: 11px; } .hamburger span:nth-child(3) { bottom: 0; }
     .hamburger.active span:nth-child(1) { transform: rotate(45deg); top: 11px; } 
     .hamburger.active span:nth-child(2) { opacity: 0; } 
     .hamburger.active span:nth-child(3) { transform: rotate(-45deg); bottom: 11px; }
+    
     nav { position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; background: rgba(5,5,5,0.98); display: flex; justify-content: center; align-items: center; transition: 0.4s; }
     nav.active { right: 0; } nav ul { flex-direction: column; text-align: center; gap: 30px; }
     .email-link { font-size: 1rem; padding: 20px 30px; width: 80%; }
+}
+
+/* =========================================
+   ADDITION: Starfield Fix
+   ========================================= */
+
+#starfield {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* z-indexを1に設定 (body背景より手前、コンテンツより奥) */
+    z-index: 1; 
+    pointer-events: none;
+    opacity: 0.6;
 }
