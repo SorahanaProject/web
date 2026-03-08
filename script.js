@@ -391,20 +391,23 @@ function initFAQ() {
 // === Interaction Logic (Cursor & Buttons) ===
 function initHUDInteractions() {
     const cursor = document.getElementById('hud-cursor');
-    // カーソル要素が存在しなければ終了
+    // カーソル要素がなければ終了
     if (!cursor) return;
 
-    // 1. マウス移動時のカーソル追従・パーティクル
+    // 1. マウス移動の追従（常に監視し、PCサイズの時だけ反映する）
     document.addEventListener('mousemove', (e) => {
-        // イベント発生時に画面幅がPCサイズ(1025px以上)かチェック
+        // 現在の画面幅が1025px以上かチェック
         if (window.matchMedia("(min-width: 1025px)").matches) {
+            // CSSのtransformを直接書き換える（GSAPより高速に反応させるため）
             cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+            
+            // パーティクル生成
             createStardust(e.clientX, e.clientY);
         }
     });
 
-    // 2. リンクホバー時のカーソル変化
-    const targets = document.querySelectorAll('a, button, .gallery-item, .map-overlay-btn');
+    // 2. リンクホバー時のカーソル変化（ロックオン演出）
+    const targets = document.querySelectorAll('a, button, .gallery-item, .map-overlay-btn, .slider-button');
     targets.forEach(el => {
         el.addEventListener('mouseenter', () => cursor.classList.add('locked'));
         el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
@@ -415,7 +418,8 @@ function initHUDInteractions() {
     magnets.forEach((magnet) => {
         magnet.classList.add('magnet-btn');
         
-        // CSSで translate(-50%, -50%) されている要素か判定
+        // CSSで translate(-50%, -50%) で中央配置されている要素か判定
+        // ※ .scroll-down も中央配置されているので対象に追加
         const isCentered = magnet.classList.contains('map-overlay-btn') || magnet.classList.contains('scroll-down');
 
         magnet.addEventListener('mousemove', (e) => {
@@ -425,10 +429,13 @@ function initHUDInteractions() {
             const rect = magnet.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
+            
+            // マウスとの距離（動きの大きさ）
             const x = (e.clientX - centerX) / 5;
             const y = (e.clientY - centerY) / 5;
             
-            // GSAPで動かす（中央配置の要素は xPercent/yPercent を維持する）
+            // GSAPで動かす
+            // ★重要: 中央配置の要素は xPercent/yPercent: -50 を維持しないと位置がズレる
             gsap.to(magnet, {
                 x: x, 
                 y: y, 
@@ -442,7 +449,8 @@ function initHUDInteractions() {
         });
 
         magnet.addEventListener('mouseleave', () => {
-            // 元に戻す際も xPercent/yPercent を指定して位置ズレを防ぐ
+            // 元に戻す
+            // ★重要: 戻すときも xPercent/yPercent を指定する
             gsap.to(magnet, {
                 x: 0, 
                 y: 0, 
