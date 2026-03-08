@@ -495,62 +495,64 @@ function createStardust(x, y) {
     });
 }
 
-// === 背景の星空（スクロール連動） ===
-// HTMLに <canvas id="starfield"></canvas> を追加し、CSSで position:fixed; z-index: -5; にしておく必要があります。
-
+// === 追加機能：背景の星空 ===
 function initStarfield() {
-    // Canvas要素を生成してbodyに追加
-    const canvas = document.createElement('canvas');
-    canvas.id = 'starfield';
-    canvas.style.position = 'fixed';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.zIndex = '-5'; // 背景画像より奥、または手前（お好みで）
-    canvas.style.pointerEvents = 'none';
-    document.body.prepend(canvas);
+    const canvas = document.getElementById('starfield');
+    if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     let width, height;
     let stars = [];
-    const starCount = 300; // 星の数
-    let speed = 0.5; // 基本速度
+    const starCount = 400; // 星の数
+    const baseSpeed = 0.2; // 基本の流れる速度
 
+    // リサイズ対応
     function resize() {
         width = window.innerWidth;
         height = window.innerHeight;
         canvas.width = width;
         canvas.height = height;
+        initStars();
     }
     window.addEventListener('resize', resize);
-    resize();
 
-    // 星の初期化
-    for (let i = 0; i < starCount; i++) {
-        stars.push({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            z: Math.random() * 2 + 0.5, // 奥行き（サイズと速度に影響）
-            alpha: Math.random()
-        });
+    // 星の生成
+    function initStars() {
+        stars = [];
+        for (let i = 0; i < starCount; i++) {
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                z: Math.random() * 2 + 0.5, // 奥行き
+                alpha: Math.random() * 0.8 + 0.2
+            });
+        }
     }
+    
+    // 初回実行
+    resize();
 
     // アニメーションループ
     function animate() {
         ctx.clearRect(0, 0, width, height);
         
-        // スクロール速度に応じて加速（Lenisから速度取得、なければ0）
+        // Lenisのスクロール速度を取得（スクロールすると星が速く流れる）
+        // 下にスクロール＝降下しているので、星は上に流れる演出にする
         const scrollVel = window.lenis ? window.lenis.velocity : 0;
-        const warpSpeed = speed + Math.abs(scrollVel) * 0.1;
+        const warpFactor = scrollVel * 0.5; 
 
         ctx.fillStyle = '#fff';
         
         stars.forEach(star => {
-            // 星を下に動かす
-            star.y += warpSpeed * star.z;
+            // 基本速度 + スクロール速度
+            // (scrollVelが正の値のとき上に動かしたいのでマイナスにする)
+            star.y -= (baseSpeed * star.z) + (warpFactor * 0.1 * star.z);
 
-            // 画面外に出たら上に戻す
+            // 画面外に出たらループさせる
+            if (star.y < 0) {
+                star.y = height;
+                star.x = Math.random() * width;
+            }
             if (star.y > height) {
                 star.y = 0;
                 star.x = Math.random() * width;
@@ -567,9 +569,3 @@ function initStarfield() {
     }
     animate();
 }
-
-// DOMContentLoaded内で initStarfield() を呼び出してください
-document.addEventListener('DOMContentLoaded', () => {
-    // ... 他の初期化関数
-    initStarfield(); 
-});
