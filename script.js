@@ -3,36 +3,56 @@
 const TARGET_ALTITUDE_M = 25346;
 const TARGET_ALTITUDE_FT = 83156;
 
-// GSAP登録
+// GSAPのプラグイン登録
 gsap.registerPlugin(ScrollTrigger);
 
-// メイン処理
 document.addEventListener('DOMContentLoaded', () => {
     initLanguageSettings();
+    
+    // LenisとGSAPの連携セットアップ
     initSmoothScroll();
+    
+    // システム起動ローダー（完了後にGSAPアニメーション開始）
     initBootSequence();
+
+    // HUD・UI・インタラクション
     initHUDInteractions();
     initCompareSlider();
     initUI();
     initFAQ();
-    initStarfield(); // 星空
+
+    // 星空の描画
+    initStarfield();
 });
 
 // === 1. Lenis & GSAP ScrollTrigger Setup ===
 function initSmoothScroll() {
     const lenis = new Lenis({
-        duration: 1.5,
+        duration: 1.5, // 少しゆったりさせて高級感を出す
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smooth: true,
     });
+
+    // LenisのスクロールイベントでScrollTriggerを更新
     lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+
+    // GSAPのTickerにLenisをフックさせる
+    gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+    });
+    
+    // GSAPのラグ修正
     gsap.ticker.lagSmoothing(0);
-    lenis.on('scroll', (e) => { updateHUD(e.scroll); });
+
+    // カスタムHUDの更新もここで行う
+    lenis.on('scroll', (e) => {
+        updateHUD(e.scroll);
+    });
+
     window.lenis = lenis;
 }
 
-// === 2. Boot Loader ===
+// === 2. Boot Loader & Hero Animation ===
 function initBootSequence() {
     const screen = document.getElementById('boot-screen');
     const log = document.getElementById('boot-log');
@@ -71,12 +91,14 @@ function initBootSequence() {
         if (progress >= 100) {
             clearInterval(interval);
             setTimeout(() => {
+                // ローダーフェードアウト
                 gsap.to(screen, {
                     opacity: 0,
                     duration: 0.8,
                     ease: "power2.inOut",
                     onComplete: () => {
                         screen.style.display = 'none';
+                        // サイトのアニメーション開始
                         initSiteAnimations();
                     }
                 });
@@ -85,23 +107,18 @@ function initBootSequence() {
     }, 50);
 }
 
-// === 3. GSAP Site Animations ===
+// === 3. GSAP Site Animations (グリッチ削除済み) ===
 function initSiteAnimations() {
     initTextScramble();
 
+    // A. ヒーローセクション
     const tl = gsap.timeline();
-    // ヒーローセクション
-    const heroTag = document.querySelector(".hero-content .data-tag");
-    const heroSpans = document.querySelectorAll(".hero-content h1 span");
-    const heroDesc = document.querySelector(".hero-content .hero-desc");
-    const scrollDown = document.querySelector(".scroll-down");
+    tl.from(".hero-content .data-tag", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" })
+      .from(".hero-content h1 span", { y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "power4.out" }, "-=0.6")
+      .from(".hero-content .hero-desc", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
+      .from(".scroll-down", { y: -20, opacity: 0, duration: 0.8 }, "-=0.4");
 
-    if(heroTag) tl.fromTo(heroTag, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" });
-    if(heroSpans.length) tl.fromTo(heroSpans, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 1, stagger: 0.1, ease: "power4.out" }, "-=0.6");
-    if(heroDesc) tl.fromTo(heroDesc, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, "-=0.6");
-    if(scrollDown) tl.fromTo(scrollDown, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, "-=0.4");
-
-    // 各セクションの出現 (JS側で初期化してぼやけ防止)
+    // B. 各セクションの出現
     const revealElements = document.querySelectorAll(".section-title, .lead-text, .timeline-content, .gallery-item, .blog-card");
     revealElements.forEach((elem) => {
         gsap.set(elem, { autoAlpha: 0, y: 50 });
@@ -115,9 +132,11 @@ function initSiteAnimations() {
         });
     });
 
-    // パララックス & ズーム
+    // C. 画像のパララックス (グリッチエフェクトは削除)
     const parallaxImages = document.querySelectorAll(".gallery-item img, .timeline-img, .exp-card img");
+    
     parallaxImages.forEach((img) => {
+        // パララックス（スクロールに合わせて少し動く）
         gsap.to(img, {
             yPercent: 15,
             ease: "none",
@@ -128,85 +147,36 @@ function initSiteAnimations() {
                 scrub: true,
             }
         });
+        
+        // 出現時のズーム演出
         ScrollTrigger.create({
             trigger: img.parentElement,
             start: "top 85%",
             once: true,
             onEnter: () => {
-                gsap.fromTo(img, { scale: 1.3 }, { scale: 1.0, duration: 1.5, ease: "power2.out" });
+                gsap.fromTo(img, 
+                    { scale: 1.3 },
+                    { scale: 1.0, duration: 1.5, ease: "power2.out" }
+                );
             }
         });
     });
 
-    // タイムライン
+    // D. タイムラインの線
     gsap.utils.toArray(".timeline-item").forEach((item) => {
         const dot = item.querySelector(".timeline-dot");
         if(dot) {
-            gsap.fromTo(dot, { scale: 0 }, { scale: 1, duration: 0.5, ease: "back.out(1.7)", scrollTrigger: { trigger: item, start: "top 80%" } });
+            gsap.from(dot, {
+                scale: 0, duration: 0.5, ease: "back.out(1.7)",
+                scrollTrigger: { trigger: item, start: "top 80%" }
+            });
         }
     });
 }
 
-// === 4. Starfield (Canvas) ===
-function initStarfield() {
-    const canvas = document.getElementById('starfield');
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    let width, height;
-    let stars = [];
-    const starCount = 400; 
-    const baseSpeed = 0.2; 
-
-    function resize() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
-        initStars();
-    }
-    window.addEventListener('resize', resize);
-
-    function initStars() {
-        stars = [];
-        for (let i = 0; i < starCount; i++) {
-            stars.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                z: Math.random() * 2 + 0.5, 
-                alpha: Math.random() * 0.8 + 0.2
-            });
-        }
-    }
-    resize();
-
-    function animate() {
-        ctx.clearRect(0, 0, width, height);
-        
-        const scrollVel = window.lenis ? window.lenis.velocity : 0;
-        const warpFactor = scrollVel * 0.5; 
-
-        ctx.fillStyle = '#fff';
-        
-        stars.forEach(star => {
-            // スクロールに合わせて流れる方向が変わる
-            star.y -= (baseSpeed * star.z) + (warpFactor * 0.1 * star.z);
-
-            if (star.y < 0) { star.y = height; star.x = Math.random() * width; }
-            if (star.y > height) { star.y = 0; star.x = Math.random() * width; }
-
-            ctx.globalAlpha = star.alpha;
-            ctx.beginPath();
-            ctx.arc(star.x, star.y, star.z * 0.8, 0, Math.PI * 2);
-            ctx.fill();
-        });
-        requestAnimationFrame(animate);
-    }
-    animate();
-}
-
-// === 5. HUD Logic ===
+// === 4. HUD Logic ===
 let lastScrollTop = 0;
+
 function updateHUD(scrollTop) {
     const isEnglish = document.body.classList.contains('en');
     
@@ -228,11 +198,12 @@ function updateHUD(scrollTop) {
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
 
-    // IDが存在する場合のみ更新
+    // テキスト更新
     if(altUnitDisplay) altUnitDisplay.textContent = altUnitText;
     if(tempValDisplay) tempValDisplay.textContent = tempValText;
     if(tempUnitDisplay) tempUnitDisplay.textContent = tempUnitText;
 
+    // HUD表示制御
     if (hudLayer && hero) {
         const heroHeight = hero.offsetHeight;
         if (scrollTop > heroHeight * 0.8) {
@@ -242,6 +213,8 @@ function updateHUD(scrollTop) {
         }
     }
 
+    // 高度計 (逆転ロジック：スクロールするほど数値が上がる/下がる演出、ここでは上昇に合わせて減る演出から、固定値への変化など適宜調整)
+    // ※元のコードのロジックを維持：スクロールトップ(0)でターゲット高度、下にいくほど0に近づく（帰還のイメージ）
     if(altDisplay) {
         const currentAlt = Math.floor((1 - scrollPercent) * targetAlt);
         altDisplay.textContent = String(currentAlt).padStart(5, '0');
@@ -252,6 +225,7 @@ function updateHUD(scrollTop) {
     const progressBar = document.getElementById('scroll-progress');
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
 
+    // ヘッダー制御
     if(header) {
         if(scrollTop > 50) header.classList.add('scrolled');
         else header.classList.remove('scrolled');
@@ -264,12 +238,14 @@ function updateHUD(scrollTop) {
         lastScrollTop = scrollTop;
     }
 
+    // ロケットボタン
     const btt = document.getElementById('back-to-top');
     if(btt) {
         if(scrollTop > 400) btt.classList.add('show');
         else btt.classList.remove('show');
     }
 
+    // 色制御
     if (scrollPercent > 0.8) {
         document.documentElement.style.setProperty('--hud-color', '#fff'); 
     } else {
@@ -277,7 +253,8 @@ function updateHUD(scrollTop) {
     }
 }
 
-// === 6. UI & Utils ===
+// === 5. Other Functions (Language, FAQ, UI) ===
+
 function initLanguageSettings() {
     const savedLang = localStorage.getItem('lang') || 'ja';
     if (savedLang === 'en') { document.body.classList.add('en'); }
@@ -411,7 +388,7 @@ function initFAQ() {
     });
 }
 
-// === Interaction Logic ===
+// === Interaction Logic (Cursor & Buttons) ===
 function initHUDInteractions() {
     const cursor = document.getElementById('hud-cursor');
     
@@ -427,7 +404,6 @@ function initHUDInteractions() {
             el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
         });
         
-        // マグネットボタン（ズレ修正済み）
         const magnets = document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down');
         magnets.forEach((magnet) => {
             magnet.classList.add('magnet-btn');
@@ -441,26 +417,24 @@ function initHUDInteractions() {
                 const x = (e.clientX - centerX) / 5;
                 const y = (e.clientY - centerY) / 5;
                 
-                const baseTransform = isCentered ? 'translate(-50%, -50%)' : '';
+                // GSAPで滑らかに動かす
                 gsap.to(magnet, {
                     x: x, 
                     y: y, 
                     scale: 1.1, 
                     duration: 0.3, 
-                    ease: "power2.out",
-                    transform: baseTransform // 元の変形を維持しつつ動かす
+                    ease: "power2.out" 
                 });
             });
 
             magnet.addEventListener('mouseleave', () => {
-                const baseTransform = isCentered ? 'translate(-50%, -50%)' : '';
+                // 元に戻す
                 gsap.to(magnet, {
                     x: 0, 
                     y: 0, 
                     scale: 1, 
                     duration: 0.5, 
-                    ease: "elastic.out(1, 0.5)",
-                    transform: baseTransform
+                    ease: "elastic.out(1, 0.5)" 
                 });
             });
         });
@@ -486,6 +460,7 @@ function createStardust(x, y) {
     const destX = (Math.random() - 0.5) * 60;
     const destY = (Math.random() - 0.5) * 60;
 
+    // GSAPでパーティクルアニメーション
     gsap.to(particle, {
         x: destX,
         y: destY,
@@ -495,4 +470,77 @@ function createStardust(x, y) {
         ease: "power2.out",
         onComplete: () => particle.remove()
     });
+}
+
+// === 追加機能：背景の星空 ===
+function initStarfield() {
+    const canvas = document.getElementById('starfield');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let stars = [];
+    const starCount = 400; // 星の数
+    const baseSpeed = 0.2; // 基本の流れる速度
+
+    // リサイズ対応
+    function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        initStars();
+    }
+    window.addEventListener('resize', resize);
+
+    // 星の生成
+    function initStars() {
+        stars = [];
+        for (let i = 0; i < starCount; i++) {
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                z: Math.random() * 2 + 0.5, // 奥行き
+                alpha: Math.random() * 0.8 + 0.2
+            });
+        }
+    }
+    
+    // 初回実行
+    resize();
+
+    // アニメーションループ
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+        
+        // Lenisのスクロール速度を取得し、星の流れる速度に反映
+        const scrollVel = window.lenis ? window.lenis.velocity : 0;
+        const warpFactor = scrollVel * 0.5; 
+
+        ctx.fillStyle = '#fff';
+        
+        stars.forEach(star => {
+            // 基本速度 + スクロール速度による加算
+            star.y -= (baseSpeed * star.z) + (warpFactor * 0.1 * star.z);
+
+            // 画面外に出たらループさせる
+            if (star.y < 0) {
+                star.y = height;
+                star.x = Math.random() * width;
+            }
+            if (star.y > height) {
+                star.y = 0;
+                star.x = Math.random() * width;
+            }
+
+            // 描画
+            ctx.globalAlpha = star.alpha;
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.z * 0.8, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        requestAnimationFrame(animate);
+    }
+    animate();
 }
