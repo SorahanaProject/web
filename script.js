@@ -140,27 +140,24 @@ function initSiteAnimations() {
     const parallaxImages = document.querySelectorAll(".gallery-item img, .timeline-img, .exp-card img");
     
     parallaxImages.forEach((img) => {
-        // パララックス（スクロールに合わせて少し動く）
-        gsap.to(img, {
-            yPercent: 15,
-            ease: "none",
-            scrollTrigger: {
-                trigger: img.parentElement,
-                start: "top bottom",
-                end: "bottom top",
-                scrub: true,
-            }
-        });
-        
-        // 出現時のズーム演出
+        // ※原因だった yPercent: 15 (パララックス) を削除しました
+
         ScrollTrigger.create({
             trigger: img.parentElement,
             start: "top 85%",
             once: true,
             onEnter: () => {
+                // 出現時にズームイン状態から通常サイズへ
                 gsap.fromTo(img, 
                     { scale: 1.3 },
-                    { scale: 1.0, duration: 1.5, ease: "power2.out" }
+                    { 
+                        scale: 1.0, 
+                        duration: 1.5, 
+                        ease: "power2.out",
+                        // ★重要: アニメーション完了後にGSAPのスタイル指定を解除し、
+                        // 以降はCSSの :hover (transform: scale) が正常に効くようにする
+                        clearProps: "transform" 
+                    }
                 );
             }
         });
