@@ -1,5 +1,21 @@
 // --- START OF FILE script.js ---
 
+// --- 追加：KMLから抽出した実際のフライト・キーフレームデータ（降下フェーズ） ---
+// progress は 0.0(ページ最上部) から 1.0(ページ最下部) までのスクロール割合
+const FLIGHT_DATA =[
+    { progress: 0.00, alt: 25346, lat: 33.393288, lon: 135.778355, vel: 0 },    // ★最高到達点（ページトップ）
+    { progress: 0.25, alt: 19013, lat: 33.392396, lon: 135.781251, vel: 58 },   // 降下開始 (07:22 AM)
+    { progress: 0.45, alt: 14301, lat: 33.389456, lon: 135.830820, vel: 185 },  // 急降下中 (07:24 AM)
+    { progress: 0.60, alt: 10642, lat: 33.395100, lon: 135.903431, vel: 196 },  // 急降下中 (07:26 AM - KML記録最後)
+    { progress: 0.90, alt: 1500,  lat: 33.398000, lon: 136.050000, vel: 45 },   // パラシュート安定降下 (補間)
+    { progress: 1.00, alt: 0,     lat: 33.400000, lon: 136.150000, vel: 0 }     // 海上着水・回収 (補間)
+];
+
+// 数値を滑らかに補間する計算関数
+function lerp(start, end, amt) {
+    return (1 - amt) * start + amt * end;
+}
+
 const TARGET_ALTITUDE_M = 25346;
 const TARGET_ALTITUDE_FT = 83156;
 
