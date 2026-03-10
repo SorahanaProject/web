@@ -434,3 +434,34 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     pointer-events: none;
     opacity: 0.6;
 }
+
+/* === Telemetry Data Stream === */
+.telemetry-stream {
+    margin-top: 40px; /* TEMP値との余白 */
+    height: 90px;     /* 約6行分を表示 */
+    width: 200px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* 下から上へ押し上げる */
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.3); /* 背景に溶け込む薄い白 */
+    font-family: var(--font-tech);
+    line-height: 1.5;
+    letter-spacing: 0.1em;
+    pointer-events: none;
+    
+    /* 上に向かってフェードアウトするマスク効果 */
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,1) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,1) 100%);
+}
+
+.telemetry-line {
+    white-space: nowrap;
+}
+
+/* たまに出現するハイライト用の行 */
+.telemetry-line.highlight {
+    color: var(--hud-color);
+    text-shadow: 0 0 5px var(--hud-glow);
+}
