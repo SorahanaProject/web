@@ -195,76 +195,147 @@ function initSiteAnimations() {
 
 // === 4. HUD Logic ===
 let lastScrollTop = 0;
+// リアルタイム速度計算用の変数
+let lastTimeForVel = performance.now();
+let lastAltForVel = 25346;
+let smoothedVerticalVelocity = 0;
 
 function updateHUD(scrollTop) {
     const isEnglish = document.body.classList.contains('en');
-    
-    const targetAlt = isEnglish ? TARGET_ALTITUDE_FT : TARGET_ALTITUDE_M;
-    const tempValText = isEnglish ? '-37.8' : '-38.8';
-    const tempUnitText = isEnglish ? '°F' : '°C';
-    const altUnitText = isEnglish ? 'ft' : 'm';
-
-    const altDisplay = document.getElementById('live-altitude');
-    const altUnitDisplay = document.getElementById('hud-alt-unit');
-    const tempValDisplay = document.getElementById('hud-temp-val');
-    const tempUnitDisplay = document.getElementById('hud-temp-unit');
-    
-    const indicator = document.getElementById('scroll-indicator');
-    const header = document.getElementById('header');
-    const hudLayer = document.getElementById('hud-layer');
-    const hero = document.getElementById('hero');
-    
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
 
-    // テキスト更新
-    if(altUnitDisplay) altUnitDisplay.textContent = altUnitText;
-    if(tempValDisplay) tempValDisplay.textContent = tempValText;
-    if(tempUnitDisplay) tempUnitDisplay.textContent = tempUnitText;
+    // --- KMLデータに基づく座標・高度のリアルタイム計算 ---
+    let currentAlt = 0, currentLat = 0, currentLon = 0;
 
-    // HUD表示制御
-    if (hudLayer && hero) {
-        const heroHeight = hero.offsetHeight;
-        if (scrollTop > heroHeight * 0.8) {
-            hudLayer.classList.add('visible');
+    for (let i = 0; i < FLIGHT_DATA.length - 1; i++) {
+        let p1 = FLIGHT_DATA[i];
+        let p2 = FLIGHT_DATA[i + 1];
+
+        if (scrollPercent >= p1.progress && scrollPercent <= p2.progress) {
+            let range = p2.progress - p1.progress;
+            let localPercent = (scrollPercent - p1.progress) / range;
+
+            currentAlt = lerp(p1.alt, p2.alt, localPercent);
+            currentLat = lerp(p1.lat, p2.lat, localPercent);
+            currentLon = lerp(p1.lon, p2.lon, localPercent);
+            break;
+        }
+    }
+    if (scrollPercent >= 1.0) {
+        let lastObj = FLIGHT_DATA[FLIGHT_DATA.length - 1];
+        currentAlt = lastObj.alt; currentLat = lastObj.lat; currentLon = lastObj.lon;
+    }
+
+    // --- 画面への描画（高度・座標） ---
+    const altDisplay = document.getElementById('live-altitude');
+    const latDisplay = document.getElementById('hud-lat');
+    const lonDisplay = document.getElementById('hud-lon');
+    
+    if(altDisplay) altDisplay.textContent = Math.floor(currentAlt).toString().padStart(5, '0');
+    if(latDisplay) latDisplay.textContent = currentLat.toFixed(4);
+    if(lonDisplay) lonDisplay.textContent = currentLon.toFixed(4);
+
+    // --- 気温のシミュレーション（標準大気モデル） ---
+    const tempDisplay = document.getElementById('hud-temp-val');
+    if (tempDisplay) {
+        let tempC = 15;
+        if (currentAlt <= 11000) {
+            tempC = 15 - (currentAlt / 1000) * 6.5; // 対流圏
         } else {
-            hudLayer.classList.remove('visible');
+            let ratio = (currentAlt - 11000) / (25346 - 11000);
+            tempC = -56.5 + ratio * (-38.8 - (-56.5)); // 成層圏
+        }
+
+        if (isEnglish) {
+            tempDisplay.textContent = (tempC * 9/5 + 32).toFixed(1); // 華氏変換
+            document.getElementById('hud-temp-unit').textContent = '°F';
+        } else {
+            tempDisplay.textContent = tempC.toFixed(1);
+            document.getElementById('hud-temp-unit').textContent = '°C';
         }
     }
 
-    // 高度計 (逆転ロジック：スクロールするほど数値が上がる/下がる演出、ここでは上昇に合わせて減る演出から、固定値への変化など適宜調整)
-    // ※元のコードのロジックを維持：スクロールトップ(0)でターゲット高度、下にいくほど0に近づく（帰還のイメージ）
-    if(altDisplay) {
-        const currentAlt = Math.floor((1 - scrollPercent) * targetAlt);
-        altDisplay.textContent = String(currentAlt).padStart(5, '0');
+    // --- 気圧のシミュレーション（国際標準大気モデル） ---
+    const presDisplay = document.getElementById('hud-pres-val');
+    if (presDisplay) {
+        let pressure = 1013.25;
+        if (currentAlt <= 11000) {
+            pressure = 1013.25 * Math.pow(1 - 0.0065 * currentAlt / 288.15, 5.25588);
+        } else {
+            pressure = 226.32 * Math.exp(-0.000157688 * (currentAlt - 11000));
+        }
+        // 画像に合わせて整数表示
+        presDisplay.textContent = Math.round(pressure);
     }
 
-    if(indicator) indicator.style.top = `${scrollPercent * 100}%`;
+    // --- 上昇・落下速度 (m/s) のリアルタイム計算 ---
+    const now = performance.now();
+    const dt = (now - lastTimeForVel) / 1000; 
+    
+    if (dt > 0.01) {
+        let rawVerticalVel = (currentAlt - lastAltForVel) / dt; 
+        smoothedVerticalVelocity = smoothedVerticalVelocity * 0.9 + rawVerticalVel * 0.1;
+        lastTimeForVel = now;
+        lastAltForVel = currentAlt;
+    }
 
+    if (scrollTop === lastScrollTop) {
+        smoothedVerticalVelocity *= 0.9;
+    }
+
+    const velDisplay = document.getElementById('hud-vel');
+    const velLabel = document.getElementById('hud-vel-label');
+    
+    if (velDisplay && velLabel) {
+        let speedMS = Math.abs(smoothedVerticalVelocity); 
+        
+        if (smoothedVerticalVelocity < -0.1) {
+            velLabel.textContent = "▼ DESCENT RATE"; 
+            velLabel.style.color = "#ff3333"; 
+        } else if (smoothedVerticalVelocity > 0.1) {
+            velLabel.textContent = "▲ ASCENT RATE";  
+            velLabel.style.color = "#33ccff"; 
+        } else {
+            velLabel.textContent = "■ HOVERING";    
+            velLabel.style.color = "var(--hud-color)"; 
+        }
+        
+        if (speedMS < 0.1) speedMS = 0;
+        // 画像に合わせて小数点第2位まで表示
+        velDisplay.textContent = speedMS.toFixed(2);
+    }
+
+    // --- その他UIの制御 ---
+    const indicator = document.getElementById('scroll-indicator');
     const progressBar = document.getElementById('scroll-progress');
+    const hudLayer = document.getElementById('hud-layer');
+    const hero = document.getElementById('hero');
+    const header = document.getElementById('header');
+
+    if(indicator) indicator.style.top = `${scrollPercent * 100}%`;
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
 
-    // ヘッダー制御
+    if (hudLayer && hero) {
+        if (scrollTop > hero.offsetHeight * 0.8) hudLayer.classList.add('visible');
+        else hudLayer.classList.remove('visible');
+    }
+
     if(header) {
         if(scrollTop > 50) header.classList.add('scrolled');
         else header.classList.remove('scrolled');
 
-        if (scrollTop > lastScrollTop && scrollTop > 100) {
-            header.classList.add('header-hidden');
-        } else {
-            header.classList.remove('header-hidden');
-        }
+        if (scrollTop > lastScrollTop && scrollTop > 100) header.classList.add('header-hidden');
+        else header.classList.remove('header-hidden');
         lastScrollTop = scrollTop;
     }
 
-    // ロケットボタン
     const btt = document.getElementById('back-to-top');
     if(btt) {
         if(scrollTop > 400) btt.classList.add('show');
         else btt.classList.remove('show');
     }
 
-    // 色制御
     if (scrollPercent > 0.8) {
         document.documentElement.style.setProperty('--hud-color', '#fff'); 
     } else {
