@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 拡大エフェクト
     initImageHoverEffects();
-    
+
+    initTelemetryStream();
 });
 
 // === 1. Lenis & GSAP ScrollTrigger Setup ===
@@ -602,4 +603,59 @@ function initImageHoverEffects() {
             });
         });
     });
+}
+
+// === テレメトリ・データストリーム生成 ===
+function initTelemetryStream() {
+    const stream = document.getElementById('telemetry-stream');
+    if (!stream) return;
+
+    // 観測データっぽい単語のリスト
+    const msgs =["SYS_CHK", "DAT_RCV", "SYNC_OK", "UV_SENS", "PRS_NRM", "TMP_STB", "ALT_UPD", "GPS_LCK", "LNK_SEC"];
+    
+    // ランダムな16進数を生成
+    function getRandomHex(len) {
+        let str = '';
+        for(let i=0; i<len; i++) {
+            str += Math.floor(Math.random()*16).toString(16).toUpperCase();
+        }
+        return str;
+    }
+
+    // 1行分のデータ文字列を生成
+    function generateLine() {
+        const rand = Math.random();
+        if (rand > 0.6) {
+            // 例: 0x4F2A :: DAT_RCV :: B4
+            return `0x${getRandomHex(4)} :: ${msgs[Math.floor(Math.random()*msgs.length)]} :: ${getRandomHex(2)}`;
+        } else if (rand > 0.3) {
+            // 例: P_A93F12 : DATA_STREAM_ACTIVE
+            return `P_${getRandomHex(6)} : DATA_STREAM_ACTIVE`;
+        } else {
+            // 例: RAW: 1011001010100110
+            let bin = '';
+            for(let i=0; i<16; i++) bin += Math.random()>0.5 ? '1':'0';
+            return `RAW: ${bin}`;
+        }
+    }
+
+    // 100ミリ秒（0.1秒）ごとに実行
+    setInterval(() => {
+        // 常に均等に流れるのではなく、たまに止まることで「実際の通信ラグ」を演出
+        if (Math.random() > 0.85) return;
+
+        const line = document.createElement('div');
+        line.className = 'telemetry-line';
+        
+        // 10%の確率でゴールドに光るハイライト行にする
+        if (Math.random() > 0.9) line.classList.add('highlight');
+        
+        line.textContent = generateLine();
+        stream.appendChild(line);
+
+        // 表示行数が7行を超えたら一番古い上の行を削除
+        if (stream.children.length > 7) {
+            stream.removeChild(stream.firstChild);
+        }
+    }, 100); 
 }
