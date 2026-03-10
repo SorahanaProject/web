@@ -13,6 +13,11 @@
 <body>
     <!-- 星空背景 (z-index調整済み) -->
     <canvas id="starfield"></canvas>
+
+    <!-- 背景に配置するテレメトリ -->
+    <div class="bg-telemetry">
+        <div class="telemetry-stream" id="telemetry-stream"></div>
+    </div>
     
     <!-- System Boot Loader -->
     <div id="boot-screen">
@@ -41,7 +46,6 @@
             <div class="hud-value">
                 <span id="hud-temp-val">-38.8</span><small id="hud-temp-unit">°C</small>
             </div>
-            <div class="telemetry-stream" id="telemetry-stream"></div>
         </div>
 
         <div class="hud-side-right">
