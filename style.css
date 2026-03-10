@@ -243,8 +243,8 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 
 .experiment-vertical-view { display: flex; flex-direction: column; gap: 60px; align-items: center; margin-bottom: 100px; width: 100%; max-width: 900px; margin-left: auto; margin-right: auto; }
 .exp-card { position: relative; width: 100%; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); background: #000; z-index: 2; }
-.exp-card img { width: 100%; height: auto; display: block; transition: transform 0.5s, opacity 0.5s; opacity: 0.85; filter: saturate(0.8) contrast(1.1); }
-.exp-card:hover img { opacity: 0.6; filter: saturate(1.1) contrast(1.1); }
+.exp-card img { width: 100%; height: auto; display: block; transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s, filter 0.8s; opacity: 0.85; filter: saturate(0.8) contrast(1.1); }
+.exp-card:hover img { transform: scale(1.05); opacity: 0.6; filter: saturate(1.1) contrast(1.1); }
 .exp-caption { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; text-align: center; pointer-events: none; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .exp-caption h3 { font-family: var(--font-en); color: var(--accent-color); margin: 0 0 10px 0; font-size: clamp(1.8rem, 4vw, 2.8rem); text-shadow: 0 0 20px rgba(0,0,0,0.9); }
 .exp-caption p { margin: 0; font-size: 1.1rem; color: #fff; font-weight: 500; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
@@ -280,8 +280,8 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
 .gallery-item { position: relative; height: 350px; overflow: hidden; border-radius: 8px; z-index: 2; background: #000; }
-.gallery-item img { width: 110%; height: 110%; object-fit: cover; filter: saturate(0.8) contrast(1.1); }
-.gallery-item:hover img { filter: saturate(1.1) contrast(1.1); }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.8s; filter: saturate(0.8) contrast(1.1); }
+.gallery-item:hover img { transform: scale(1.1); filter: saturate(1.1) contrast(1.1); }
 .gallery-label { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); padding: 30px 10px; text-align: center; }
 .gallery-label span { display: block; font-family: var(--font-en); color: #fff; font-size: 1.1rem; }
 .gallery-item:hover .gallery-label span { color: var(--accent-color); }
