@@ -26,6 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // テレメトリ・データストリーム
     initTelemetryStream();
+
+    // 環境センシング波形
+    initWaveformGraph();
 });
 
 // === 1. Lenis & GSAP ScrollTrigger Setup ===
@@ -622,4 +625,67 @@ function initTelemetryStream() {
             stream.removeChild(stream.firstChild);
         }
     }, 100); 
+}
+
+// === 環境センシング波形（リアルタイムグラフ） ===
+function initWaveformGraph() {
+    const canvas = document.getElementById('waveform-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    const width = canvas.width;
+    const height = canvas.height;
+    const centerY = height / 2;
+    
+    // グラフのデータポイント（X軸のピクセル数分用意する）
+    const points = new Array(width).fill(centerY);
+    let time = 0;
+    
+    function draw() {
+        // キャンバスをクリア
+        ctx.clearRect(0, 0, width, height);
+        
+        // --- 新しいデータポイントの生成 ---
+        time += 0.05;
+        // 1. ゆっくりうねる基本のサイン波
+        let baseWave = Math.sin(time) * 8;
+        // 2. 常に入る小さな微振動ノイズ
+        let noise = (Math.random() - 0.5) * 4;
+        
+        // 3. 突発的な大きなスパイク（乱気流や強いセンサー反応の表現）
+        if (Math.random() > 0.96) {
+            noise += (Math.random() - 0.5) * 40;
+        }
+        
+        let newY = centerY + baseWave + noise;
+        
+        // グラフがキャンバスの外にはみ出さないように制限
+        newY = Math.max(5, Math.min(height - 5, newY));
+        
+        // 古いデータを押し出し、新しいデータを追加（右から左へ流れる）
+        points.shift();
+        points.push(newY);
+        
+        // --- 描画処理 ---
+        ctx.beginPath();
+        ctx.moveTo(0, points[0]);
+        for (let i = 1; i < width; i++) {
+            ctx.lineTo(i, points[i]);
+        }
+        
+        // 線のスタイル（HUDと同じゴールド系）
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.8)';
+        ctx.lineWidth = 1.2;
+        
+        // 少し発光（グロー）させる
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = 'rgba(212, 175, 55, 0.5)';
+        
+        ctx.stroke();
+        
+        // アニメーションループ
+        requestAnimationFrame(draw);
+    }
+    
+    draw();
 }
