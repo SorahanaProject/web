@@ -435,23 +435,49 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     opacity: 0.6;
 }
 
-/* === Telemetry Data Stream === */
+/* --- style.css 追加・修正 --- */
+
+/* === 汎用ユーティリティ（テキスト中央揃え） === */
+.text-center {
+    text-align: center !important;
+}
+
+/* === Comparison Section（スライダー部分）の中央揃え === */
+.comparison-section {
+    text-align: center;
+}
+.comparison-section h3 {
+    margin-bottom: 10px; /* 見出しの下に少し余白 */
+}
+
+/* === Telemetry Data Stream (背景に配置) === */
+.bg-telemetry {
+    position: fixed;
+    top: 50%;
+    left: 40px; /* 左サイドのHUDとX軸を揃える */
+    transform: translateY(-50%);
+    margin-top: 100px; /* HUDのTEMPテキストと被らないように下にずらす */
+    
+    /* ★重要：写真やテキスト(z-index: 2)の後ろ、星空(z-index: 1)と同階層にする */
+    z-index: 1; 
+    
+    pointer-events: none; /* マウスイベントを貫通させる */
+    mix-blend-mode: screen; /* 背景の黒に自然に馴染ませる */
+}
+
 .telemetry-stream {
-    margin-top: 40px; /* TEMP値との余白 */
-    height: 90px;     /* 約6行分を表示 */
+    height: 90px;
     width: 200px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* 下から上へ押し上げる */
+    justify-content: flex-end;
     font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.3); /* 背景に溶け込む薄い白 */
+    color: rgba(255, 255, 255, 0.3); /* 文字を少し薄くして背景感を出す */
     font-family: var(--font-tech);
     line-height: 1.5;
     letter-spacing: 0.1em;
     pointer-events: none;
-    
-    /* 上に向かってフェードアウトするマスク効果 */
     -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,1) 100%);
     mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,1) 100%);
 }
@@ -460,8 +486,14 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     white-space: nowrap;
 }
 
-/* たまに出現するハイライト用の行 */
 .telemetry-line.highlight {
     color: var(--hud-color);
     text-shadow: 0 0 5px var(--hud-glow);
+}
+
+/* スマホ表示では表示領域が狭いためテレメトリを非表示にする */
+@media (max-width: 768px) {
+    .bg-telemetry {
+        display: none;
+    }
 }
