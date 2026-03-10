@@ -24,9 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 星空の描画
     initStarfield();
 
-    // 拡大エフェクト
-    initImageHoverEffects();
-
+    // テレメトリ・データストリーム
     initTelemetryStream();
 });
 
@@ -569,40 +567,6 @@ function initStarfield() {
         requestAnimationFrame(animate);
     }
     animate();
-}
-
-function initImageHoverEffects() {
-    // 対象: Galleryのアイテム と Experimentのカード
-    const targets = document.querySelectorAll('.gallery-item, .exp-card');
-    
-    targets.forEach(el => {
-        const img = el.querySelector('img');
-        if (!img) return;
-
-        // クラスによって拡大率を変える
-        // Galleryは少し大きめ(1.1)、Experimentカードは控えめ(1.05)
-        const scaleVal = el.classList.contains('gallery-item') ? 1.1 : 1.05;
-
-        // ホバー時：パララックス位置を維持したまま拡大
-        el.addEventListener('mouseenter', () => {
-            gsap.to(img, {
-                scale: scaleVal,
-                duration: 0.6,
-                ease: "power2.out",
-                overwrite: "auto" // スクロールの動きと喧嘩しないように自動調整
-            });
-        });
-
-        // ホバー解除時：元に戻す
-        el.addEventListener('mouseleave', () => {
-            gsap.to(img, {
-                scale: 1.0,
-                duration: 0.6,
-                ease: "power2.out",
-                overwrite: "auto"
-            });
-        });
-    });
 }
 
 // === テレメトリ・データストリーム生成 ===
