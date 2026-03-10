@@ -497,3 +497,41 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
         display: none;
     }
 }
+
+/* === Environment Sensing Waveform (背景に配置) === */
+.bg-waveform {
+    position: fixed;
+    top: 50%;
+    right: 40px; /* 右サイドのHUDとX軸を揃える */
+    transform: translateY(-50%);
+    margin-top: 100px; /* HUDの高度計と被らないように下にずらす */
+    
+    z-index: 1; /* 写真やテキスト(z-index: 2)の後ろ */
+    pointer-events: none;
+    mix-blend-mode: screen;
+}
+
+.waveform-label {
+    font-family: var(--font-tech);
+    font-size: 0.65rem;
+    color: rgba(212, 175, 55, 0.5); /* ゴールドを薄く */
+    letter-spacing: 0.1em;
+    margin-bottom: 5px;
+    text-align: right; /* 右揃え */
+}
+
+#waveform-canvas {
+    width: 200px;
+    height: 60px;
+    opacity: 0.6; /* 主張しすぎないように透過 */
+    /* 左にいくにつれてスッと消えるマスク効果 */
+    -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to left, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+}
+
+/* スマホ表示では非表示にする */
+@media (max-width: 768px) {
+    .bg-waveform {
+        display: none;
+    }
+}
