@@ -216,11 +216,7 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .lead-text { font-size: 1.15rem; line-height: 2.2; letter-spacing: 0.05em; text-align: center; width: 100%; display: block; color: #ddd; }
 
 /* セクション背景色（抜け落ちていた設定を追加） */
-.bg-dark {
-    background-color: rgba(255, 255, 255, 0.02);
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
+.bg-dark {}
 
 .timeline { position: relative; max-width: 800px; margin: 0 auto 100px auto; padding: 20px 0; }
 .timeline::before { content: ''; position: absolute; top: 0; left: 20px; height: 100%; width: 1px; background: linear-gradient(to bottom, transparent, var(--accent-color), transparent); opacity: 0.5; }
@@ -444,6 +440,8 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     z-index: 1; 
     pointer-events: none; 
     mix-blend-mode: screen; 
+    opacity: 0;
+    transition: opacity 0.8s ease;
 }
 
 .telemetry-stream {
@@ -483,6 +481,8 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     z-index: 1; 
     pointer-events: none;
     mix-blend-mode: screen;
+    opacity: 0;
+    transition: opacity 0.8s ease;
 }
 
 .waveform-label {
