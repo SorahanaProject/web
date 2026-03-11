@@ -251,6 +251,41 @@ function updateHUD(scrollTop) {
         if (scrollTop > lastScrollTop && scrollTop > 100) header.classList.add('header-hidden'); else header.classList.remove('header-hidden');
         lastScrollTop = scrollTop;
     }
+    */
+
+
+    // --- 変更後 ---
+    const indicator = document.getElementById('scroll-indicator');
+    const progressBar = document.getElementById('scroll-progress');
+    const hudLayer = document.getElementById('hud-layer');
+    const header = document.getElementById('header');
+    
+    // ★追加要素の取得
+    const hero = document.getElementById('hero');
+    const telemetry = document.querySelector('.bg-telemetry');
+    const waveform = document.querySelector('.bg-waveform');
+
+    if(indicator) indicator.style.top = `${scrollPercent * 100}%`;
+    if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
+    
+    // ★計器類の表示制御（Heroセクションを半分過ぎたら表示する）
+    if (hero) {
+        if (scrollTop > hero.offsetHeight * 0.5) {
+            if (hudLayer) hudLayer.classList.add('visible');
+            if (telemetry) telemetry.style.opacity = '1';
+            if (waveform) waveform.style.opacity = '1';
+        } else {
+            if (hudLayer) hudLayer.classList.remove('visible');
+            if (telemetry) telemetry.style.opacity = '0';
+            if (waveform) waveform.style.opacity = '0';
+        }
+    }
+
+    if(header) {
+        if(scrollTop > 50) header.classList.add('scrolled'); else header.classList.remove('scrolled');
+        if (scrollTop > lastScrollTop && scrollTop > 100) header.classList.add('header-hidden'); else header.classList.remove('header-hidden');
+        lastScrollTop = scrollTop;
+    }
     
     if (scrollPercent > 0.8) document.documentElement.style.setProperty('--hud-color', '#fff'); 
     else document.documentElement.style.setProperty('--hud-color', 'rgba(212, 175, 55, 0.8)');
