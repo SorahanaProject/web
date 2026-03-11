@@ -237,24 +237,7 @@ function updateHUD(scrollTop) {
         velDisplay.textContent = speedMS.toFixed(2);
     }
 
-    const indicator = document.getElementById('scroll-indicator');
-    const progressBar = document.getElementById('scroll-progress');
-    const hudLayer = document.getElementById('hud-layer');
-    const header = document.getElementById('header');
 
-    if(indicator) indicator.style.top = `${scrollPercent * 100}%`;
-    if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
-    if (hudLayer) hudLayer.classList.add('visible');
-
-    if(header) {
-        if(scrollTop > 50) header.classList.add('scrolled'); else header.classList.remove('scrolled');
-        if (scrollTop > lastScrollTop && scrollTop > 100) header.classList.add('header-hidden'); else header.classList.remove('header-hidden');
-        lastScrollTop = scrollTop;
-    }
-    */
-
-
-    // --- 変更後 ---
     const indicator = document.getElementById('scroll-indicator');
     const progressBar = document.getElementById('scroll-progress');
     const hudLayer = document.getElementById('hud-layer');
