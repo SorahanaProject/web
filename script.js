@@ -143,13 +143,13 @@ function initSiteAnimations() {
     // B. 各セクションの出現
     const revealElements = document.querySelectorAll(".section-title, .lead-text, .timeline-content, .gallery-item, .blog-card");
     revealElements.forEach((elem) => {
-        gsap.set(elem, { autoAlpha: 0, y: 50 });
+        gsap.set(elem, { opacity:: 0, y: 50 });
         ScrollTrigger.create({
             trigger: elem,
             start: "top 85%",
             once: true,
             onEnter: () => {
-                gsap.to(elem, { duration: 1.2, y: 0, autoAlpha: 1, ease: "power3.out", overwrite: "auto" });
+                gsap.to(elem, { duration: 1.2, y: 0, opacity:: 1, ease: "power3.out", overwrite: "auto" });
             }
         });
     });
