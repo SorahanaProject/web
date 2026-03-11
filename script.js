@@ -292,7 +292,7 @@ function updateHUD(scrollTop) {
     }
 
     if (scrollTop === lastScrollTop) {
-        smoothedVerticalVelocity *= 0.9;
+        smoothedVerticalVelocity *= 0.2;
     }
 
     const velDisplay = document.getElementById('hud-vel');
@@ -300,7 +300,11 @@ function updateHUD(scrollTop) {
     
     if (velDisplay && velLabel) {
         let speedMS = Math.abs(smoothedVerticalVelocity); 
-        
+
+        if (speedMS < 0.5) {
+            speedMS = 0;
+            smoothedVerticalVelocity = 0;
+        }
         if (smoothedVerticalVelocity < -0.1) {
             velLabel.textContent = "▼ DESCENT RATE"; 
             velLabel.style.color = "#ff3333"; 
@@ -312,7 +316,6 @@ function updateHUD(scrollTop) {
             velLabel.style.color = "var(--hud-color)"; 
         }
         
-        if (speedMS < 0.1) speedMS = 0;
         // 画像に合わせて小数点第2位まで表示
         velDisplay.textContent = speedMS.toFixed(2);
     }
