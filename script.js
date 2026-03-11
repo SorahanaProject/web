@@ -227,12 +227,22 @@ function updateHUD(scrollTop) {
         currentAlt = lastObj.alt; currentLat = lastObj.lat; currentLon = lastObj.lon;
     }
 
-    // --- 画面への描画（高度・座標） ---
+    // --- 画面への描画（高度・単位・座標） ---
     const altDisplay = document.getElementById('live-altitude');
+    const altUnitDisplay = document.getElementById('hud-alt-unit');
     const latDisplay = document.getElementById('hud-lat');
     const lonDisplay = document.getElementById('hud-lon');
     
-    if(altDisplay) altDisplay.textContent = Math.floor(currentAlt).toString().padStart(5, '0');
+    // 英語モードの時は ft（フィート）に変換して表示
+    let displayAlt = currentAlt;
+    if (isEnglish) {
+        displayAlt = currentAlt * 3.28084;
+        if(altUnitDisplay) altUnitDisplay.textContent = 'ft';
+    } else {
+        if(altUnitDisplay) altUnitDisplay.textContent = 'm';
+    }
+
+    if(altDisplay) altDisplay.textContent = Math.floor(displayAlt).toString().padStart(5, '0');
     if(latDisplay) latDisplay.textContent = currentLat.toFixed(4);
     if(lonDisplay) lonDisplay.textContent = currentLon.toFixed(4);
 
@@ -241,14 +251,14 @@ function updateHUD(scrollTop) {
     if (tempDisplay) {
         let tempC = 15;
         if (currentAlt <= 11000) {
-            tempC = 15 - (currentAlt / 1000) * 6.5; // 対流圏
+            tempC = 15 - (currentAlt / 1000) * 6.5; 
         } else {
             let ratio = (currentAlt - 11000) / (25346 - 11000);
-            tempC = -56.5 + ratio * (-38.8 - (-56.5)); // 成層圏
+            tempC = -56.5 + ratio * (-38.8 - (-56.5)); 
         }
 
         if (isEnglish) {
-            tempDisplay.textContent = (tempC * 9/5 + 32).toFixed(1); // 華氏変換
+            tempDisplay.textContent = (tempC * 9/5 + 32).toFixed(1); 
             document.getElementById('hud-temp-unit').textContent = '°F';
         } else {
             tempDisplay.textContent = tempC.toFixed(1);
@@ -265,7 +275,6 @@ function updateHUD(scrollTop) {
         } else {
             pressure = 226.32 * Math.exp(-0.000157688 * (currentAlt - 11000));
         }
-        // 画像に合わせて整数表示
         presDisplay.textContent = Math.round(pressure);
     }
 
@@ -302,7 +311,6 @@ function updateHUD(scrollTop) {
         }
         
         if (speedMS < 0.1) speedMS = 0;
-        // 画像に合わせて小数点第2位まで表示
         velDisplay.textContent = speedMS.toFixed(2);
     }
 
@@ -316,6 +324,7 @@ function updateHUD(scrollTop) {
     if(indicator) indicator.style.top = `${scrollPercent * 100}%`;
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
 
+    // ▼ 少しスクロールしたらHUDを表示
     if (hudLayer && hero) {
         if (scrollTop > hero.offsetHeight * 0.8) hudLayer.classList.add('visible');
         else hudLayer.classList.remove('visible');
