@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 星空背景 (z-index調整済み) -->
+    <!-- 星空背景 -->
     <canvas id="starfield"></canvas>
 
     <!-- 背景に配置するテレメトリ -->
@@ -119,9 +119,7 @@
 
     <div id="hero" class="hero">
         <div class="hero-bg-wrapper">
-            <video id="hero-video" autoplay loop muted playsinline preload="metadata" poster="images/stratosphere.png">
-                <!-- <source src="images/hero-movie.mp4" type="video/mp4"> -->
-            </video>
+            <video id="hero-video" autoplay loop muted playsinline preload="metadata" poster="images/stratosphere.png"></video>
             <img src="images/stratosphere.png" class="hero-bg" alt="Stratosphere View">
             <div class="hero-overlay"></div>
         </div>
@@ -173,7 +171,7 @@
                     <div class="timeline-content">
                         <span class="phase">Phase 01</span>
                         <h3>Preparation</h3>
-                        <img src="images/g-roses.jpg" alt="Preparation" class="timeline-img" loading="lazy">
+                        <img src="images/g-roses.jpg" alt="Preparation" class="timeline-img">
                         <p><span lang="ja">乾燥しやすく美しい「愛知県産スプレーバラ」を選定。UVカットフィルムと透湿防水シートを備えた、宇宙用特別コンテナを製作。</span><span lang="en">Selected spray roses from Aichi. Created a special container with UV-blocking film and moisture-permeable sheets.</span></p>
                     </div>
                 </div>
@@ -182,7 +180,7 @@
                     <div class="timeline-content">
                         <span class="phase">Phase 02</span>
                         <h3>Launch</h3>
-                        <img src="images/g-night.jpg" alt="Launch" class="timeline-img" loading="lazy">
+                        <img src="images/g-night.jpg" alt="Launch" class="timeline-img">
                         <p><span lang="ja">早朝、バルーンにヘリウムガスを充填しリリース。機体は秒速5mで上昇を開始。</span><span lang="en">Released the balloon filled with helium gas early in the morning. Ascended at 5m/s.</span></p>
                     </div>
                 </div>
@@ -191,7 +189,7 @@
                     <div class="timeline-content">
                         <span class="phase">Phase 03</span>
                         <h3>Stratosphere</h3>
-                        <img src="images/g-stratosphere.jpg" alt="Stratosphere" class="timeline-img" loading="lazy">
+                        <img src="images/g-stratosphere.jpg" alt="Stratosphere" class="timeline-img">
                         <p><span lang="ja">高度25,346mに到達。気温-38.8℃、気圧は地上の約1/100。極限の環境下でフライトを継続。</span><span lang="en">Reached 25,346m. Temp -38.8°C. Extreme environment with 1/100th atmospheric pressure.</span></p>
                     </div>
                 </div>
@@ -200,7 +198,7 @@
                     <div class="timeline-content">
                         <span class="phase">Phase 04</span>
                         <h3>Recovery</h3>
-                        <img src="images/flight-map.jpg" alt="Recovery" class="timeline-img" loading="lazy">
+                        <img src="images/flight-map.jpg" alt="Recovery" class="timeline-img">
                         <p><span lang="ja">バルーン破裂後、パラシュートで降下。GPSを頼りに海上で機体を回収。</span><span lang="en">After balloon burst, descended via parachute. Recovered at sea using GPS.</span></p>
                     </div>
                 </div>
@@ -209,7 +207,7 @@
                     <div class="timeline-content">
                         <span class="phase">Phase 05</span>
                         <h3>Analysis</h3>
-                        <img src="images/g-dried.jpg" alt="Analysis" class="timeline-img" loading="lazy">
+                        <img src="images/g-dried.jpg" alt="Analysis" class="timeline-img">
                         <p><span lang="ja">花の状態を確認。鮮やかな赤色は、宇宙の刻印とも言える「黄金色」へと変化していました。</span><span lang="en">Confirmed the flowers. The vivid red color had changed to a "golden" color, a mark of space.</span></p>
                     </div>
                 </div>
@@ -217,13 +215,12 @@
 
             <div class="experiment-vertical-view js-scroll">
                 <div class="exp-card">
-                    <img src="images/story.jpg" alt="Special Container" loading="lazy">
+                    <img src="images/story.jpg" alt="Special Container">
                     <div class="exp-caption"><h3>Special Container</h3></div>
                 </div>
                 <div class="exp-card map-container">
                     <a href="https://earth.google.com/earth/d/1Cbov36QXcYHL8I0Sx-0zyBI57k08agBO?usp=sharing" target="_blank" class="map-link">
-                        <img src="images/flight-map.jpg" alt="Flight Map" loading="lazy">
-                        <!-- ボタンの配置修正 -->
+                        <img src="images/flight-map.jpg" alt="Flight Map">
                         <div class="map-overlay-btn"><span class="icon">🌍</span> View 3D Flight Path</div>
                     </a>
                     <div class="exp-caption" style="pointer-events:none;">
@@ -237,8 +234,8 @@
                 <h3>Visualizing the Change</h3>
                 <p class="text-center" style="margin-bottom:20px; color:#aaa; font-size:0.9rem;"><span lang="ja">スライダーを動かして変化を確認</span><span lang="en">Drag the slider to compare</span></p>
                 <div class="compare-container">
-                    <div class="img-wrapper before"><img src="images/g-roses.jpg" alt="Before Launch" loading="lazy"><span class="label">Before (Earth)</span></div>
-                    <div class="img-wrapper after" id="compare-overlay"><img src="images/g-dried.jpg" alt="After Launch" loading="lazy"><span class="label">After (Space)</span></div>
+                    <div class="img-wrapper before"><img src="images/g-roses.jpg" alt="Before Launch"><span class="label">Before (Earth)</span></div>
+                    <div class="img-wrapper after" id="compare-overlay"><img src="images/g-dried.jpg" alt="After Launch"><span class="label">After (Space)</span></div>
                     <input type="range" min="0" max="100" value="50" class="slider" id="compare-slider">
                     <div class="slider-button" id="slider-button"><span>&lt;&gt;</span></div>
                 </div>
@@ -251,19 +248,19 @@
         <div class="container">
             <div class="gallery-grid">
                 <div class="gallery-item js-scroll" data-title-ja="成層圏からの眺望" data-title-en="Flight View" data-desc-ja="高度25,346m、気温マイナス38.8℃。過酷な環境下でのフライト映像。" data-desc-en="The container reached 25,346 meters." data-img="images/g-stratosphere.jpg">
-                    <img src="images/g-stratosphere.jpg" alt="Stratosphere" loading="lazy">
+                    <img src="images/g-stratosphere.jpg" alt="Stratosphere">
                     <div class="gallery-label"><span lang="ja">成層圏からの眺望</span><span lang="en">Flight View</span></div>
                 </div>
                 <div class="gallery-item js-scroll" data-title-ja="愛知県産スプレーバラ" data-title-en="Spray Roses" data-desc-ja="日本一の生産額を誇る愛知県のバラを選定。" data-desc-en="We chose Spray Roses from Aichi." data-img="images/g-roses.jpg">
-                    <img src="images/g-roses.jpg" alt="Roses" loading="lazy">
+                    <img src="images/g-roses.jpg" alt="Roses">
                     <div class="gallery-label"><span lang="ja">スプレーバラ</span><span lang="en">Spray Roses</span></div>
                 </div>
                 <div class="gallery-item js-scroll" data-title-ja="実験結果：色の変化" data-title-en="The Result" data-desc-ja="帰還した花は、鮮やかな色からアンティークのような黄金色へ変化しました。" data-desc-en="The flowers changed to an antique-like color." data-img="images/g-dried.jpg">
-                    <img src="images/g-dried.jpg" alt="Result" loading="lazy">
+                    <img src="images/g-dried.jpg" alt="Result">
                     <div class="gallery-label"><span lang="ja">実験結果</span><span lang="en">Result</span></div>
                 </div>
                 <div class="gallery-item js-scroll" data-title-ja="ボトルフラワー" data-title-en="Bottle Flower" data-desc-ja="宇宙を旅した物語をボトルに封じ込めました。" data-desc-en="We put these flowers in bottles." data-img="images/g-bottle.jpg">
-                    <img src="images/g-bottle.jpg" alt="Product" loading="lazy">
+                    <img src="images/g-bottle.jpg" alt="Product">
                     <div class="gallery-label"><span lang="ja">製品化：ボトルフラワー</span><span lang="en">Bottle Flower</span></div>
                 </div>
             </div>
@@ -275,14 +272,14 @@
         <div class="container">
             <div class="blog-grid">
                 <article class="blog-card js-scroll">
-                    <div class="blog-img"><img src="images/item1.jpg" loading="lazy" onerror="this.src='https://placehold.co/400x250/111/444?text=Hypothesis'"></div>
+                    <div class="blog-img"><img src="images/item1.jpg" onerror="this.src='https://placehold.co/400x250/111/444?text=Hypothesis'"></div>
                     <div class="blog-content">
                         <span class="date">New Hypothesis</span>
                         <h3><span lang="ja">新たな仮説：宇宙エイジング</span><span lang="en">New Hypothesis: Space Aging</span></h3>
                     </div>
                 </article>
                 <article class="blog-card js-scroll">
-                    <div class="blog-img"><img src="images/item2.jpg" loading="lazy" onerror="this.src='https://placehold.co/400x250/111/444?text=Brand+Story'"></div>
+                    <div class="blog-img"><img src="images/item2.jpg" onerror="this.src='https://placehold.co/400x250/111/444?text=Brand+Story'"></div>
                     <div class="blog-content">
                         <span class="date">Brand Story</span>
                         <h3><span lang="ja">ブランドストーリーの進化</span><span lang="en">Evolution of Brand Story</span></h3>
@@ -304,28 +301,6 @@
         </div>
     </section>
 
-    <section id="faq" class="bg-dark">
-        <h2 class="section-title js-scroll">Q&A</h2>
-        <div class="container" style="max-width: 800px;">
-            <div class="faq-list">
-                <div class="faq-item js-scroll">
-                    <button class="faq-question">
-                        <span lang="ja">商品はどこで購入できますか？</span><span lang="en">Where can I buy products?</span>
-                        <span class="icon">+</span>
-                    </button>
-                    <div class="faq-answer"><p><span lang="ja">現在、オンラインストアでの販売準備を進めています。準備が整い次第、本サイトおよびInstagramにてお知らせいたします。</span><span lang="en">We are currently preparing our online store. Updates will be announced here and on Instagram.</span></p></div>
-                </div>
-                <div class="faq-item js-scroll">
-                    <button class="faq-question">
-                        <span lang="ja">取材依頼は可能ですか？</span><span lang="en">Can we interview you?</span>
-                        <span class="icon">+</span>
-                    </button>
-                    <div class="faq-answer"><p><span lang="ja">はい、歓迎いたします。下記のメールアドレスまでお気軽にご連絡ください。</span><span lang="en">Yes, we welcome it. Please contact us via the email below.</span></p></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <section id="supporters">
         <h2 class="section-title js-scroll">Supporting</h2>
         <div class="container">
@@ -339,27 +314,6 @@
                     <div class="credit-row"><div class="role-cell"><span lang="ja">運営</span><span lang="en">Operation</span></div><div class="name-cell"><span lang="ja">株式会社 GOCCO. / 株式会社ドングルズ</span><span lang="en">GOCCO. inc. / Dongles Inc.</span></div></div>
                     <div class="credit-row"><div class="role-cell"><span lang="ja">協力</span><span lang="en">Cooperation</span></div><div class="name-cell">Tongali</div></div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="contact">
-        <h2 class="section-title js-scroll">Contact</h2>
-        <div class="container contact-container js-scroll">
-            <p style="text-align:center; margin-bottom:40px; color:#ccc;">
-                <span lang="ja">プロジェクトに関するお問い合わせは、<br>下記メールアドレスまでご連絡ください。</span>
-                <span lang="en">For inquiries, please contact us via email.</span>
-            </p>
-            <div class="email-box js-scroll">
-                <a href="mailto:seisouken2025@gmail.com" class="email-link">seisouken2025@gmail.com</a>
-            </div>
-            <div class="social-links" style="margin-top: 60px; text-align:center;">
-                <p style="margin-bottom: 20px; font-size: 0.9rem; letter-spacing: 0.1em; font-family:var(--font-en);">Follow Us</p>
-                <a href="https://www.instagram.com/sorahana_project/" target="_blank" class="social-icon-link" aria-label="Instagram">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                        <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
-                    </svg>
-                </a>
             </div>
         </div>
     </section>
@@ -384,6 +338,7 @@
         </div>
     </div>
 
+    <!-- JS Libraries -->
     <script src="https://unpkg.com/lenis@1.0.45/dist/lenis.min.js"></script> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
