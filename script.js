@@ -291,12 +291,14 @@ function updateHUD(scrollTop) {
         lastScrollTop = scrollTop;
     }
     
-    // ★変更点: ロケットの位置をスクロールに連動させて上下に動かす
+    // ロケットの位置をスクロールに連動させて上下に動かす
     const btt = document.getElementById('back-to-top');
     if(btt) {
-        btt.classList.add('show'); // 常に表示
-        // 画面の高さ - ロケットの高さ(約60px) - 上下の余白(30px)
-        const maxTop = window.innerHeight - 90; 
+        if(scrollTop > 400) btt.classList.add('show'); else btt.classList.remove('show');
+        
+        // ★修正: ロケットが下に行きすぎないよう、画面下部の余白を多めに取る
+        // (スマホなどの小さな画面でもエラーにならないよう Math.max を使用)
+        const maxTop = Math.max(0, window.innerHeight - 150); 
         const currentTop = 30 + scrollPercent * maxTop;
         btt.style.top = `${currentTop}px`;
     }
