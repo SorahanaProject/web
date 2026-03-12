@@ -154,6 +154,7 @@ let smoothedVerticalVelocity = 0;
 let isReturningToTop = false; // ロケットボタン上昇中判定フラグ
 let hasBurstEventFired = false; 
 let isTurbulenceActive = false; // 波形グラフを荒ぶらせるフラグ
+let hasTroposphereEventFired = false;
 
 function updateHUD(scrollTop) {
     if (typeof scrollTop !== 'number' || isNaN(scrollTop)) {
@@ -207,6 +208,14 @@ function updateHUD(scrollTop) {
     // 一番上まで戻ったらフラグをリセット（何度でも体験できるように）
     if (currentAlt >= 25340) {
         hasBurstEventFired = false;
+    }
+    if (currentAlt < 11000 && currentAlt > 10000 && !hasTroposphereEventFired && !isReturningToTop) {
+        hasTroposphereEventFired = true;
+        triggerTroposphereEntry();
+    }
+    // 上に戻ったらフラグをリセット
+    if (currentAlt >= 11500) {
+        hasTroposphereEventFired = false;
     }
     
     const tempDisplay = document.getElementById('hud-temp-val');
@@ -663,4 +672,35 @@ function initWaveformGraph() {
         requestAnimationFrame(draw);
     }
     draw();
+}
+
+// === 第2段階：対流圏界面（11,000m）突破時の演出発動関数 ===
+function triggerTroposphereEntry() {
+    const frost = document.getElementById('frost-overlay');
+    const altDisplay = document.getElementById('live-altitude');
+    const tempDisplay = document.getElementById('hud-temp-val');
+
+    // 1. 霜エフェクトを一瞬で表示
+    if (frost) frost.classList.add('active');
+
+    // 2. 画面全体に強烈なグリッチ（色収差・反転）を走らせる
+    document.body.classList.add('sys-glitch');
+
+    // 3. 計器（高度と温度）をランダムな記号にして文字化けさせる
+    let glitchInterval = setInterval(() => {
+        if(altDisplay) altDisplay.innerText = Math.random().toString(36).substring(2, 7).toUpperCase();
+        if(tempDisplay) tempDisplay.innerText = "!#*@?";
+    }, 50);
+
+    // --- 復旧処理 ---
+    // 0.5秒後にグリッチと文字化けを終了（計器の正常化は updateHUD が自動で行います）
+    setTimeout(() => {
+        clearInterval(glitchInterval);
+        document.body.classList.remove('sys-glitch');
+    }, 500);
+
+    // 1.5秒後に霜がじんわりと溶ける
+    setTimeout(() => {
+        if (frost) frost.classList.remove('active');
+    }, 1500);
 }
