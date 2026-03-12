@@ -236,11 +236,17 @@ function updateHUD(scrollTop) {
     const velLabel = document.getElementById('hud-vel-label');
     if (velDisplay && velLabel) {
         if (isReturningToTop) {
+            // ★ロケット上昇中は、実際の気球上昇速度（5.57 m/s）をシミュレート
             velLabel.textContent = "▲ ASCENT RATE"; 
             velLabel.style.color = "#33ccff"; 
-            velDisplay.textContent = "5.00"; // ロケット上昇中は5.00に固定
+            // 5.57を基準に、±0.03の微小なノイズを加えてリアルな計器のブレを演出
+            let simSpeed = 5.57 + (Math.random() * 0.06 - 0.03);
+            velDisplay.textContent = simSpeed.toFixed(2);
         } else {
+            // 通常のスクロール時は実際の移動量から計算した速度
             let speedMS = Math.abs(smoothedVerticalVelocity); 
+            if (speedMS < 0.1) { speedMS = 0; smoothedVerticalVelocity = 0; }
+            
             if (speedMS === 0) { 
                 velLabel.textContent = "■ HOVERING"; 
                 velLabel.style.color = "var(--hud-color)"; 
