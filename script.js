@@ -216,7 +216,7 @@ function updateHUD(scrollTop) {
         presDisplay.textContent = Math.round(pressure);
     }
 
-    // --- ★変更点: 上昇・落下速度の計算 ---
+    // ★変更点: スクロールが止まったら速度を0にする処理を強化
     const now = performance.now();
     const dt = (now - lastTimeForVel) / 1000; 
     if (dt > 0.01) {
@@ -224,8 +224,9 @@ function updateHUD(scrollTop) {
             let rawVerticalVel = (currentAlt - lastAltForVel) / dt; 
             smoothedVerticalVelocity = smoothedVerticalVelocity * 0.9 + rawVerticalVel * 0.1;
         } else {
-            // スクロールしていない場合は急激に減衰させて0にする
+            // 動いていない場合は急速に0に近づける
             smoothedVerticalVelocity *= 0.5; 
+            if (Math.abs(smoothedVerticalVelocity) < 0.1) smoothedVerticalVelocity = 0;
         }
         lastTimeForVel = now; 
         lastAltForVel = currentAlt;
@@ -235,15 +236,11 @@ function updateHUD(scrollTop) {
     const velLabel = document.getElementById('hud-vel-label');
     if (velDisplay && velLabel) {
         if (isReturningToTop) {
-            // ★変更点: ロケットボタンで戻る時は「実際の上昇速度（秒速5m）」に固定
             velLabel.textContent = "▲ ASCENT RATE"; 
             velLabel.style.color = "#33ccff"; 
-            velDisplay.textContent = "5.00";
+            velDisplay.textContent = "5.00"; // ロケット上昇中は5.00に固定
         } else {
             let speedMS = Math.abs(smoothedVerticalVelocity); 
-            // 0.1 m/s未満なら完全に停止とみなす
-            if (speedMS < 0.1) { speedMS = 0; smoothedVerticalVelocity = 0; }
-            
             if (speedMS === 0) { 
                 velLabel.textContent = "■ HOVERING"; 
                 velLabel.style.color = "var(--hud-color)"; 
@@ -288,9 +285,14 @@ function updateHUD(scrollTop) {
         lastScrollTop = scrollTop;
     }
     
+    // ★変更点: ロケットの位置をスクロールに連動させて上下に動かす
     const btt = document.getElementById('back-to-top');
     if(btt) {
-        if(scrollTop > 400) btt.classList.add('show'); else btt.classList.remove('show');
+        btt.classList.add('show'); // 常に表示
+        // 画面の高さ - ロケットの高さ(約60px) - 上下の余白(30px)
+        const maxTop = window.innerHeight - 90; 
+        const currentTop = 30 + scrollPercent * maxTop;
+        btt.style.top = `${currentTop}px`;
     }
 
     if (scrollPercent > 0.8) document.documentElement.style.setProperty('--hud-color', '#fff'); 
@@ -392,20 +394,25 @@ function initUI() {
     const btt = document.getElementById('back-to-top');
     if(btt) btt.addEventListener('click', (e) => {
         e.preventDefault(); 
-        btt.classList.add('launch');
-        
-        // ★ 変更点: トップへ戻る際に「上昇中フラグ」をONにする
+        if (window.scrollY === 0) return; // すでに一番上にいる場合は何もしない
+
+        // 上昇中フラグをON
         isReturningToTop = true; 
         
-        if(typeof window.lenis !== 'undefined' && window.lenis) window.lenis.scrollTo(0, {duration: 3}); 
-        else window.scrollTo({top:0, behavior:'smooth'});
+        // ★変更点: Lenisを使って「等速（Linear）」で5秒間かけて上昇させる
+        if(typeof window.lenis !== 'undefined' && window.lenis) {
+            window.lenis.scrollTo(0, {
+                duration: 5, 
+                easing: (t) => t // イージングを無効化（等速直線運動）
+            }); 
+        } else {
+            window.scrollTo({top:0, behavior:'smooth'});
+        }
         
+        // 到着予定時間（5秒後）にフラグをOFF
         setTimeout(() => { 
-            btt.classList.remove('launch', 'show'); 
-            
-            // ★ 変更点: 到着したらフラグをOFFにする
             isReturningToTop = false; 
-        }, 3500);
+        }, 5000);
     });
 
     const modal = document.getElementById('gallery-modal');
