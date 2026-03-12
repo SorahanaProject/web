@@ -151,7 +151,9 @@ let lastScrollTop = 0;
 let lastTimeForVel = performance.now();
 let lastAltForVel = 25346;
 let smoothedVerticalVelocity = 0;
-let isReturningToTop = false; // ★ 追加: ロケットボタン上昇中判定フラグ
+let isReturningToTop = false; // ロケットボタン上昇中判定フラグ
+let hasBurstEventFired = false; 
+let isTurbulenceActive = false; // 波形グラフを荒ぶらせるフラグ
 
 function updateHUD(scrollTop) {
     if (typeof scrollTop !== 'number' || isNaN(scrollTop)) {
@@ -196,7 +198,17 @@ function updateHUD(scrollTop) {
     if(altDisplay) altDisplay.textContent = Math.floor(displayAlt).toString().padStart(5, '0');
     if(latDisplay) latDisplay.textContent = currentLat.toFixed(4);
     if(lonDisplay) lonDisplay.textContent = currentLon.toFixed(4);
-
+    
+    // 高度が25300mを下回り、かつロケットで戻っている最中でない時に1回だけ発動
+    if (currentAlt < 25300 && currentAlt > 24000 && !hasBurstEventFired && !isReturningToTop) {
+        hasBurstEventFired = true;
+        triggerBalloonBurst();
+    }
+    // 一番上まで戻ったらフラグをリセット（何度でも体験できるように）
+    if (currentAlt >= 25340) {
+        hasBurstEventFired = false;
+    }
+    
     const tempDisplay = document.getElementById('hud-temp-val');
     const tempUnitDisplay = document.getElementById('hud-temp-unit');
     if (tempDisplay) {
@@ -585,6 +597,26 @@ function initTelemetryStream() {
     }, 100); 
 }
 
+// === 第1段階：バルーン・バースト演出発動関数 ===
+function triggerBalloonBurst() {
+    const alertBox = document.getElementById('hud-alert-burst');
+    if(alertBox) alertBox.classList.remove('hidden');
+    
+    // 画面を揺らす
+    document.body.classList.add('shake-active');
+    
+    // 波形グラフを荒ぶらせる
+    isTurbulenceActive = true;
+
+    // 2秒後にすべて元に戻す（アラート消灯、グラフ正常化）
+    setTimeout(() => {
+        if(alertBox) alertBox.classList.add('hidden');
+        document.body.classList.remove('shake-active');
+        isTurbulenceActive = false;
+    }, 2000); 
+}
+
+// === 環境センシング波形（リアルタイムグラフ） ===
 function initWaveformGraph() {
     const canvas = document.getElementById('waveform-canvas');
     if (!canvas) return;
@@ -598,18 +630,34 @@ function initWaveformGraph() {
     function draw() {
         ctx.clearRect(0, 0, width, height);
         time += 0.05;
-        let newY = centerY + Math.sin(time) * 8 + (Math.random() - 0.5) * 4;
-        if (Math.random() > 0.96) newY += (Math.random() - 0.5) * 40;
+        
+        // 1. ゆっくりうねる基本のサイン波
+        let baseWave = Math.sin(time) * 8;
+        // 2. 常に入る小さな微振動ノイズ
+        let noise = (Math.random() - 0.5) * 4;
+        
+        // ★修正: バースト時（乱気流フラグON）はノイズを強烈にする
+        let spikeChance = isTurbulenceActive ? 0.3 : 0.96; // 荒ぶる確率
+        let spikeMult = isTurbulenceActive ? 80 : 40;      // 荒ぶる大きさ
+        
+        // 3. 突発的な大きなスパイク
+        if (Math.random() > spikeChance) {
+            noise += (Math.random() - 0.5) * spikeMult;
+        }
+        
+        let newY = centerY + baseWave + noise;
         points.shift(); 
         points.push(Math.max(5, Math.min(height - 5, newY)));
         
         ctx.beginPath(); 
         ctx.moveTo(0, points[0]);
         for (let i = 1; i < width; i++) ctx.lineTo(i, points[i]);
-        ctx.strokeStyle = 'rgba(212, 175, 55, 0.8)'; 
+        
+        // ★修正: バースト時はグラフの色を赤く警告色にする
+        ctx.strokeStyle = isTurbulenceActive ? 'rgba(255, 51, 51, 0.9)' : 'rgba(212, 175, 55, 0.8)'; 
         ctx.lineWidth = 1.2; 
         ctx.shadowBlur = 4;
-        ctx.shadowColor = 'rgba(212, 175, 55, 0.5)';
+        ctx.shadowColor = isTurbulenceActive ? 'rgba(255, 51, 51, 0.8)' : 'rgba(212, 175, 55, 0.5)';
         ctx.stroke();
         
         requestAnimationFrame(draw);
