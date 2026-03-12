@@ -298,7 +298,7 @@ function updateHUD(scrollTop) {
         
         // ★修正: ロケットが下に行きすぎないよう、画面下部の余白を多めに取る
         // (スマホなどの小さな画面でもエラーにならないよう Math.max を使用)
-        const maxTop = Math.max(0, window.innerHeight - 150); 
+        const maxTop = Math.max(0, window.innerHeight - 180); 
         const currentTop = 30 + scrollPercent * maxTop;
         btt.style.top = `${currentTop}px`;
     }
