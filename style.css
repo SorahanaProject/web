@@ -521,3 +521,41 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
         display: none;
     }
 }
+
+/* === アラート表示のスタイル === */
+.hud-alert {
+    margin-top: 20px;
+    font-family: var(--font-tech);
+    font-size: 0.8rem;
+    color: #ff3333;
+    border: 1px solid #ff3333;
+    padding: 8px 10px;
+    background: rgba(255, 51, 51, 0.1);
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 0.1em;
+    transition: opacity 0.2s;
+    /* 激しく点滅させる */
+    animation: alert-blink 0.15s infinite alternate;
+}
+.hud-alert.hidden {
+    display: none;
+}
+@keyframes alert-blink {
+    from { opacity: 1; text-shadow: 0 0 8px #ff3333; box-shadow: 0 0 10px rgba(255,51,51,0.5); }
+    to { opacity: 0.4; text-shadow: none; box-shadow: none; }
+}
+
+/* === 衝撃の画面揺れ（カメラシェイク） === */
+@keyframes camera-shake {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-3px, 8px); }
+    40% { transform: translate(5px, -5px); }
+    60% { transform: translate(-6px, 4px); }
+    80% { transform: translate(3px, -6px); }
+    100% { transform: translate(0, 0); }
+}
+body.shake-active {
+    /* 揺れアニメーションをbody全体に適用 */
+    animation: camera-shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
