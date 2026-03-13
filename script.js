@@ -330,21 +330,19 @@ function updateHUD(scrollTop) {
 
     if(btt) btt.addEventListener('click', (e) => {
         e.preventDefault(); 
-        if (window.scrollY === 0) return; // すでに一番上にいる場合は何もしない
+        if (window.scrollY === 0) return;
 
-        // 1. 上昇中フラグをON
         isReturningToTop = true; 
         
-        // 2. HUDステータスを「HIGH LOAD」に変更
+        // 状態を高負荷(HIGH LOAD)に変更し、星空をワープ状態にする
         if (statusDisplay) {
             statusDisplay.textContent = "HIGH LOAD";
             statusDisplay.classList.remove("ok");
             statusDisplay.classList.add("high-load");
         }
-        // 3. 星空をワープ状態（ブラー）にする
         if (starfieldCanvas) starfieldCanvas.classList.add("warp-speed");
 
-        // Lenisを使って等速で5秒間かけて上昇
+        // 5秒間かけて等速で上昇
         if(typeof window.lenis !== 'undefined' && window.lenis) {
             window.lenis.scrollTo(0, { duration: 5, easing: (t) => t }); 
         } else {
@@ -363,7 +361,7 @@ function updateHUD(scrollTop) {
             }
             if (starfieldCanvas) starfieldCanvas.classList.remove("warp-speed");
 
-            // 急ブレーキの衝撃（カメラシェイク）を発動
+            // 到着時の衝撃（カメラシェイク）
             document.body.classList.add("arrival-shake-active");
             setTimeout(() => {
                 document.body.classList.remove("arrival-shake-active");
@@ -618,21 +616,31 @@ function initStarfield() {
 
     function animate() {
         ctx.clearRect(0, 0, width, height);
+        // ワープ状態かどうかを判定
+        const isWarping = canvas.classList.contains('warp-speed');
         const scrollVel = window.lenis ? window.lenis.velocity : 0;
         ctx.fillStyle = '#fff';
+        
         stars.forEach(star => {
-            star.y -= (0.2 * star.z) + (scrollVel * 0.05 * star.z);
+            // ★ワープ中は星の速度を劇的に上げる
+            let speed = isWarping ? 30 : (0.2 + scrollVel * 0.05);
+            star.y -= speed * star.z;
+            
             if (star.y < 0) { star.y = height; star.x = Math.random() * width; }
             if (star.y > height) { star.y = 0; star.x = Math.random() * width; }
+            
             ctx.globalAlpha = star.alpha; 
             ctx.beginPath(); 
-            ctx.arc(star.x, star.y, star.z * 0.8, 0, Math.PI * 2); 
+            // ★ワープ中は星を縦線（スピードライン）に引き伸ばす
+            if (isWarping) { 
+                ctx.ellipse(star.x, star.y, star.z * 0.8, star.z * 15, 0, 0, Math.PI * 2); 
+            } else { 
+                ctx.arc(star.x, star.y, star.z * 0.8, 0, Math.PI * 2); 
+            }
             ctx.fill();
         });
         requestAnimationFrame(animate);
     }
-    animate();
-}
 
 function initTelemetryStream() {
     const stream = document.getElementById('telemetry-stream');
