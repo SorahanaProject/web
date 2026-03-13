@@ -1,23 +1,14 @@
 // --- START OF FILE script.js ---
 
-// --- KMLフライトデータ ---
+// --- KMLフライトデータ（降下フェーズの完全な実データ） ---
 const FLIGHT_DATA =[
-    // KML記録上の最高到達点 (22:49:45)
-    // ※高度はサイトの設定(25,346m)に合わせていますが、座標は本物です。
     { progress: 0.00, alt: 25346, lat: 33.399596, lon: 135.489921 }, 
-    // 降下中 (22:54:45)
     { progress: 0.15, alt: 23187, lat: 33.402246, lon: 135.488483 }, 
-    // 降下中 (23:03:15)
     { progress: 0.45, alt: 12937, lat: 33.394521, lon: 135.663106 }, 
-    // 降下中 (23:08:15)
     { progress: 0.65, alt: 9236,  lat: 33.420206, lon: 135.835711 }, 
-    // 降下中 (23:13:15)
     { progress: 0.80, alt: 6348,  lat: 33.460986, lon: 135.972568 }, 
-    // 降下中 (23:18:15)
     { progress: 0.90, alt: 3899,  lat: 33.454710, lon: 136.034388 }, 
-    // 着水直前 (23:23:15)
     { progress: 0.96, alt: 1606,  lat: 33.453411, lon: 136.049366 }, 
-    // 海上着水 (23:28:15) ※KML上は-11.84mですが、表示上は0mとします
     { progress: 1.00, alt: 0,     lat: 33.449765, lon: 136.054945 }  
 ];
 
@@ -51,7 +42,6 @@ function initSmoothScroll() {
 
     lenis.on('scroll', ScrollTrigger.update);
     
-    // ★ 変更点: 毎フレームHUDを更新することで、停止した瞬間に速度を0にする挙動を描画する
     gsap.ticker.add((time) => { 
         lenis.raf(time * 1000); 
         if (window.lenis) updateHUD(window.lenis.scroll);
@@ -151,9 +141,9 @@ let lastScrollTop = 0;
 let lastTimeForVel = performance.now();
 let lastAltForVel = 25346;
 let smoothedVerticalVelocity = 0;
-let isReturningToTop = false; // ロケットボタン上昇中判定フラグ
+let isReturningToTop = false; 
 let hasBurstEventFired = false; 
-let isTurbulenceActive = false; // 波形グラフを荒ぶらせるフラグ
+let isTurbulenceActive = false; 
 let hasTroposphereEventFired = false;
 
 function updateHUD(scrollTop) {
@@ -200,20 +190,20 @@ function updateHUD(scrollTop) {
     if(latDisplay) latDisplay.textContent = currentLat.toFixed(4);
     if(lonDisplay) lonDisplay.textContent = currentLon.toFixed(4);
     
-    // 高度が25300mを下回り、かつロケットで戻っている最中でない時に1回だけ発動
+    // イベント: バルーンバースト
     if (currentAlt < 25300 && currentAlt > 24000 && !hasBurstEventFired && !isReturningToTop) {
         hasBurstEventFired = true;
         triggerBalloonBurst();
     }
-    // 一番上まで戻ったらフラグをリセット（何度でも体験できるように）
     if (currentAlt >= 25340) {
         hasBurstEventFired = false;
     }
+    
+    // イベント: 対流圏界面突破
     if (currentAlt < 11000 && currentAlt > 10000 && !hasTroposphereEventFired && !isReturningToTop) {
         hasTroposphereEventFired = true;
         triggerTroposphereEntry();
     }
-    // 上に戻ったらフラグをリセット
     if (currentAlt >= 11500) {
         hasTroposphereEventFired = false;
     }
@@ -248,7 +238,6 @@ function updateHUD(scrollTop) {
         presDisplay.textContent = Math.round(pressure);
     }
 
-    // ★変更点: スクロールが止まったら速度を0にする処理を強化
     const now = performance.now();
     const dt = (now - lastTimeForVel) / 1000; 
     if (dt > 0.01) {
@@ -256,7 +245,6 @@ function updateHUD(scrollTop) {
             let rawVerticalVel = (currentAlt - lastAltForVel) / dt; 
             smoothedVerticalVelocity = smoothedVerticalVelocity * 0.9 + rawVerticalVel * 0.1;
         } else {
-            // 動いていない場合は急速に0に近づける
             smoothedVerticalVelocity *= 0.5; 
             if (Math.abs(smoothedVerticalVelocity) < 0.1) smoothedVerticalVelocity = 0;
         }
@@ -268,14 +256,11 @@ function updateHUD(scrollTop) {
     const velLabel = document.getElementById('hud-vel-label');
     if (velDisplay && velLabel) {
         if (isReturningToTop) {
-            // ★ロケット上昇中は、実際の気球上昇速度（5.57 m/s）をシミュレート
             velLabel.textContent = "▲ ASCENT RATE"; 
             velLabel.style.color = "#33ccff"; 
-            // 5.57を基準に、±0.03の微小なノイズを加えてリアルな計器のブレを演出
             let simSpeed = 5.57 + (Math.random() * 0.06 - 0.03);
             velDisplay.textContent = simSpeed.toFixed(2);
         } else {
-            // 通常のスクロール時は実際の移動量から計算した速度
             let speedMS = Math.abs(smoothedVerticalVelocity); 
             if (speedMS < 0.1) { speedMS = 0; smoothedVerticalVelocity = 0; }
             
@@ -297,7 +282,6 @@ function updateHUD(scrollTop) {
     const progressBar = document.getElementById('scroll-progress');
     const hudLayer = document.getElementById('hud-layer');
     const header = document.getElementById('header');
-    
     const hero = document.getElementById('hero');
     const telemetry = document.querySelector('.bg-telemetry');
     const waveform = document.querySelector('.bg-waveform');
@@ -323,56 +307,15 @@ function updateHUD(scrollTop) {
         lastScrollTop = scrollTop;
     }
     
-    // ロケットの位置をスクロールに連動させて上下に動かす
     const btt = document.getElementById('back-to-top');
-    const statusDisplay = document.getElementById('hud-status');
-    const starfieldCanvas = document.getElementById('starfield');
-
-    if(btt) btt.addEventListener('click', (e) => {
-        e.preventDefault(); 
-        if (window.scrollY === 0) return;
-
-        isReturningToTop = true; 
-        
-        // 状態を高負荷(HIGH LOAD)に変更し、星空をワープ状態にする
-        if (statusDisplay) {
-            statusDisplay.textContent = "HIGH LOAD";
-            statusDisplay.classList.remove("ok");
-            statusDisplay.classList.add("high-load");
-        }
-        if (starfieldCanvas) starfieldCanvas.classList.add("warp-speed");
-
-        // 5秒間かけて等速で上昇
-        if(typeof window.lenis !== 'undefined' && window.lenis) {
-            window.lenis.scrollTo(0, { duration: 5, easing: (t) => t }); 
+    if(btt) {
+        // トップページにいる時はロケットを非表示にする
+        if (scrollTop > hero.offsetHeight * 0.5) {
+            btt.classList.add('show');
         } else {
-            window.scrollTo({top:0, behavior:'smooth'});
+            btt.classList.remove('show');
         }
         
-        // 5秒後（トップ到着時）の処理
-        setTimeout(() => { 
-            isReturningToTop = false; 
-            
-            // ステータスと星空を元に戻す
-            if (statusDisplay) {
-                statusDisplay.textContent = "NORMAL";
-                statusDisplay.classList.remove("high-load");
-                statusDisplay.classList.add("ok");
-            }
-            if (starfieldCanvas) starfieldCanvas.classList.remove("warp-speed");
-
-            // 到着時の衝撃（カメラシェイク）
-            document.body.classList.add("arrival-shake-active");
-            setTimeout(() => {
-                document.body.classList.remove("arrival-shake-active");
-            }, 500);
-
-            btt.classList.remove('launch', 'show'); 
-        }, 5000);
-    });
-    
-        // ★修正: ロケットが下に行きすぎないよう、画面下部の余白を多めに取る
-        // (スマホなどの小さな画面でもエラーにならないよう Math.max を使用)
         const maxTop = Math.max(0, window.innerHeight - 150); 
         const currentTop = 30 + scrollPercent * maxTop;
         btt.style.top = `${currentTop}px`;
@@ -475,26 +418,44 @@ function initUI() {
     }
 
     const btt = document.getElementById('back-to-top');
+    const statusDisplay = document.getElementById('hud-status');
+    const starfieldCanvas = document.getElementById('starfield');
+
     if(btt) btt.addEventListener('click', (e) => {
         e.preventDefault(); 
-        if (window.scrollY === 0) return; // すでに一番上にいる場合は何もしない
+        if (window.scrollY === 0) return; 
 
-        // 上昇中フラグをON
         isReturningToTop = true; 
         
-        // ★変更点: Lenisを使って「等速（Linear）」で5秒間かけて上昇させる
+        if (statusDisplay) {
+            statusDisplay.textContent = "HIGH LOAD";
+            statusDisplay.classList.remove("ok");
+            statusDisplay.classList.add("high-load");
+        }
+        if (starfieldCanvas) starfieldCanvas.classList.add("warp-speed");
+
         if(typeof window.lenis !== 'undefined' && window.lenis) {
-            window.lenis.scrollTo(0, {
-                duration: 5, 
-                easing: (t) => t // イージングを無効化（等速直線運動）
-            }); 
+            window.lenis.scrollTo(0, { duration: 5, easing: (t) => t }); 
         } else {
             window.scrollTo({top:0, behavior:'smooth'});
         }
         
-        // 到着予定時間（5秒後）にフラグをOFF
         setTimeout(() => { 
             isReturningToTop = false; 
+            
+            if (statusDisplay) {
+                statusDisplay.textContent = "NORMAL";
+                statusDisplay.classList.remove("high-load");
+                statusDisplay.classList.add("ok");
+            }
+            if (starfieldCanvas) starfieldCanvas.classList.remove("warp-speed");
+
+            document.body.classList.add("arrival-shake-active");
+            setTimeout(() => {
+                document.body.classList.remove("arrival-shake-active");
+            }, 500);
+
+            btt.classList.remove('launch', 'show'); 
         }, 5000);
     });
 
@@ -598,6 +559,7 @@ function createStardust(x, y) {
     });
 }
 
+// === 6. Background Effects & Events ===
 function initStarfield() {
     const canvas = document.getElementById('starfield');
     if (!canvas) return;
@@ -607,6 +569,7 @@ function initStarfield() {
     function resize() {
         width = window.innerWidth; height = window.innerHeight;
         canvas.width = width; canvas.height = height; 
+        stars =[];
         for (let i = 0; i < 400; i++) {
             stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2 + 0.5, alpha: Math.random() * 0.8 + 0.2 });
         }
@@ -616,13 +579,11 @@ function initStarfield() {
 
     function animate() {
         ctx.clearRect(0, 0, width, height);
-        // ワープ状態かどうかを判定
         const isWarping = canvas.classList.contains('warp-speed');
         const scrollVel = window.lenis ? window.lenis.velocity : 0;
         ctx.fillStyle = '#fff';
         
         stars.forEach(star => {
-            // ★ワープ中は星の速度を劇的に上げる
             let speed = isWarping ? 30 : (0.2 + scrollVel * 0.05);
             star.y -= speed * star.z;
             
@@ -631,7 +592,6 @@ function initStarfield() {
             
             ctx.globalAlpha = star.alpha; 
             ctx.beginPath(); 
-            // ★ワープ中は星を縦線（スピードライン）に引き伸ばす
             if (isWarping) { 
                 ctx.ellipse(star.x, star.y, star.z * 0.8, star.z * 15, 0, 0, Math.PI * 2); 
             } else { 
@@ -641,6 +601,7 @@ function initStarfield() {
         });
         requestAnimationFrame(animate);
     }
+    // ここでループ関数を呼び出してアニメーションをスタートさせる（重要！）
     animate();
 }
 
@@ -660,26 +621,6 @@ function initTelemetryStream() {
     }, 100); 
 }
 
-// === 第1段階：バルーン・バースト演出発動関数 ===
-function triggerBalloonBurst() {
-    const alertBox = document.getElementById('hud-alert-burst');
-    if(alertBox) alertBox.classList.remove('hidden');
-    
-    // 画面を揺らす
-    document.body.classList.add('shake-active');
-    
-    // 波形グラフを荒ぶらせる
-    isTurbulenceActive = true;
-
-    // 2秒後にすべて元に戻す（アラート消灯、グラフ正常化）
-    setTimeout(() => {
-        if(alertBox) alertBox.classList.add('hidden');
-        document.body.classList.remove('shake-active');
-        isTurbulenceActive = false;
-    }, 2000); 
-}
-
-// === 環境センシング波形（リアルタイムグラフ） ===
 function initWaveformGraph() {
     const canvas = document.getElementById('waveform-canvas');
     if (!canvas) return;
@@ -694,16 +635,12 @@ function initWaveformGraph() {
         ctx.clearRect(0, 0, width, height);
         time += 0.05;
         
-        // 1. ゆっくりうねる基本のサイン波
         let baseWave = Math.sin(time) * 8;
-        // 2. 常に入る小さな微振動ノイズ
         let noise = (Math.random() - 0.5) * 4;
         
-        // ★修正: バースト時（乱気流フラグON）はノイズを強烈にする
-        let spikeChance = isTurbulenceActive ? 0.3 : 0.96; // 荒ぶる確率
-        let spikeMult = isTurbulenceActive ? 80 : 40;      // 荒ぶる大きさ
+        let spikeChance = isTurbulenceActive ? 0.3 : 0.96; 
+        let spikeMult = isTurbulenceActive ? 80 : 40;      
         
-        // 3. 突発的な大きなスパイク
         if (Math.random() > spikeChance) {
             noise += (Math.random() - 0.5) * spikeMult;
         }
@@ -716,7 +653,6 @@ function initWaveformGraph() {
         ctx.moveTo(0, points[0]);
         for (let i = 1; i < width; i++) ctx.lineTo(i, points[i]);
         
-        // ★修正: バースト時はグラフの色を赤く警告色にする
         ctx.strokeStyle = isTurbulenceActive ? 'rgba(255, 51, 51, 0.9)' : 'rgba(212, 175, 55, 0.8)'; 
         ctx.lineWidth = 1.2; 
         ctx.shadowBlur = 4;
@@ -728,32 +664,38 @@ function initWaveformGraph() {
     draw();
 }
 
-// === 第2段階：対流圏界面（11,000m）突破時の演出発動関数 ===
+function triggerBalloonBurst() {
+    const alertBox = document.getElementById('hud-alert-burst');
+    if(alertBox) alertBox.classList.remove('hidden');
+    
+    document.body.classList.add('shake-active');
+    isTurbulenceActive = true;
+
+    setTimeout(() => {
+        if(alertBox) alertBox.classList.add('hidden');
+        document.body.classList.remove('shake-active');
+        isTurbulenceActive = false;
+    }, 2000); 
+}
+
 function triggerTroposphereEntry() {
     const frost = document.getElementById('frost-overlay');
     const altDisplay = document.getElementById('live-altitude');
     const tempDisplay = document.getElementById('hud-temp-val');
 
-    // 1. 霜エフェクトを一瞬で表示
     if (frost) frost.classList.add('active');
-
-    // 2. 画面全体に強烈なグリッチ（色収差・反転）を走らせる
     document.body.classList.add('sys-glitch');
 
-    // 3. 計器（高度と温度）をランダムな記号にして文字化けさせる
     let glitchInterval = setInterval(() => {
         if(altDisplay) altDisplay.innerText = Math.random().toString(36).substring(2, 7).toUpperCase();
         if(tempDisplay) tempDisplay.innerText = "!#*@?";
     }, 50);
 
-    // --- 復旧処理 ---
-    // 0.5秒後にグリッチと文字化けを終了（計器の正常化は updateHUD が自動で行います）
     setTimeout(() => {
         clearInterval(glitchInterval);
         document.body.classList.remove('sys-glitch');
     }, 500);
 
-    // 1.5秒後に霜がじんわりと溶ける
     setTimeout(() => {
         if (frost) frost.classList.remove('active');
     }, 1500);
