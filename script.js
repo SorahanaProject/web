@@ -103,36 +103,80 @@ function initBootSequence() {
     }, 50);
 }
 
-// === 3. GSAP Site Animations ===
+// === 3. GSAP Site Animations (ピン留め & スクラブ仕様) ===
 function initSiteAnimations() {
     initTextScramble();
 
+    // ヒーローセクションのアニメーション（ここはロード時なのでそのまま）
     const tl = gsap.timeline();
     tl.from(".hero-content .data-tag", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" })
       .from(".hero-content h1 span", { y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "power4.out" }, "-=0.6")
       .from(".hero-content .hero-desc", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
       .from(".scroll-down", { y: -20, opacity: 0, duration: 0.8 }, "-=0.4");
 
-    const revealElements = document.querySelectorAll(".section-title, .lead-text, .timeline-content, .gallery-item, .blog-card");
-    revealElements.forEach((elem) => {
-        gsap.set(elem, { opacity: 0, y: 50 });
-        ScrollTrigger.create({ 
-            trigger: elem, start: "top 85%", once: true,
-            onEnter: () => gsap.to(elem, { duration: 1.2, y: 0, opacity: 1, ease: "power3.out", overwrite: "auto" })
+    // ★ 1. 各セクションのピン留め＆順次出現（飛ばされないアニメーション）
+    const pinSections = document.querySelectorAll('#concept, #gallery, #future');
+    pinSections.forEach((sec) => {
+        const elements = sec.querySelectorAll('.js-scroll, .gallery-item, .blog-card');
+        if(elements.length === 0) return;
+
+        // 初期状態を透明・下にセット
+        gsap.set(elements, { opacity: 0, y: 50 });
+
+        // セクションが画面中央に来たら画面をロック（Pin）する
+        let st = gsap.timeline({
+            scrollTrigger: {
+                trigger: sec,
+                start: "center center", 
+                end: () => "+=" + (elements.length * 300), // 要素が多いほどロック期間を長くする
+                pin: true,
+                scrub: 1, // スクロール量に完全連動（飛ばされない）
+            }
         });
+
+        // スクロールに合わせて要素を順番にフワッと出す
+        elements.forEach((el, i) => {
+            st.to(el, { opacity: 1, y: 0, duration: 1, ease: "power2.out" }, i * 0.8);
+        });
+        // 全部出終わったあとの「タメ（余白）」
+        st.to({}, {duration: 0.5});
     });
 
+    // ★ 2. The Experiment タイムラインの横スクロール化
+    const timelineWrapper = document.getElementById("timeline-wrapper");
+    const timelineContainer = document.getElementById("timeline-container");
+    
+    if (timelineWrapper && timelineContainer) {
+        gsap.to(timelineContainer, {
+            // 中身の横幅分だけ左にスライドさせる
+            x: () => -(timelineContainer.scrollWidth - window.innerWidth),
+            ease: "none",
+            scrollTrigger: {
+                trigger: timelineWrapper,
+                start: "center center",
+                end: () => "+=" + timelineContainer.scrollWidth, // 横幅の分だけ縦にスクロールさせる
+                pin: true, // 画面をロック
+                scrub: 1   // スクロールに完全連動
+            }
+        });
+    }
+
+    // ★ 3. その他の要素（画像ズームなど）もスクラブ連動に変更
     const parallaxImages = document.querySelectorAll(".gallery-item img, .timeline-img, .exp-card img");
     parallaxImages.forEach((img) => {
-        ScrollTrigger.create({ 
-            trigger: img.parentElement, start: "top 85%", once: true,
-            onEnter: () => gsap.fromTo(img, { scale: 1.3 }, { scale: 1.0, duration: 1.5, ease: "power2.out", clearProps: "transform" })
-        });
-    });
-
-    gsap.utils.toArray(".timeline-item").forEach((item) => {
-        const dot = item.querySelector(".timeline-dot");
-        if(dot) gsap.from(dot, { scale: 0, duration: 0.5, ease: "back.out(1.7)", scrollTrigger: { trigger: item, start: "top 80%" } });
+        gsap.fromTo(img, 
+            { scale: 1.3 },
+            { 
+                scale: 1.0, 
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: img.parentElement,
+                    start: "top bottom",
+                    end: "center center",
+                    scrub: 1 // スクロール量に合わせてズームが直る
+                }
+            }
+        );
     });
 }
 
