@@ -591,3 +591,33 @@ body.sys-glitch {
     /* ガクガクとした動き(steps)で0.4秒間だけ発動 */
     animation: sys-glitch-anim 0.4s steps(2) both;
 }
+
+/* --- 第3段階: ロケット上昇時の演出 --- */
+/* HUDステータスの切り替え（高負荷アラート） */
+#hud-status {
+    transition: color 0.3s, text-shadow 0.3s;
+}
+#hud-status.high-load {
+    color: #F2D06B; /* 警告のゴールド・黄色 */
+    text-shadow: 0 0 10px #F2D06B;
+    animation: alert-blink 0.2s infinite alternate;
+}
+
+/* 到着時（急ブレーキ）の縦方向の衝撃 */
+@keyframes arrival-shake {
+    0% { transform: translateY(0); }
+    20% { transform: translateY(-20px); } /* 慣性で上に強く引っ張られる */
+    40% { transform: translateY(12px); }
+    60% { transform: translateY(-6px); }
+    80% { transform: translateY(3px); }
+    100% { transform: translateY(0); }
+}
+body.arrival-shake-active {
+    animation: arrival-shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* 星空キャンバスのモーションブラー */
+#starfield.warp-speed {
+    filter: blur(1px);
+    opacity: 0.8;
+}
