@@ -641,6 +641,8 @@ function initStarfield() {
         });
         requestAnimationFrame(animate);
     }
+    animate();
+}
 
 function initTelemetryStream() {
     const stream = document.getElementById('telemetry-stream');
