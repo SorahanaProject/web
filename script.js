@@ -325,9 +325,54 @@ function updateHUD(scrollTop) {
     
     // ロケットの位置をスクロールに連動させて上下に動かす
     const btt = document.getElementById('back-to-top');
-    if(btt) {
-        if(scrollTop > 400) btt.classList.add('show'); else btt.classList.remove('show');
+    const statusDisplay = document.getElementById('hud-status');
+    const starfieldCanvas = document.getElementById('starfield');
+
+    if(btt) btt.addEventListener('click', (e) => {
+        e.preventDefault(); 
+        if (window.scrollY === 0) return; // すでに一番上にいる場合は何もしない
+
+        // 1. 上昇中フラグをON
+        isReturningToTop = true; 
         
+        // 2. HUDステータスを「HIGH LOAD」に変更
+        if (statusDisplay) {
+            statusDisplay.textContent = "HIGH LOAD";
+            statusDisplay.classList.remove("ok");
+            statusDisplay.classList.add("high-load");
+        }
+        // 3. 星空をワープ状態（ブラー）にする
+        if (starfieldCanvas) starfieldCanvas.classList.add("warp-speed");
+
+        // Lenisを使って等速で5秒間かけて上昇
+        if(typeof window.lenis !== 'undefined' && window.lenis) {
+            window.lenis.scrollTo(0, { duration: 5, easing: (t) => t }); 
+        } else {
+            window.scrollTo({top:0, behavior:'smooth'});
+        }
+        
+        // 5秒後（トップ到着時）の処理
+        setTimeout(() => { 
+            isReturningToTop = false; 
+            
+            // ステータスと星空を元に戻す
+            if (statusDisplay) {
+                statusDisplay.textContent = "NORMAL";
+                statusDisplay.classList.remove("high-load");
+                statusDisplay.classList.add("ok");
+            }
+            if (starfieldCanvas) starfieldCanvas.classList.remove("warp-speed");
+
+            // 急ブレーキの衝撃（カメラシェイク）を発動
+            document.body.classList.add("arrival-shake-active");
+            setTimeout(() => {
+                document.body.classList.remove("arrival-shake-active");
+            }, 500);
+
+            btt.classList.remove('launch', 'show'); 
+        }, 5000);
+    });
+    
         // ★修正: ロケットが下に行きすぎないよう、画面下部の余白を多めに取る
         // (スマホなどの小さな画面でもエラーにならないよう Math.max を使用)
         const maxTop = Math.max(0, window.innerHeight - 150); 
@@ -564,7 +609,6 @@ function initStarfield() {
     function resize() {
         width = window.innerWidth; height = window.innerHeight;
         canvas.width = width; canvas.height = height; 
-        stars =[];
         for (let i = 0; i < 400; i++) {
             stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2 + 0.5, alpha: Math.random() * 0.8 + 0.2 });
         }
