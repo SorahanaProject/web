@@ -633,7 +633,7 @@ body.arrival-shake-active {
     display: flex;
     flex-wrap: nowrap;
     width: max-content;
-    padding: 0 50vw; /* 画面中央からスタートするため */
+    padding: 0 calc(50vw - 240px); 
     align-items: flex-start;
     position: relative;
 }
@@ -693,5 +693,9 @@ body.arrival-shake-active {
     margin-top: 0; letter-spacing: 0.1em;
 }
 @media (max-width: 768px) {
+    /* ★追加: スマホ用の完璧な中央揃え計算（カード幅150px ＋ マージン20px を引く） */
+    .h-timeline {
+        padding: 0 calc(50vw - 170px);
+    }
     .h-timeline-item { width: 300px; margin: 0 20px; }
 }
