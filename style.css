@@ -622,43 +622,76 @@ body.arrival-shake-active {
     opacity: 0.8;
 }
 
-/* === The Experiment 横スクロール化 (ピン留め対応) === */
-.timeline-wrapper {
+/* === 横スクロール専用タイムライン === */
+.h-timeline-wrapper {
     overflow: hidden;
-    width: 100vw; /* 画面幅いっぱい使う */
-    margin-left: calc(50% - 50vw); /* コンテナの枠を突破して全画面幅にするハック */
-    padding: 50px 0;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    padding: 50px 0 100px 0;
 }
-.timeline {
+.h-timeline {
     display: flex;
     flex-wrap: nowrap;
-    width: max-content; /* 中身に合わせて横に広がる */
-    padding: 0 50vw; /* 最初と最後に余白を持たせて画面中央からスタートさせる */
+    width: max-content;
+    padding: 0 50vw; /* 画面中央からスタートするため */
+    align-items: flex-start;
+    position: relative;
 }
-.timeline::before {
-    /* 縦線を横線に変更 */
-    top: 50%;
+.h-timeline::before {
+    content: '';
+    position: absolute;
+    top: 50px; /* 横線の位置 */
     left: 0;
     width: 100%;
     height: 2px;
     background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+    z-index: 1;
 }
-.timeline-item {
+.h-timeline-item {
     width: 400px;
     flex-shrink: 0;
-    margin-bottom: 0;
-    padding-left: 0;
-    padding-top: 60px;
-    text-align: center !important;
+    margin: 0 40px; /* アイテム間の距離 */
     position: relative;
-    margin-right: 80px; /* アイテム間の距離 */
-    left: 0 !important;
+    z-index: 2;
 }
-.timeline-dot {
-    top: 0;
+.h-timeline-dot {
+    position: absolute;
+    top: 40px; /* 点の位置 */
     left: 50%;
-    transform: translate(-50%, -10px);
+    transform: translateX(-50%);
+    width: 22px;
+    height: 22px;
+    background: #000;
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    z-index: 3;
+}
+.h-timeline-content {
+    margin-top: 80px; /* 線と点の下にカードを配置 */
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: left;
+    transition: border-color 0.3s;
+}
+.h-timeline-content:hover {
+    border-color: var(--accent-color);
+}
+.h-timeline-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.h-timeline-content .phase {
+    display: block; font-family: var(--font-en); color: var(--accent-color); font-size: 0.8rem; letter-spacing: 0.2em; margin-bottom: 10px; text-transform: uppercase;
+}
+.h-timeline-content h3 {
+    margin-top: 0; letter-spacing: 0.1em;
 }
 @media (max-width: 768px) {
-    .timeline-item { width: 300px; margin-right: 40px; }
+    .h-timeline-item { width: 300px; margin: 0 20px; }
 }
