@@ -103,7 +103,7 @@ function initBootSequence() {
     }, 50);
 }
 
-// === 3. GSAP Site Animations (ピン留め & スクラブ仕様) ===
+// === 3. GSAP Site Animations (ハイブリッド＆ストレスフリー仕様) ===
 function initSiteAnimations() {
     initTextScramble();
 
@@ -113,7 +113,7 @@ function initSiteAnimations() {
       .from(".hero-content .hero-desc", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
       .from(".scroll-down", { y: -20, opacity: 0, duration: 0.8 }, "-=0.4");
 
-    // ★ 1. タイムラインの横スクロール化（ここだけ画面をロック）
+    // ★ 1. タイムラインの横スクロール化（操作感をダイレクトに）
     const timelineWrapper = document.getElementById("h-timeline-wrapper");
     const timelineContainer = document.getElementById("h-timeline-container");
     
@@ -123,28 +123,29 @@ function initSiteAnimations() {
             ease: "none",
             scrollTrigger: {
                 trigger: timelineWrapper,
-                start: "center center", // 画面中央でピン留め開始
-                end: () => "+=" + (timelineContainer.scrollWidth - window.innerWidth), // 横幅の分だけスクロールさせる
+                start: "center center", 
+                end: () => "+=" + (timelineContainer.scrollWidth - window.innerWidth),
                 pin: true,
-                scrub: 0.5 // スクロール連動
+                // 数値を外し「true」にすることで遅延をなくし、イライラを解消
+                scrub: true 
             }
         });
     }
 
-    // ★ 2. 各要素のスクロール連動出現（アニメーションが飛ばされないようにする）
+    // ★ 2. 各要素の出現（スクラブをやめ、時間ベースの素早いアニメーションに変更）
     const revealElements = document.querySelectorAll(".section-title, .lead-text, .exp-card, .gallery-item, .blog-card");
     revealElements.forEach((elem) => {
         gsap.fromTo(elem, 
-            { opacity: 0, y: 50 },
+            { opacity: 0, y: 40 }, // 移動距離を50から40に減らして機敏に
             { 
                 opacity: 1, 
                 y: 0, 
+                duration: 0.6, // ★アニメーション時間を短縮して「見逃し」を防ぐ
                 ease: "power2.out",
                 scrollTrigger: {
                     trigger: elem,
-                    start: "top 90%",
-                    end: "center 75%",
-                    scrub: 1 // ★スクラブをONにすることで、早くスクロールしても必ずアニメーションが再生される
+                    start: "top 95%", // ★画面に少しでも入ったら即座に発動させる
+                    once: true // 一度出たらそのまま
                 }
             }
         );
