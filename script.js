@@ -107,73 +107,44 @@ function initBootSequence() {
 function initSiteAnimations() {
     initTextScramble();
 
-    // ヒーローセクションのアニメーション（ここはロード時なのでそのまま）
     const tl = gsap.timeline();
     tl.from(".hero-content .data-tag", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" })
       .from(".hero-content h1 span", { y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "power4.out" }, "-=0.6")
       .from(".hero-content .hero-desc", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
       .from(".scroll-down", { y: -20, opacity: 0, duration: 0.8 }, "-=0.4");
 
-    // ★ 1. 各セクションのピン留め＆順次出現（飛ばされないアニメーション）
-    const pinSections = document.querySelectorAll('#concept, #gallery, #future');
-    pinSections.forEach((sec) => {
-        const elements = sec.querySelectorAll('.js-scroll, .gallery-item, .blog-card');
-        if(elements.length === 0) return;
-
-        // 初期状態を透明・下にセット
-        gsap.set(elements, { opacity: 0, y: 50 });
-
-        // セクションが画面中央に来たら画面をロック（Pin）する
-        let st = gsap.timeline({
-            scrollTrigger: {
-                trigger: sec,
-                start: "center center", 
-                end: () => "+=" + (elements.length * 300), // 要素が多いほどロック期間を長くする
-                pin: true,
-                scrub: 1, // スクロール量に完全連動（飛ばされない）
-            }
-        });
-
-        // スクロールに合わせて要素を順番にフワッと出す
-        elements.forEach((el, i) => {
-            st.to(el, { opacity: 1, y: 0, duration: 1, ease: "power2.out" }, i * 0.8);
-        });
-        // 全部出終わったあとの「タメ（余白）」
-        st.to({}, {duration: 0.5});
-    });
-
-    // ★ 2. The Experiment タイムラインの横スクロール化
-    const timelineWrapper = document.getElementById("timeline-wrapper");
-    const timelineContainer = document.getElementById("timeline-container");
+    // ★ 1. タイムラインの横スクロール化（ここだけ画面をロック）
+    const timelineWrapper = document.getElementById("h-timeline-wrapper");
+    const timelineContainer = document.getElementById("h-timeline-container");
     
     if (timelineWrapper && timelineContainer) {
         gsap.to(timelineContainer, {
-            // 中身の横幅分だけ左にスライドさせる
             x: () => -(timelineContainer.scrollWidth - window.innerWidth),
             ease: "none",
             scrollTrigger: {
                 trigger: timelineWrapper,
-                start: "center center",
-                end: () => "+=" + timelineContainer.scrollWidth, // 横幅の分だけ縦にスクロールさせる
-                pin: true, // 画面をロック
-                scrub: 1   // スクロールに完全連動
+                start: "center center", // 画面中央でピン留め開始
+                end: () => "+=" + (timelineContainer.scrollWidth - window.innerWidth), // 横幅の分だけスクロールさせる
+                pin: true,
+                scrub: 0.5 // スクロール連動
             }
         });
     }
 
-    // ★ 3. その他の要素（画像ズームなど）もスクラブ連動に変更
-    const parallaxImages = document.querySelectorAll(".gallery-item img, .timeline-img, .exp-card img");
-    parallaxImages.forEach((img) => {
-        gsap.fromTo(img, 
-            { scale: 1.3 },
+    // ★ 2. 各要素のスクロール連動出現（アニメーションが飛ばされないようにする）
+    const revealElements = document.querySelectorAll(".section-title, .lead-text, .exp-card, .gallery-item, .blog-card");
+    revealElements.forEach((elem) => {
+        gsap.fromTo(elem, 
+            { opacity: 0, y: 50 },
             { 
-                scale: 1.0, 
+                opacity: 1, 
+                y: 0, 
                 ease: "power2.out",
                 scrollTrigger: {
-                    trigger: img.parentElement,
-                    start: "top bottom",
-                    end: "center center",
-                    scrub: 1 // スクロール量に合わせてズームが直る
+                    trigger: elem,
+                    start: "top 90%",
+                    end: "center 75%",
+                    scrub: 1 // ★スクラブをONにすることで、早くスクロールしても必ずアニメーションが再生される
                 }
             }
         );
