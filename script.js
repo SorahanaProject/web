@@ -343,8 +343,23 @@ function updateHUD(scrollTop) {
 
 // === 5. Utility Functions ===
 function initLanguageSettings() {
-    const savedLang = localStorage.getItem('lang') || 'ja';
+    // 過去にユーザーが手動で選んだ言語があるかチェック
+    let savedLang = localStorage.getItem('lang');
+    
+    // 初回アクセス時：ブラウザの言語設定から自動判定
+    if (!savedLang) {
+        const browserLang = (navigator.language || navigator.userLanguage).toLowerCase();
+        // 日本語（ja, ja-JPなど）以外はすべて英語モードにする
+        if (browserLang.startsWith('ja')) {
+            savedLang = 'ja';
+        } else {
+            savedLang = 'en';
+        }
+        localStorage.setItem('lang', savedLang);
+    }
+
     if (savedLang === 'en') document.body.classList.add('en');
+    
     const langBtn = document.getElementById('langBtn');
     if (langBtn) { 
         langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
@@ -694,24 +709,28 @@ function triggerBalloonBurst() {
     }, 2000); 
 }
 
+// === 第2段階：対流圏界面（11,000m）突破時の演出発動関数 ===
 function triggerTroposphereEntry() {
     const frost = document.getElementById('frost-overlay');
     const altDisplay = document.getElementById('live-altitude');
     const tempDisplay = document.getElementById('hud-temp-val');
 
+    // 1. 霜エフェクト（白くなる）を一瞬で表示
     if (frost) frost.classList.add('active');
-    document.body.classList.add('sys-glitch');
 
+    // 2. 計器（高度と温度）をランダムな記号にして文字化けさせる
     let glitchInterval = setInterval(() => {
         if(altDisplay) altDisplay.innerText = Math.random().toString(36).substring(2, 7).toUpperCase();
         if(tempDisplay) tempDisplay.innerText = "!#*@?";
     }, 50);
 
+    // --- 復旧処理 ---
+    // 0.5秒後に計器の文字化けを終了（計器の正常化は updateHUD が自動で行います）
     setTimeout(() => {
         clearInterval(glitchInterval);
-        document.body.classList.remove('sys-glitch');
     }, 500);
 
+    // 1.5秒後に霜がじんわりと溶ける
     setTimeout(() => {
         if (frost) frost.classList.remove('active');
     }, 1500);
