@@ -119,14 +119,14 @@ function initSiteAnimations() {
     
     if (timelineWrapper && timelineContainer) {
         gsap.to(timelineContainer, {
-            x: () => -(timelineContainer.scrollWidth - window.innerWidth),
+            // ★ スマホでの余白ズレを防ぐため、画面幅の計算方法を変更
+            x: () => -(timelineContainer.scrollWidth - document.documentElement.clientWidth),
             ease: "none",
             scrollTrigger: {
                 trigger: timelineWrapper,
                 start: "center center", 
-                end: () => "+=" + (timelineContainer.scrollWidth - window.innerWidth),
+                end: () => "+=" + (timelineContainer.scrollWidth - document.documentElement.clientWidth),
                 pin: true,
-                // 数値を外し「true」にすることで遅延をなくし、イライラを解消
                 scrub: true 
             }
         });
