@@ -735,7 +735,6 @@ function triggerTroposphereEntry() {
         if (frost) frost.classList.remove('active');
     }, 1500);
 }
-// --- script.js の一番最後に追加 ---
 
 // === タイムラインのドラッグスクロール機能（PC用） ===
 function initTimelineDrag() {
