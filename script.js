@@ -1,16 +1,43 @@
 // --- START OF FILE script.js ---
 
-// --- KMLフライトデータ（降下フェーズの完全な実データ） ---
-const FLIGHT_DATA =[
-    { progress: 0.00, alt: 25346, lat: 33.399596, lon: 135.489921 }, 
-    { progress: 0.15, alt: 23187, lat: 33.402246, lon: 135.488483 }, 
-    { progress: 0.45, alt: 12937, lat: 33.394521, lon: 135.663106 }, 
-    { progress: 0.65, alt: 9236,  lat: 33.420206, lon: 135.835711 }, 
-    { progress: 0.80, alt: 6348,  lat: 33.460986, lon: 135.972568 }, 
-    { progress: 0.90, alt: 3899,  lat: 33.454710, lon: 136.034388 }, 
-    { progress: 0.96, alt: 1606,  lat: 33.453411, lon: 136.049366 }, 
-    { progress: 1.00, alt: 0,     lat: 33.449765, lon: 136.054945 }  
+// --- KMLフライトデータ（全データ完全網羅） ---
+// 上昇フェーズ (地上 〜 最高到達点)
+const ASCENT_DATA =[
+    { progress: 0.000, alt: 86,    lat: 33.2870, lon: 134.1579 }, 
+    { progress: 0.028, alt: 88,    lat: 33.2870, lon: 134.1579 }, 
+    { progress: 0.585, alt: 305,   lat: 33.2868, lon: 134.1557 }, 
+    { progress: 0.612, alt: 1756,  lat: 33.2951, lon: 134.1596 }, 
+    { progress: 0.640, alt: 3230,  lat: 33.2900, lon: 134.1708 }, 
+    { progress: 0.668, alt: 4573,  lat: 33.2704, lon: 134.1832 }, 
+    { progress: 0.695, alt: 5892,  lat: 33.2668, lon: 134.2450 }, 
+    { progress: 0.723, alt: 7364,  lat: 33.3069, lon: 134.3705 }, 
+    { progress: 0.750, alt: 8755,  lat: 33.3532, lon: 134.5146 }, 
+    { progress: 0.778, alt: 10135, lat: 33.3821, lon: 134.6656 }, 
+    { progress: 0.806, alt: 11551, lat: 33.4052, lon: 134.8371 }, 
+    { progress: 0.833, alt: 13058, lat: 33.4331, lon: 135.0205 }, 
+    { progress: 0.861, alt: 14653, lat: 33.4321, lon: 135.1968 }, 
+    { progress: 0.888, alt: 16437, lat: 33.4251, lon: 135.3622 }, 
+    { progress: 0.916, alt: 18492, lat: 33.4202, lon: 135.4623 }, 
+    { progress: 0.943, alt: 20749, lat: 33.4246, lon: 135.4868 }, 
+    { progress: 0.971, alt: 23084, lat: 33.4123, lon: 135.5055 }, 
+    { progress: 1.000, alt: 25346, lat: 33.3996, lon: 135.4899 } 
 ];
+
+// 降下フェーズ (最高到達点 〜 海上着水)
+const DESCENT_DATA =[
+    { progress: 0.000, alt: 25346, lat: 33.3996, lon: 135.4899 }, 
+    { progress: 0.130, alt: 23187, lat: 33.4022, lon: 135.4885 }, 
+    { progress: 0.351, alt: 12937, lat: 33.3945, lon: 135.6631 }, 
+    { progress: 0.481, alt: 9237,  lat: 33.4202, lon: 135.8357 }, 
+    { progress: 0.610, alt: 6348,  lat: 33.4610, lon: 135.9726 }, 
+    { progress: 0.740, alt: 3900,  lat: 33.4547, lon: 136.0344 }, 
+    { progress: 0.870, alt: 1606,  lat: 33.4534, lon: 136.0494 }, 
+    { progress: 1.000, alt: 0,     lat: 33.4498, lon: 136.0549 }  
+];
+
+function lerp(start, end, amt) {
+    return (1 - amt) * start + amt * end;
+}
 
 function lerp(start, end, amt) {
     return (1 - amt) * start + amt * end;
@@ -156,20 +183,30 @@ function updateHUD(scrollTop) {
     const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
 
     let currentAlt = 0, currentLat = 0, currentLon = 0;
+    
+    // ★ 状態によって参照するKMLデータを切り替える
+    let dataArray = DESCENT_DATA;
+    let simPercent = scrollPercent;
 
-    for (let i = 0; i < FLIGHT_DATA.length - 1; i++) {
-        let p1 = FLIGHT_DATA[i]; 
-        let p2 = FLIGHT_DATA[i + 1];
-        if (scrollPercent >= p1.progress && scrollPercent <= p2.progress) {
-            let localPercent = (scrollPercent - p1.progress) / (p2.progress - p1.progress);
+    if (isReturningToTop) {
+        dataArray = ASCENT_DATA;
+        // ロケット上昇中は、スクロールが上に戻るにつれて 0 → 1 へと進行するように逆転させる
+        simPercent = 1.0 - scrollPercent; 
+    }
+
+    for (let i = 0; i < dataArray.length - 1; i++) {
+        let p1 = dataArray[i]; 
+        let p2 = dataArray[i + 1];
+        if (simPercent >= p1.progress && simPercent <= p2.progress) {
+            let localPercent = (simPercent - p1.progress) / (p2.progress - p1.progress);
             currentAlt = lerp(p1.alt, p2.alt, localPercent);
             currentLat = lerp(p1.lat, p2.lat, localPercent);
             currentLon = lerp(p1.lon, p2.lon, localPercent);
             break;
         }
     }
-    if (scrollPercent >= 1.0) {
-        let lastObj = FLIGHT_DATA[FLIGHT_DATA.length - 1];
+    if (simPercent >= 1.0) {
+        let lastObj = dataArray[dataArray.length - 1];
         currentAlt = lastObj.alt; currentLat = lastObj.lat; currentLon = lastObj.lon;
     }
 
