@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initStarfield();
     initTelemetryStream();
     initWaveformGraph();
+    initTimelineDrag();
 });
 
 // === 1. Lenis & GSAP ScrollTrigger Setup ===
@@ -119,7 +120,6 @@ function initSiteAnimations() {
     
     if (timelineWrapper && timelineContainer) {
         gsap.to(timelineContainer, {
-            // ★ スマホでの余白ズレを防ぐため、画面幅の計算方法を変更
             x: () => -(timelineContainer.scrollWidth - document.documentElement.clientWidth),
             ease: "none",
             scrollTrigger: {
@@ -734,4 +734,40 @@ function triggerTroposphereEntry() {
     setTimeout(() => {
         if (frost) frost.classList.remove('active');
     }, 1500);
+}
+// --- script.js の一番最後に追加 ---
+
+// === タイムラインのドラッグスクロール機能（PC用） ===
+function initTimelineDrag() {
+    const slider = document.getElementById('h-timeline-wrapper');
+    if (!slider) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        slider.style.cursor = 'grabbing';
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.style.cursor = 'grab';
+    });
+
+    slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.style.cursor = 'grab';
+    });
+
+    slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2; // スクロールする速さ（2倍）
+        slider.scrollLeft = scrollLeft - walk;
+    });
 }
