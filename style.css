@@ -731,3 +731,42 @@ body.arrival-shake-active {
     .h-timeline-img { height: 160px; margin-bottom: 15px; }
     .h-timeline::before { top: 40px; }
     .h-timeline-dot { top: 30px; width: 16px; height: 16px; }
+
+    // === タイムラインのドラッグスクロール機能（PC用） ===
+    function initTimelineDrag() {
+    const slider = document.getElementById('h-timeline-wrapper');
+    if (!slider) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        slider.style.cursor = 'grabbing';
+        // ★ドラッグ中はスナップ機能を一時的に解除（ガクガク防止）
+        slider.style.scrollSnapType = 'none';
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.style.cursor = 'grab';
+        slider.style.scrollSnapType = ''; // スナップを戻す
+    });
+
+    slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.style.cursor = 'grab';
+        slider.style.scrollSnapType = ''; // スナップを戻す
+    });
+
+    slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2; // スクロールする速さ（2倍）
+        slider.scrollLeft = scrollLeft - walk;
+    });
+}
