@@ -460,7 +460,6 @@ function initUI() {
 
     const btt = document.getElementById('back-to-top');
     const statusDisplay = document.getElementById('hud-status');
-    const starfieldCanvas = document.getElementById('starfield');
 
     if(btt) btt.addEventListener('click', (e) => {
         e.preventDefault(); 
@@ -473,14 +472,15 @@ function initUI() {
             statusDisplay.classList.remove("ok");
             statusDisplay.classList.add("high-load");
         }
-        if (starfieldCanvas) starfieldCanvas.classList.add("warp-speed");
 
+        // Lenisを使って等速で5秒間かけて上昇
         if(typeof window.lenis !== 'undefined' && window.lenis) {
             window.lenis.scrollTo(0, { duration: 5, easing: (t) => t }); 
         } else {
             window.scrollTo({top:0, behavior:'smooth'});
         }
         
+        // 5秒後（トップ到着時）の処理
         setTimeout(() => { 
             isReturningToTop = false; 
             
@@ -489,8 +489,8 @@ function initUI() {
                 statusDisplay.classList.remove("high-load");
                 statusDisplay.classList.add("ok");
             }
-            if (starfieldCanvas) starfieldCanvas.classList.remove("warp-speed");
 
+            // 到着時の衝撃（カメラシェイク）を発動
             document.body.classList.add("arrival-shake-active");
             setTimeout(() => {
                 document.body.classList.remove("arrival-shake-active");
@@ -620,12 +620,12 @@ function initStarfield() {
 
     function animate() {
         ctx.clearRect(0, 0, width, height);
-        const isWarping = canvas.classList.contains('warp-speed');
         const scrollVel = window.lenis ? window.lenis.velocity : 0;
         ctx.fillStyle = '#fff';
         
         stars.forEach(star => {
-            let speed = isWarping ? 30 : (0.2 + scrollVel * 0.05);
+            // スクロール速度のみに連動
+            let speed = 0.2 + scrollVel * 0.05;
             star.y -= speed * star.z;
             
             if (star.y < 0) { star.y = height; star.x = Math.random() * width; }
@@ -633,11 +633,8 @@ function initStarfield() {
             
             ctx.globalAlpha = star.alpha; 
             ctx.beginPath(); 
-            if (isWarping) { 
-                ctx.ellipse(star.x, star.y, star.z * 0.8, star.z * 15, 0, 0, Math.PI * 2); 
-            } else { 
-                ctx.arc(star.x, star.y, star.z * 0.8, 0, Math.PI * 2); 
-            }
+            // 常に通常の丸い星を描画
+            ctx.arc(star.x, star.y, star.z * 0.8, 0, Math.PI * 2); 
             ctx.fill();
         });
         requestAnimationFrame(animate);
