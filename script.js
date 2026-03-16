@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initStarfield();
     initTelemetryStream();
     initWaveformGraph();
-    initTimelineDrag();
+    initTimelineDrag(); // ドラッグ機能の起動
 });
 
 // === 1. Lenis & GSAP ScrollTrigger Setup ===
@@ -104,7 +104,7 @@ function initBootSequence() {
     }, 50);
 }
 
-// === 3. GSAP Site Animations (ハイブリッド＆ストレスフリー仕様) ===
+// === 3. GSAP Site Animations ===
 function initSiteAnimations() {
     initTextScramble();
 
@@ -114,38 +114,22 @@ function initSiteAnimations() {
       .from(".hero-content .hero-desc", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
       .from(".scroll-down", { y: -20, opacity: 0, duration: 0.8 }, "-=0.4");
 
-    // ★ 1. タイムラインの横スクロール化（操作感をダイレクトに）
-    const timelineWrapper = document.getElementById("h-timeline-wrapper");
-    const timelineContainer = document.getElementById("h-timeline-container");
-    
-    if (timelineWrapper && timelineContainer) {
-        gsap.to(timelineContainer, {
-            x: () => -(timelineContainer.scrollWidth - document.documentElement.clientWidth),
-            ease: "none",
-            scrollTrigger: {
-                trigger: timelineWrapper,
-                start: "center center", 
-                end: () => "+=" + (timelineContainer.scrollWidth - document.documentElement.clientWidth),
-                pin: true,
-                scrub: true 
-            }
-        });
-    }
+    // ★修正: バッティングしていたGSAPのタイムライン横スクロール処理を完全に削除しました
 
-    // ★ 2. 各要素の出現（スクラブをやめ、時間ベースの素早いアニメーションに変更）
+    // 各要素の出現（時間ベースの素早いアニメーションに変更）
     const revealElements = document.querySelectorAll(".section-title, .lead-text, .exp-card, .gallery-item, .blog-card");
     revealElements.forEach((elem) => {
         gsap.fromTo(elem, 
-            { opacity: 0, y: 40 }, // 移動距離を50から40に減らして機敏に
+            { opacity: 0, y: 40 }, 
             { 
                 opacity: 1, 
                 y: 0, 
-                duration: 0.6, // ★アニメーション時間を短縮して「見逃し」を防ぐ
+                duration: 0.6, 
                 ease: "power2.out",
                 scrollTrigger: {
                     trigger: elem,
-                    start: "top 95%", // ★画面に少しでも入ったら即座に発動させる
-                    once: true // 一度出たらそのまま
+                    start: "top 95%", 
+                    once: true 
                 }
             }
         );
@@ -325,13 +309,11 @@ function updateHUD(scrollTop) {
     
     const btt = document.getElementById('back-to-top');
     if(btt) {
-        // トップページにいる時はロケットを非表示にする
         if (scrollTop > hero.offsetHeight * 0.5) {
             btt.classList.add('show');
         } else {
             btt.classList.remove('show');
         }
-        
         const maxTop = Math.max(0, window.innerHeight - 150); 
         const currentTop = 30 + scrollPercent * maxTop;
         btt.style.top = `${currentTop}px`;
@@ -343,21 +325,12 @@ function updateHUD(scrollTop) {
 
 // === 5. Utility Functions ===
 function initLanguageSettings() {
-    // 過去にユーザーが手動で選んだ言語があるかチェック
     let savedLang = localStorage.getItem('lang');
-    
-    // 初回アクセス時：ブラウザの言語設定から自動判定
     if (!savedLang) {
         const browserLang = (navigator.language || navigator.userLanguage).toLowerCase();
-        // 日本語（ja, ja-JPなど）以外はすべて英語モードにする
-        if (browserLang.startsWith('ja')) {
-            savedLang = 'ja';
-        } else {
-            savedLang = 'en';
-        }
+        if (browserLang.startsWith('ja')) { savedLang = 'ja'; } else { savedLang = 'en'; }
         localStorage.setItem('lang', savedLang);
     }
-
     if (savedLang === 'en') document.body.classList.add('en');
     
     const langBtn = document.getElementById('langBtn');
@@ -632,7 +605,6 @@ function initStarfield() {
         });
         requestAnimationFrame(animate);
     }
-    // ここでループ関数を呼び出してアニメーションをスタートさせる（重要！）
     animate();
 }
 
@@ -709,28 +681,22 @@ function triggerBalloonBurst() {
     }, 2000); 
 }
 
-// === 第2段階：対流圏界面（11,000m）突破時の演出発動関数 ===
 function triggerTroposphereEntry() {
     const frost = document.getElementById('frost-overlay');
     const altDisplay = document.getElementById('live-altitude');
     const tempDisplay = document.getElementById('hud-temp-val');
 
-    // 1. 霜エフェクト（白くなる）を一瞬で表示
     if (frost) frost.classList.add('active');
 
-    // 2. 計器（高度と温度）をランダムな記号にして文字化けさせる
     let glitchInterval = setInterval(() => {
         if(altDisplay) altDisplay.innerText = Math.random().toString(36).substring(2, 7).toUpperCase();
         if(tempDisplay) tempDisplay.innerText = "!#*@?";
     }, 50);
 
-    // --- 復旧処理 ---
-    // 0.5秒後に計器の文字化けを終了（計器の正常化は updateHUD が自動で行います）
     setTimeout(() => {
         clearInterval(glitchInterval);
     }, 500);
 
-    // 1.5秒後に霜がじんわりと溶ける
     setTimeout(() => {
         if (frost) frost.classList.remove('active');
     }, 1500);
@@ -748,6 +714,8 @@ function initTimelineDrag() {
     slider.addEventListener('mousedown', (e) => {
         isDown = true;
         slider.style.cursor = 'grabbing';
+        // ドラッグ中はスナップを解除（ガクガク防止）
+        slider.style.scrollSnapType = 'none';
         startX = e.pageX - slider.offsetLeft;
         scrollLeft = slider.scrollLeft;
     });
@@ -755,18 +723,20 @@ function initTimelineDrag() {
     slider.addEventListener('mouseleave', () => {
         isDown = false;
         slider.style.cursor = 'grab';
+        slider.style.scrollSnapType = ''; // スナップを戻す
     });
 
     slider.addEventListener('mouseup', () => {
         isDown = false;
         slider.style.cursor = 'grab';
+        slider.style.scrollSnapType = ''; // スナップを戻す
     });
 
     slider.addEventListener('mousemove', (e) => {
         if (!isDown) return;
         e.preventDefault();
         const x = e.pageX - slider.offsetLeft;
-        const walk = (x - startX) * 2; // スクロールする速さ（2倍）
+        const walk = (x - startX) * 2; 
         slider.scrollLeft = scrollLeft - walk;
     });
 }
