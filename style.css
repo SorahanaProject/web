@@ -628,39 +628,53 @@ body.arrival-shake-active {
 
 /* === 横スクロール専用タイムライン === */
 .h-timeline-wrapper {
-    /* ★変更: hidden から auto にして横スクロールを許可 */
     overflow-x: auto; 
     overflow-y: hidden;
     width: 100vw;
     margin-left: calc(50% - 50vw);
     padding: 50px 0 100px 0;
-    
-    /* ★追加: ピタッと止まるスナップ機能と、スクロールバーを隠す設定 */
     scroll-snap-type: x mandatory;
-    scrollbar-width: none; /* Firefox用 */
-    -ms-overflow-style: none; /* IE, Edge用 */
-    cursor: grab; /* PCでドラッグできることを明示 */
+    scrollbar-width: none; /* Firefox用スクロールバー隠し */
+    -ms-overflow-style: none; /* IE, Edge用スクロールバー隠し */
+    cursor: grab;
+    -webkit-overflow-scrolling: touch; /* スマホでの滑らかなスクロール */
 }
-
-/* ★追加: Chrome, Safari用のスクロールバー非表示 */
 .h-timeline-wrapper::-webkit-scrollbar {
-    display: none;
+    display: none; /* Chrome, Safari用スクロールバー隠し */
 }
 
-/* ... (.h-timeline と .h-timeline::before はそのままいじらない) ... */
-
+.h-timeline {
+    /* ★明示的に横並び・折り返し禁止を指定 */
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    width: max-content !important;
+    padding: 0 calc(50vw - 240px); 
+    align-items: flex-start;
+    position: relative;
+}
+.h-timeline::before {
+    content: '';
+    position: absolute;
+    top: 50px; 
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+    z-index: 1;
+}
 .h-timeline-item {
     width: 400px;
-    flex-shrink: 0;
+    /* ★絶対に縮まない・折り返さない設定 */
+    flex: 0 0 auto !important; 
     margin: 0 40px; 
     position: relative;
     z-index: 2;
-    /* ★追加: カードが画面の中央でピタッと止まるようにする */
-    scroll-snap-align: center; 
+    scroll-snap-align: center; /* 画面中央でピタッと止まる */
 }
 .h-timeline-dot {
     position: absolute;
-    top: 40px; /* 点の位置 */
+    top: 40px; 
     left: 50%;
     transform: translateX(-50%);
     width: 22px;
@@ -671,7 +685,7 @@ body.arrival-shake-active {
     z-index: 3;
 }
 .h-timeline-content {
-    margin-top: 80px; /* 線と点の下にカードを配置 */
+    margin-top: 80px; 
     background: var(--glass-bg);
     backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
@@ -696,10 +710,24 @@ body.arrival-shake-active {
 .h-timeline-content h3 {
     margin-top: 0; letter-spacing: 0.1em;
 }
+
 @media (max-width: 768px) {
-    /* ★追加: スマホ用の完璧な中央揃え計算（カード幅150px ＋ マージン20px を引く） */
-    .h-timeline {
-        padding: 0 calc(50vw - 170px);
+    /* 横スクロールタイムラインのスマホ最適化 */
+    .h-timeline-wrapper {
+        /* ★スマホでも画面幅いっぱいまで広げてスクロールできるようにする */
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        padding: 40px 0 60px 0;
     }
-    .h-timeline-item { width: 300px; margin: 0 20px; }
-}
+    .h-timeline {
+        /* カード幅の半分(150px) + マージン(20px) を引いてど真ん中に */
+        padding: 0 calc(50vw - 170px); 
+    }
+    .h-timeline-item { 
+        width: 300px; 
+        margin: 0 20px; 
+    }
+    .h-timeline-content { padding: 20px; margin-top: 60px; text-align: left; } 
+    .h-timeline-img { height: 160px; margin-bottom: 15px; }
+    .h-timeline::before { top: 40px; }
+    .h-timeline-dot { top: 30px; width: 16px; height: 16px; }
