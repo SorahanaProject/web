@@ -460,6 +460,22 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
         .name-cell { font-size: 1.1rem; }
     }
 
+/* PCでのみ改行する（スマホでは改行が消える） */
+.br-pc { display: block; }
+/* スマホでのみ改行する（PCでは改行が消える） */
+.br-sp { display: none; }
+
+@media (max-width: 768px) {
+    .br-pc { display: none; }
+    .br-sp { display: inline; } /* inlineにすることで自然な改行になる */
+}
+
+/* ★最新ブラウザ向けの改行自動最適化機能 */
+h1, h2, h3, p.lead-text, p.hero-desc {
+    /* テキストの折り返し位置をブラウザが自動で美しく（均等に）バランス調整してくれます */
+    text-wrap: balance; 
+}
+
 /* =========================================
    ADDITION: Starfield & Background Effects
    ========================================= */
