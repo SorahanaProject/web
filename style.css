@@ -371,30 +371,57 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     /* 背景エフェクトを非表示 */
     .bg-telemetry, .bg-waveform { display: none; }
 
-    /* セクションの横揺れ（はみ出し）防止対策 */
-    section { padding: 80px 0; }
-    .container { padding: 0 15px; }
+    /* ★修正: セクションのパディングを元に戻し、全体の崩れ（左寄り）を直す */
+    section { padding: 80px 15px; }
 
-    .section-title { font-size: 2rem; margin-bottom: 40px; }
+    .section-title { font-size: 2.2rem; margin-bottom: 40px; text-align: center; }
 
-    /* トップ画面の調整 */
-    .hero { justify-content: center; text-align: center; }
-    .hero-content { max-width: 95%; margin-right: 0; padding: 30px 15px; background: rgba(0,0,0,0.6); border-left: none; border-bottom: 3px solid var(--accent-color); }
+    /* トップ画面の調整（確実に中央揃えにする） */
+    .hero { justify-content: center; align-items: center; text-align: center; }
+    .hero-content { 
+        max-width: 95%; 
+        margin: 0 auto; 
+        padding: 30px 15px; 
+        background: rgba(0,0,0,0.6); 
+        border-left: none; 
+        border-bottom: 3px solid var(--accent-color); 
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+        text-align: center; 
+    }
+    .hero-content .data-tag, .hero h1, .hero-desc { text-align: center; width: 100%; justify-content: center; }
     .hero h1 span[lang="ja"] { font-size: 1.8rem; }
     
-    /* 横スクロールタイムラインのスマホ最適化 */
+    /* ★修正: 横スクロールタイムラインのスマホ最適化（絶対に縦に落ちないように強制） */
     .h-timeline-wrapper {
-        width: 100%;
-        margin-left: 0;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
         padding: 40px 0 60px 0;
+        /* スマホで横スワイプを許可する */
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        scroll-snap-type: x mandatory !important;
     }
     .h-timeline {
-        /* カードの幅(280pxの半分=140) + マージン(20) = 160pxを引いてど真ん中に配置 */
-        padding: 0 calc(50vw - 160px); 
+        /* スマホでも絶対に縦並びさせないための念押し */
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        width: max-content !important;
+        /* カード幅の半分(150px) + マージン(15px) を引いてど真ん中に配置 */
+        padding: 0 calc(50vw - 165px) !important; 
     }
-    .h-timeline-item { width: 280px; margin: 0 20px; }
-    .h-timeline-content { padding: 20px; margin-top: 60px; }
-    .h-timeline-img { height: 160px; margin-bottom: 15px; }
+    .h-timeline-item { 
+        width: 300px !important; 
+        flex: 0 0 auto !important; /* カードが縮むのを防ぐ */
+        margin: 0 15px !important; 
+        scroll-snap-align: center !important; /* 画面中央でピタッと止める */
+    }
+    .h-timeline-content { padding: 20px; margin-top: 60px; text-align: left; } 
+    /* スマホで画像が長押しされてスワイプの邪魔になるのを防ぐ */
+    .h-timeline-img { height: 160px; margin-bottom: 15px; pointer-events: none; }
     .h-timeline::before { top: 40px; }
     .h-timeline-dot { top: 30px; width: 16px; height: 16px; }
     
@@ -419,7 +446,7 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     nav.active { right: 0; } nav ul { flex-direction: column; text-align: center; gap: 30px; }
     
     /* お問い合わせリンクの幅調整 */
-    .email-link { font-size: 1rem; padding: 15px 25px; width: 90%; }
+    .email-link { font-size: 1rem; padding: 15px 25px; width: 90%; text-align: center; display: block; margin: 0 auto; }
 }
 
 /* =========================================
