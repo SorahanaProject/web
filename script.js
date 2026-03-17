@@ -158,21 +158,22 @@ function initSiteAnimations() {
                 }
             }
         );
+    }); // ★追加: ここで forEach を閉じます
         
-        // タイムラインが見えた瞬間に「少し横に揺らして」スクロール可能であることを暗示する
-        ScrollTrigger.create({
-            trigger: "#h-timeline-wrapper",
-            start: "top 70%", // 画面の70%の高さに入ったら発動
-            once: true,
-            onEnter: () => {
-                gsap.fromTo("#h-timeline-container", 
-                    { x: 0 }, 
-                    // 左に50px動いてから、0.6秒かけて元の位置に戻る（往復アニメーション）
-                    { x: -50, duration: 0.6, yoyo: true, repeat: 1, ease: "power2.inOut", delay: 0.5 }
-                );
-            }
-        });
-    }
+    // タイムラインが見えた瞬間に「少し横に揺らして」スクロール可能であることを暗示する
+    ScrollTrigger.create({
+        trigger: "#h-timeline-wrapper",
+        start: "top 70%", // 画面の70%の高さに入ったら発動
+        once: true,
+        onEnter: () => {
+            gsap.fromTo("#h-timeline-container", 
+                { x: 0 }, 
+                // 左に50px動いてから、0.6秒かけて元の位置に戻る（往復アニメーション）
+                { x: -50, duration: 0.6, yoyo: true, repeat: 1, ease: "power2.inOut", delay: 0.5 }
+            );
+        }
+    });
+}
 
 // === 4. HUD Simulator Logic ===
 let lastScrollTop = 0;
