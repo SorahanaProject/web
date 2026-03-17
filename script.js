@@ -141,9 +141,7 @@ function initSiteAnimations() {
       .from(".hero-content .hero-desc", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
       .from(".scroll-down", { y: -20, opacity: 0, duration: 0.8 }, "-=0.4");
 
-    // ★修正: バッティングしていたGSAPのタイムライン横スクロール処理を完全に削除しました
-
-    // 各要素の出現（時間ベースの素早いアニメーションに変更）
+    // 各要素の出現（時間ベースの素早いアニメーション）
     const revealElements = document.querySelectorAll(".section-title, .lead-text, .exp-card, .gallery-item, .blog-card");
     revealElements.forEach((elem) => {
         gsap.fromTo(elem, 
