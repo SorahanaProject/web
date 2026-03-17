@@ -365,8 +365,6 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
 }
 
 /* === 10. Mobile Responsive === */
-/* （1200pxの設定はそのまま残し、768pxの方だけを書き換えます） */
-
 @media (max-width: 768px) {
     /* 背景エフェクトを非表示 */
     .bg-telemetry, .bg-waveform { display: none; }
@@ -452,7 +450,15 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     
     /* お問い合わせリンクの幅調整 */
     .email-link { font-size: 1rem; padding: 15px 25px; width: 90%; text-align: center; display: block; margin: 0 auto; }
-}
+    .supporters-box { padding: 30px 20px; }
+    .credit-row { 
+            grid-template-columns: 1fr !important; /* 左右分割をやめて縦1列にする */
+            gap: 5px !important; /* 役割と名前の隙間を詰める */
+            padding: 15px 10px !important; 
+        }
+        .role-cell { font-size: 0.9rem; opacity: 0.8; }
+        .name-cell { font-size: 1.1rem; }
+    }
 
 /* =========================================
    ADDITION: Starfield & Background Effects
