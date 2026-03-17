@@ -741,6 +741,9 @@ function initTimelineDrag() {
     const slider = document.getElementById('h-timeline-wrapper');
     if (!slider) return;
 
+    // ★追加: スマホやタブレットでは自作のドラッグを無効化し、ネイティブの横スワイプに任せる
+    if (window.innerWidth <= 768) return;
+
     let isDown = false;
     let startX;
     let scrollLeft;
