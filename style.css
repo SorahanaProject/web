@@ -403,6 +403,11 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
         overflow-y: hidden !important;
         -webkit-overflow-scrolling: touch !important;
         scroll-snap-type: x mandatory !important;
+        touch-action: pan-x pan-y !important;
+        
+        /* ★この2行を追加：スマホは画面が狭いのでマスクの範囲を少し狭める */
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%) !important;
+        mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%) !important;
     }
     .h-timeline {
         /* スマホでも絶対に縦並びさせないための念押し */
@@ -661,10 +666,14 @@ body.arrival-shake-active {
     margin-left: calc(50% - 50vw);
     padding: 50px 0 100px 0;
     scroll-snap-type: x mandatory;
-    scrollbar-width: none; /* Firefox用スクロールバー隠し */
-    -ms-overflow-style: none; /* IE, Edge用スクロールバー隠し */
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
     cursor: grab;
-    -webkit-overflow-scrolling: touch; /* スマホでの滑らかなスクロール */
+    -webkit-overflow-scrolling: touch; 
+    
+    /* ★この2行を追加：左右の端をグラデーションで薄くして「続き」を暗示する */
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
 }
 .h-timeline-wrapper::-webkit-scrollbar {
     display: none; /* Chrome, Safari用スクロールバー隠し */
