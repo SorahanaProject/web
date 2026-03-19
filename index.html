@@ -121,6 +121,7 @@
             
             <div class="hud-label" style="margin-top:15px;">PRESSURE</div>
             <div class="hud-value" style="font-size: 1.2rem; color: #ccc;">
+                <!-- smallタグに id="hud-pres-unit" を追加 -->
                 <span id="hud-pres-val">24</span><small id="hud-pres-unit"> hPa</small>
             </div>
             
@@ -303,24 +304,22 @@
                     <img src="images/story.jpg" alt="UVカットフィルムと透湿防水シートを備えたSorahana Projectの特別コンテナ">
                     <div class="exp-caption"><h3>Special Container</h3></div>
                 </div>
-        <div class="exp-card map-container">
-            <!-- 【修正】タイトルと高度情報を地図の上に配置 -->
-            <div class="exp-caption map-top-caption">
-                <h3>Flight Trajectory</h3>
-                <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
-            </div>
-        
-            <!-- 地図本体のラッパー（操作説明をこの中に絶対配置する） -->
-            <div class="map-view-wrapper">
-                <div id="flight-3d-map"></div>
-                
-                <!-- 【修正】操作説明を地図内に配置し、多言語対応にする -->
-                <div class="map-hint" style="pointer-events:none;">
-                    <span lang="ja">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</span>
-                    <span lang="en">[ Drag to rotate / Ctrl+Drag to tilt ]</span>
+            <div class="exp-card map-container">
+                <!-- 追加：地図の「上」に表示されるタイトルエリア -->
+                <div class="map-top-title">
+                    <h3>Flight Trajectory</h3>
+                    <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
+                </div>
+            
+                <!-- 地図本体の枠 -->
+                <div class="map-view-wrapper">
+                    <div id="flight-3d-map"></div>
+                    <div class="map-hint">
+                        <span lang="ja">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</span>
+                        <span lang="en">[ Drag to rotate / Ctrl+Drag to tilt ]</span>
+                    </div>
                 </div>
             </div>
-        </div>
                 
             <div class="comparison-section js-scroll">
                 <h3>Visualizing the Change</h3>
