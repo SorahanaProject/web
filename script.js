@@ -825,7 +825,6 @@ function init3DFlightMap() {
                 id: 'poi-pillars',
                 data: [
                     { position:[134.157893, 33.287018], elevation: 1000, color:[255, 255, 255, 150] }, 
-                    { position:[135.489921, 33.399596], elevation: 25054 * 2, color:[212, 175, 55, 255] }, 
                     { position:[136.054945, 33.449765], elevation: 1000, color:[255, 51, 51, 150] } 
                 ],
                 diskResolution: 12,
