@@ -811,3 +811,74 @@ body.arrival-shake-active {
     z-index: 10;
     text-shadow: 0 0 5px #000;
 }
+
+/* --- 1. 3Dマップの文字を下に配置する設定 --- */
+.map-container {
+    display: flex;
+    flex-direction: column;
+    height: auto !important; /* 中身に合わせて伸びるようにする */
+}
+
+#flight-3d-map {
+    position: relative; /* absolute（重なり）を解除 */
+    width: 100%;
+    height: 400px; /* PCでの地図の高さ */
+    border-radius: 12px 12px 0 0; /* 上側だけ丸める */
+}
+
+.map-details {
+    padding: 20px;
+    background: rgba(20, 20, 20, 0.5); /* 文字の背景を少し暗くして読みやすく */
+    border-radius: 0 0 12px 12px; /* 下側を丸める */
+}
+
+.map-details .exp-caption {
+    position: static !important; /* 地図に重なっていた設定を無効化 */
+    padding: 0;
+}
+
+.map-details .map-hint {
+    position: static !important;
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: var(--hud-color);
+}
+
+/* --- 2. 比較スライダーのサイズ調整（レスポンシブ） --- */
+
+/* スライダー全体の枠を定義 */
+.compare-container {
+    width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+/* 画像を枠いっぱいに表示し、Gallery等とアスペクト比を合わせる */
+.compare-container .img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 画像を切り抜いてフィットさせる */
+}
+
+/* PC：Special Container（1つ上のカード）と同じサイズ感にする */
+@media (min-width: 1025px) {
+    .comparison-section {
+        max-width: 100%; /* 親の experiment-vertical-view の幅に合わせる */
+        margin-top: 40px;
+    }
+    .compare-container {
+        aspect-ratio: 16 / 9; /* Special Containerと同じ横長比率 */
+    }
+}
+
+/* スマホ：Galleryの画像サイズに合わせる */
+@media (max-width: 768px) {
+    #flight-3d-map {
+        height: 300px; /* スマホでは地図を少し低くする */
+    }
+    .compare-container {
+        /* Galleryが正方形なら 1/1、横長なら 4/3 などに調整してください */
+        aspect-ratio: 4 / 3; 
+    }
+}
