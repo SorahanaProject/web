@@ -789,6 +789,7 @@ body.arrival-shake-active {
     .h-timeline-img { height: 160px; margin-bottom: 15px; }
     .h-timeline::before { top: 40px; }
     .h-timeline-dot { top: 30px; width: 16px; height: 16px; }
+    }
 
 /* === 3D Flight Map === */
 .exp-card.map-container {
