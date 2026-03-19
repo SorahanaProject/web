@@ -789,7 +789,7 @@ function initTimelineDrag() {
     });
 }
 
-// === 3Dフライトトラッカー（Deck.gl） ===
+// === 3Dフライトトラッカー（Deck.gl）自動フィット版 ===
 function init3DFlightMap() {
     const container = document.getElementById('flight-3d-map');
     if (!container) return;
@@ -797,20 +797,48 @@ function init3DFlightMap() {
     // KMLの実データ
     const MAP_FLIGHT_PATH = [[134.157893, 33.287018, 85.69],[134.157915, 33.286996, 87.73],[134.155705, 33.286825, 305.46],[134.159631, 33.295065, 1756.35],[134.170768, 33.290033, 3230.36],[134.183150, 33.270356, 4572.89],[134.244968, 33.266795, 5891.76],[134.370496, 33.306920, 7364.11],[134.514606, 33.353151, 8755.08],[134.665581, 33.382055, 10134.90],[134.837093, 33.405196, 11550.92],[135.020491, 33.433081, 13057.94],[135.196810, 33.432083, 14652.58],[135.362183, 33.425141, 16437.47],[135.462263, 33.420216, 18492.02],[135.486788, 33.424595, 20748.52],[135.505456, 33.412331, 23084.25],[135.489921, 33.399596, 25054.33],[135.488483, 33.402246, 23187.45],[135.663106, 33.394521, 12937.26],[135.835711, 33.420206, 9236.70],[135.972568, 33.460986, 6348.01],[136.034388, 33.454710, 3899.90],[136.049366, 33.453411, 1606.17],[136.054945, 33.449765, 0]];
 
+    // --- 画面サイズに合わせてカメラを自動計算 ---
+    const width = container.clientWidth || window.innerWidth;
+    const height = container.clientHeight || 450;
+
+    // フライトデータ全体を囲む四角形（Bounding Box）: [最小経度, 最小緯度],[最大経度, 最大緯度]
+    const bounds = [
+        [134.155, 33.266], // 始点付近の南西の端
+        [136.055, 33.461]  // 終点付近の北東の端
+    ];
+
+    // デフォルトのカメラ設定
+    let viewState = {
+        longitude: 135.1,
+        latitude: 33.3,
+        zoom: 8.2, 
+        pitch: 60,
+        bearing: -20
+    };
+
+    try {
+        // deck.gl のビューポート計算機能を使って、画面サイズにぴったり収まるzoomと中心座標を取得
+        const viewport = new deck.WebMercatorViewport({ width, height });
+        
+        // 画面の端からどれくらい余白を空けるか（スマホは狭め、PCは広め）
+        const padding = window.innerWidth <= 768 ? 20 : 60;
+        const fitted = viewport.fitBounds(bounds, { padding: padding });
+        
+        // 計算された値をカメラに適用
+        viewState.longitude = fitted.longitude;
+        viewState.latitude = fitted.latitude;
+        viewState.zoom = fitted.zoom;
+    } catch(e) {
+        console.warn("Viewport fitting failed.");
+    }
+
+    // --- マップの描画 ---
     new deck.DeckGL({
         container: container,
-        // APIキー不要のダークマップを指定
         mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
-        initialViewState: {
-            longitude: 135.15,
-            latitude: 33.35,
-            zoom: 8.2,
-            pitch: 60,
-            bearing: -20
-        },
+        initialViewState: viewState, // ★ここで自動計算したカメラをセット
         controller: true,
         layers:[
-            // フライト軌跡のアーチ
             new deck.PathLayer({
                 id: 'flight-path',
                 data:[{ path: MAP_FLIGHT_PATH }],
@@ -818,9 +846,8 @@ function init3DFlightMap() {
                 getColor:[212, 175, 55, 255],
                 getWidth: 4,
                 widthMinPixels: 3,
-                getZ: d => d[2] * 2 // 高さを2倍に強調
+                getZ: d => d[2] * 2 
             }),
-            // スタート地点とゴール地点の柱（真ん中の黄色い柱は削除）
             new deck.ColumnLayer({
                 id: 'poi-pillars',
                 data: [
