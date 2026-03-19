@@ -287,10 +287,11 @@ function updateHUD(scrollTop) {
         }
 
         if (isEnglish) {
-            // hPa から inHg への変換 (1 hPa = 0.02953 inHg)
+            // inHgに変換して小数点2桁で表示
             presDisplay.textContent = (pressure * 0.02953).toFixed(2);
             if (presUnitDisplay) presUnitDisplay.textContent = ' inHg';
         } else {
+            // 日本語の時は整数のhPa
             presDisplay.textContent = Math.round(pressure);
             if (presUnitDisplay) presUnitDisplay.textContent = ' hPa';
         }
@@ -383,22 +384,19 @@ function updateHUD(scrollTop) {
 
 // === 5. Utility Functions ===
 function initLanguageSettings() {
-    let savedLang = localStorage.getItem('lang');
-    if (!savedLang) {
-        const browserLang = (navigator.language || navigator.userLanguage).toLowerCase();
-        if (browserLang.startsWith('ja')) { savedLang = 'ja'; } else { savedLang = 'en'; }
-        localStorage.setItem('lang', savedLang);
-    }
+    let savedLang = localStorage.getItem('lang') || 'ja';
     if (savedLang === 'en') document.body.classList.add('en');
     
     const langBtn = document.getElementById('langBtn');
     if (langBtn) { 
+        // 初期表示の旗を設定
         langBtn.innerHTML = document.body.classList.contains('en') ? '🇯🇵 JP' : '🇺🇸 EN';
-        langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
+
         langBtn.addEventListener('click', () => {
             const isEn = document.body.classList.toggle('en');
             localStorage.setItem('lang', isEn ? 'en' : 'ja');
-            location.reload();
+            // 切り替え直後にページをリロードしてHUDの計算をやり直す
+            location.reload(); 
         });
     }
 }
