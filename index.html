@@ -303,17 +303,19 @@
                     <img src="images/story.jpg" alt="UVカットフィルムと透湿防水シートを備えたSorahana Projectの特別コンテナ">
                     <div class="exp-caption"><h3>Special Container</h3></div>
                 </div>
-                <div class="exp-card map-container">
-                    <div id="flight-3d-map"></div>
-                    
-                    <div class="exp-caption" style="pointer-events:none; z-index: 10;">
-                        <h3>Flight Trajectory</h3>
-                        <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
-                    </div>
-                    <!-- ユーザーに「触って回せる」ことを伝えるヒント -->
-                    <div class="map-hint" style="pointer-events:none;">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]
-                    </div>
+                <!-- 修正後：文字を地図の外（下）に出す構造 -->
+            <div class="exp-card map-container">
+                <div id="flight-3d-map"></div>
+    
+                <!-- 地図の下に表示されるキャプションエリア -->
+            <div class="map-details">
+                <div class="exp-caption">
+                    <h3>Flight Trajectory</h3>
+                    <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
                 </div>
+            <div class="map-hint">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</div>
+        </div>
+    </div>
                 
             <div class="comparison-section js-scroll">
                 <h3>Visualizing the Change</h3>
