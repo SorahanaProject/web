@@ -1,143 +1,216 @@
-/* === 0. Variables & Reset === */
+/* === 0. Font Import & Variables === */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Noto+Serif+JP:wght@300;400;600&family=Share+Tech+Mono&display=swap');
 
 :root {
+    --bg-color: #050505;
+    --text-color: #f0f0f0;
     --accent-color: #D4AF37;
-    --hud-color: rgba(212, 175, 55, 0.8);
+    --accent-glow: #F2D06B;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
     --font-jp: 'Noto Serif JP', serif;
     --font-en: 'Montserrat', sans-serif;
     --font-tech: 'Share Tech Mono', monospace;
+    --hud-color: rgba(212, 175, 55, 0.8);
+    --hud-glow: rgba(212, 175, 55, 0.4);
+    --bg-grid: rgba(255, 255, 255, 0.03);
 }
 
-/* 箇条書きの点や不要な余白を完全にリセット */
+/* === 1. Base Setup & Reset === */
 *, *::before, *::after { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: #000; color: #fff; overflow-x: hidden; font-family: var(--font-jp); }
-ul, li { list-style: none !important; margin: 0; padding: 0; }
-a { text-decoration: none; color: inherit; }
 
-/* 言語切り替え表示制御 */
-body:not(.en) [lang="en"], body.en [lang="ja"] { display: none !important; }
-
-/* === 1. Header & Navigation (崩れを直す核心部) === */
-header {
-    position: fixed; top: 0; width: 100%; padding: 20px 0; z-index: 11000;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
-    transition: 0.4s;
+html {
+    height: 100%; width: 100%; max-width: 100vw;
+    overflow-x: hidden; background: #000; overflow-y: scroll;
+    scrollbar-width: none;
 }
-header.scrolled { background: rgba(5,5,5,0.95); backdrop-filter: blur(10px); padding: 10px 0; }
+html.lenis { height: auto; }
+::-webkit-scrollbar { display: none; }
 
-.header-container {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    max-width: 1200px; margin: 0 auto; padding: 0 20px;
+body {
+    margin: 0; max-width: 100vw; overflow-x: hidden;
+    background-image: linear-gradient(to bottom, #000000 0%, #1a1a1a 100%);
+    background-attachment: fixed; color: var(--text-color);
+    font-family: var(--font-jp); font-feature-settings: "palt";
+    letter-spacing: 0.05em; position: relative; z-index: 1;
 }
 
-.logo-img { height: 45px; width: auto; }
-
-/* メニューを強制的に横並びにする */
-nav ul {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 25px;
-    align-items: center;
+/* PCのみ標準カーソルを非表示 */
+@media (min-width: 1025px) {
+    body, a, button, .exp-card, .gallery-item { cursor: none !important; }
 }
-nav a {
-    font-family: var(--font-en); font-size: 0.85rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.1em; transition: 0.3s;
-}
-nav a:hover { color: var(--accent-color); }
 
-/* 言語スイッチ（国旗ボタン） */
-.lang-switch {
-    cursor: pointer; font-family: var(--font-en); font-weight: bold; font-size: 0.8rem;
-    color: var(--accent-color); border: 1px solid var(--accent-color);
-    padding: 5px 12px; border-radius: 4px; display: flex !important; align-items: center; gap: 8px;
-    transition: 0.3s;
-}
-.lang-switch:hover { background: var(--accent-color); color: #000; }
+/* 多言語表示制御 */
+body:not(.en) [lang="en"] { display: none !important; }
+body.en [lang="ja"] { display: none !important; }
 
-/* === 2. HUD System Layout === */
-#hud-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10000; opacity: 0; transition: 0.8s; }
+/* === 2. Typography & Animations === */
+.section-title {
+    font-family: var(--font-en); text-align: center; font-size: 3rem; margin-bottom: 80px; 
+    color: var(--accent-color); letter-spacing: 0.15em;
+    background: linear-gradient(110deg, #aa771c 10%, #fcf6ba 30%, #D4AF37 50%, #fcf6ba 70%, #aa771c 90%);
+    background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.2));
+    animation: shineText 6s linear infinite;
+}
+@keyframes shineText { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+.lead-text { font-size: 1.15rem; line-height: 2.2; text-align: center; color: #ddd; margin: 0 auto; max-width: 800px; }
+section { padding: 120px 20px; position: relative; z-index: 2; }
+.container { max-width: 1000px; margin: 0 auto; position: relative; }
+
+/* === 3. HUD System === */
+#boot-screen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #000; z-index: 99999; display: flex; justify-content: center; align-items: center;
+    font-family: var(--font-tech); color: var(--hud-color);
+}
+.boot-container { width: 300px; max-width: 90%; }
+.boot-progress-fill { height: 2px; background: var(--hud-color); width: 0%; box-shadow: 0 0 10px var(--hud-glow); }
+
+#hud-layer {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 10000; padding: 20px;
+    font-family: var(--font-tech); opacity: 0; transition: opacity 0.8s ease;
+}
 #hud-layer.visible { opacity: 1; }
-.hud-side-left { position: absolute; top: 50%; left: 30px; transform: translateY(-50%); }
-.hud-side-right { position: absolute; top: 50%; right: 30px; transform: translateY(-50%); text-align: right; }
-.hud-value { font-family: var(--font-tech); color: var(--hud-color); font-size: 1.5rem; text-shadow: 0 0 10px rgba(212,175,55,0.5); }
-.hud-label { font-size: 0.7rem; color: #888; margin-bottom: 5px; font-family: var(--font-tech); }
+.hud-corner { position: absolute; width: 40px; height: 40px; border: 1px solid var(--hud-color); opacity: 0.5; }
+.top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+.top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+.bottom-left { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+.bottom-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
 
-/* カスタムカーソル */
+.hud-side-left { position: absolute; top: 50%; left: 40px; transform: translateY(-50%); }
+.hud-side-right { position: absolute; top: 50%; right: 40px; transform: translateY(-50%); text-align: right; }
+.hud-value { font-size: 1.5rem; color: var(--hud-color); text-shadow: 0 0 5px var(--hud-glow); }
+
 #hud-cursor { display: none; position: fixed; top: 0; left: 0; pointer-events: none; z-index: 11001; }
 @media (min-width: 1025px) { #hud-cursor { display: block; } }
-.cursor-circle { position: absolute; top: -10px; left: -10px; width: 20px; height: 20px; border: 1px solid var(--accent-color); border-radius: 50%; transition: 0.1s linear; }
+.cursor-circle { position: absolute; top: -10px; left: -10px; width: 20px; height: 20px; border: 1px solid var(--accent-color); border-radius: 50%; transition: 0.2s; }
+#hud-cursor.locked .cursor-circle { width: 50px; height: 50px; top: -25px; left: -25px; border-color: #ff3333; transform: rotate(45deg); }
 
-/* === 3. Hero & Section Basics === */
+/* === 4. Navigation & Hero === */
+header {
+    position: fixed; top: 0; width: 100%; padding: 20px 0; z-index: 11000;
+    transition: 0.4s; background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+}
+header.scrolled { background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(15px); padding: 10px 0; border-bottom: 1px solid var(--glass-border); }
+.header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.logo-img { height: 50px; transition: 0.4s; }
+header.scrolled .logo-img { height: 35px; }
+nav ul { display: flex; list-style: none; gap: 30px; margin: 0; padding: 0; }
+nav a { color: #fff; text-decoration: none; font-family: var(--font-en); font-size: 0.9rem; }
+
 .hero { position: relative; height: 100vh; display: flex; justify-content: flex-end; align-items: center; overflow: hidden; }
 .hero-bg-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-#hero-video, .hero-bg { width: 100%; height: 100%; object-fit: cover; }
-
+#hero-video, .hero-bg { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
 .hero-content { 
-    z-index: 1; padding: 60px; margin-right: 8%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px);
+    z-index: 1; padding: 60px; margin-right: 8%; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(15px);
     border-left: 3px solid var(--accent-color); border-radius: 0 30px 0 30px; max-width: 600px;
+    border: 1px solid var(--glass-border);
 }
-.section-title { font-family: var(--font-en); text-align: center; font-size: 3rem; color: var(--accent-color); margin: 120px 0 80px; text-transform: uppercase; }
+.hero h1 { margin: 0 0 25px 0; line-height: 1.4; font-size: clamp(2rem, 5vw, 3.5rem); }
 
-/* === 4. Experiment Section Layout === */
-.experiment-vertical-view { display: flex; flex-direction: column; gap: 100px; align-items: center; max-width: 900px; margin: 0 auto; padding: 0 20px; }
-
-/* --- Special Container (写真の真ん中に文字) --- */
-.exp-card { position: relative !important; width: 100%; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-.exp-card img { width: 100%; display: block; opacity: 0.8; transition: 0.6s; }
-
-.exp-card .exp-caption {
-    position: absolute !important; top: 50% !important; left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 100%; text-align: center; pointer-events: none; z-index: 5;
+/* === 5. Horizontal Timeline === */
+.h-timeline-wrapper {
+    overflow-x: auto; width: 100vw; margin-left: calc(50% - 50vw);
+    padding: 50px 0 100px 0; scroll-snap-type: x mandatory; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    cursor: grab;
 }
-.exp-caption h3 { font-family: var(--font-en); color: var(--accent-color); font-size: clamp(1.8rem, 4vw, 2.8rem); margin: 0; text-shadow: 0 0 20px #000; }
+.h-timeline-wrapper::-webkit-scrollbar { display: none; }
+.h-timeline { display: flex; width: max-content; padding: 0 calc(50vw - 200px); position: relative; }
+.h-timeline::before { content: ''; position: absolute; top: 50px; left: 0; width: 100%; height: 2px; background: var(--accent-color); opacity: 0.3; }
+.h-timeline-item { width: 400px; flex: 0 0 auto; margin: 0 40px; position: relative; scroll-snap-align: center; }
+.h-timeline-dot { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: #000; border: 2px solid var(--accent-color); border-radius: 50%; z-index: 3; }
+.h-timeline-content { margin-top: 80px; background: var(--glass-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--glass-border); transition: 0.3s; }
+.h-timeline-content:hover { border-color: var(--accent-color); }
+.h-timeline-img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
 
-/* --- Flight Trajectory (タイトルを地図の「上」に分離) --- */
-.map-container { display: flex !important; flex-direction: column !important; gap: 20px !important; width: 100% !important; }
-.map-top-title { text-align: left !important; width: 100%; }
-.map-top-title h3 { font-family: var(--font-en); color: var(--accent-color); font-size: 2.2rem; margin: 0; }
-.map-top-title p { margin: 5px 0 0 0; opacity: 0.8; font-size: 1.1rem; }
+/* === 6. 3D Map & Comparison (Final Design) === */
+.experiment-vertical-view { display: flex; flex-direction: column; gap: 80px; align-items: center; }
 
-.map-view-wrapper { 
-    position: relative !important; width: 100%; height: 450px; 
-    border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #0a0a0a; 
+/* カード共通 */
+.exp-card, .map-container, .comparison-section { width: 100%; max-width: 900px; }
+
+/* 3Dフライト: タイトルを上に、説明を中に */
+.map-container { display: flex; flex-direction: column; gap: 20px; }
+.map-top-caption { text-align: left; }
+.map-top-caption h3 { font-family: var(--font-en); color: var(--accent-color); font-size: 2.2rem; margin: 0; }
+
+.map-view-wrapper {
+    position: relative; width: 100%; height: 450px; 
+    border-radius: 16px; overflow: hidden; border: 1px solid var(--glass-border);
 }
-#flight-3d-map { width: 100%; height: 100%; }
+#flight-3d-map { width: 100%; height: 100%; background: #0a0a0a; }
 .map-hint {
-    position: absolute !important; bottom: 20px !important; left: 20px !important; 
-    background: rgba(0,0,0,0.6); padding: 8px 15px; border-radius: 4px; 
-    font-size: 0.75rem; color: var(--hud-color); font-family: var(--font-tech); z-index: 10;
+    position: absolute; bottom: 20px; left: 20px; z-index: 10;
+    font-family: var(--font-tech); font-size: 0.75rem; color: var(--hud-color);
+    background: rgba(0,0,0,0.6); padding: 8px 15px; border-radius: 4px; pointer-events: none;
+    backdrop-filter: blur(5px);
 }
 
-/* --- Visualizing the Change (比較スライダー) --- */
-.comparison-section { width: 100%; text-align: center; }
+/* 比較スライダー: PCは800px & 16:9, スマホはGalleryサイズ & 4:3 */
+.comparison-section { width: 100%; }
 .compare-container {
-    position: relative; width: 100%; aspect-ratio: 16 / 9; /* PC比率 */
-    overflow: hidden; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
+    position: relative; width: 100%; overflow: hidden; border-radius: 16px;
+    aspect-ratio: 16 / 9; /* PC写真比率 */
+    border: 1px solid var(--glass-border); background: #000;
 }
-.img-wrapper.after { position: absolute; top: 0; left: 0; width: 50%; height: 100%; border-right: 2px solid var(--accent-color); overflow: hidden; z-index: 2; }
-.compare-container img { width: 100%; height: 100%; object-fit: cover; }
+.img-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; }
+.img-wrapper.after { width: 50%; border-right: 2px solid var(--accent-color); z-index: 2; }
+.img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
 .slider { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: col-resize; z-index: 10; }
 .slider-button {
-    position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; background: var(--accent-color);
-    border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 5;
+    position: absolute; top: 50%; left: 50%; width: 44px; height: 44px;
+    background: var(--accent-color); border-radius: 50%; transform: translate(-50%, -50%);
+    z-index: 5; display: flex; justify-content: center; align-items: center; pointer-events: none;
 }
 
-/* === 5. Mobile Responsive === */
+@media (min-width: 1025px) {
+    .comparison-section { max-width: 800px; margin: 0 auto; }
+}
+
+/* === 7. Gallery & Blog === */
+.gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.gallery-item { position: relative; height: 350px; overflow: hidden; border-radius: 12px; }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+.gallery-item:hover img { transform: scale(1.1); }
+
+/* === 8. Background Effects & HUD Signals === */
+#starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
+.bg-telemetry, .bg-waveform { position: fixed; top: 50%; right: 40px; transform: translateY(-50%); z-index: 1; opacity: 0; transition: 0.8s; }
+.telemetry-stream { width: 200px; height: 90px; overflow: hidden; font-family: var(--font-tech); font-size: 0.65rem; color: rgba(255,255,255,0.3); text-align: right; }
+
+.hud-alert { color: #ff3333; border: 1px solid #ff3333; padding: 10px; background: rgba(255,51,51,0.1); animation: alert-blink 0.15s infinite alternate; }
+@keyframes alert-blink { from { opacity: 1; } to { opacity: 0.4; } }
+
+#frost-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; box-shadow: inset 0 0 150px rgba(255,255,255,0.5); opacity: 0; transition: 1s; }
+#frost-overlay.active { opacity: 1; }
+
+.back-to-top { position: fixed; top: 30px; right: 30px; width: 50px; z-index: 999; opacity: 0; transition: opacity 0.3s; }
+.back-to-top.show { opacity: 1; animation: rocketIdle 2s infinite; }
+@keyframes rocketIdle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+/* === 9. Mobile Responsive === */
 @media (max-width: 768px) {
-    .header-container { padding: 0 15px; }
-    nav { display: none; } /* スマホ用はハンバーガーメニューで別途制御 */
-    .hero-content { padding: 30px; margin: 0 auto; max-width: 90%; text-align: center; border-left: none; border-bottom: 3px solid var(--accent-color); }
-    .map-view-wrapper { height: 350px !important; }
-    .map-top-title h3 { font-size: 1.6rem !important; }
-    .compare-container { aspect-ratio: 4 / 3 !important; }
-    .hud-side-left, .hud-corner { display: none; }
+    section { padding: 80px 15px; }
+    .hero-content { max-width: 90%; margin: 0 auto; padding: 30px; text-align: center; border-left: none; border-bottom: 3px solid var(--accent-color); border-radius: 0 0 20px 20px; }
+    .map-view-wrapper { height: 350px; }
+    .map-hint { display: none; }
+    .compare-container { aspect-ratio: 4 / 3; }
+    .gallery-grid { grid-template-columns: 1fr; }
+    .hud-side-left, .hud-corner, .bg-telemetry, .bg-waveform { display: none; }
+    .hud-side-right { bottom: 20px; top: auto; right: 15px; transform: none; }
+    .hamburger { display: block; width: 30px; height: 25px; position: relative; z-index: 12000; cursor: pointer; }
+    .hamburger span { position: absolute; width: 100%; height: 2px; background: #fff; transition: 0.3s; }
+    .hamburger span:nth-child(1) { top: 0; } .hamburger span:nth-child(2) { top: 11px; } .hamburger span:nth-child(3) { bottom: 0; }
+    nav { position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; background: rgba(5,5,5,0.98); display: flex; align-items: center; justify-content: center; transition: 0.4s; z-index: 11500; }
+    nav.active { right: 0; } nav ul { flex-direction: column; gap: 30px; }
 }
 
-/* 背景演出・アラート・星空などは維持 */
-#starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; opacity: 0.6; }
-.back-to-top { position: fixed; right: 20px; top: 20px; width: 45px; z-index: 999; opacity: 0; transition: 0.3s; }
-.back-to-top.show { opacity: 1; }
+/* === 10. Animation States === */
+body.shake-active { animation: camera-shake 0.4s both; }
+@keyframes camera-shake { 0%, 100% { transform: translate(0,0); } 20% { transform: translate(-3px, 5px); } 60% { transform: translate(3px, -5px); } }
+body.arrival-shake-active { animation: arrival-shake 0.5s both; }
+@keyframes arrival-shake { 0% { transform: translateY(0); } 20% { transform: translateY(-20px); } 100% { transform: translateY(0); } }
