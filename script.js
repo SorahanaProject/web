@@ -837,4 +837,3 @@ function init3DFlightMap() {
         ]
     });
 }
-}
