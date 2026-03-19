@@ -789,7 +789,7 @@ function initTimelineDrag() {
     });
 }
 
-// === 3Dフライトトラッカー（Deck.gl）自動フィット版 ===
+// === 3Dフライトトラッカー（Deck.gl）自動フィット＆横視点版 ===
 function init3DFlightMap() {
     const container = document.getElementById('flight-3d-map');
     if (!container) return;
@@ -801,10 +801,8 @@ function init3DFlightMap() {
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || 450;
 
-    // フライトデータ全体を囲む四角形（Bounding Box）: [最小経度, 最小緯度],[最大経度, 最大緯度]
-    const bounds = [
-        [134.155, 33.266], // 始点付近の南西の端
-        [136.055, 33.461]  // 終点付近の北東の端
+    // フライトデータ全体を囲む四角形（少し広めに設定して見切れを防ぐ）
+    const bounds = [[134.1, 33.2], // 南西の端[136.1, 33.5]  // 北東の端
     ];
 
     // デフォルトのカメラ設定
@@ -812,22 +810,26 @@ function init3DFlightMap() {
         longitude: 135.1,
         latitude: 33.3,
         zoom: 8.2, 
-        pitch: 60,
-        bearing: -20
+        pitch: 75, // ★傾きを60から75に変更し、グッと横からの視点にする
+        bearing: -15
     };
 
     try {
-        // deck.gl のビューポート計算機能を使って、画面サイズにぴったり収まるzoomと中心座標を取得
         const viewport = new deck.WebMercatorViewport({ width, height });
+        const isMobile = window.innerWidth <= 768;
         
-        // 画面の端からどれくらい余白を空けるか（スマホは狭め、PCは広め）
-        const padding = window.innerWidth <= 768 ? 20 : 60;
+        // 画面の端からの余白
+        const padding = isMobile ? 40 : 80;
         const fitted = viewport.fitBounds(bounds, { padding: padding });
         
-        // 計算された値をカメラに適用
         viewState.longitude = fitted.longitude;
-        viewState.latitude = fitted.latitude;
-        viewState.zoom = fitted.zoom;
+        
+        // ★傾き(pitch)をつけると画面上部が奥へ倒れて見切れるため、カメラ中心を少し南(手前)にずらす
+        viewState.latitude = fitted.latitude - (isMobile ? 0.15 : 0.05);
+        
+        // ★スマホの場合はズームを意図的に少し引いて全体を収める
+        viewState.zoom = fitted.zoom - (isMobile ? 0.6 : 0);
+
     } catch(e) {
         console.warn("Viewport fitting failed.");
     }
@@ -836,7 +838,7 @@ function init3DFlightMap() {
     new deck.DeckGL({
         container: container,
         mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
-        initialViewState: viewState, // ★ここで自動計算したカメラをセット
+        initialViewState: viewState, 
         controller: true,
         layers:[
             new deck.PathLayer({
@@ -846,13 +848,13 @@ function init3DFlightMap() {
                 getColor:[212, 175, 55, 255],
                 getWidth: 4,
                 widthMinPixels: 3,
-                getZ: d => d[2] * 2 
+                getZ: d => d[2] * 2.5 // ★高さを2倍から2.5倍に強調
             }),
             new deck.ColumnLayer({
                 id: 'poi-pillars',
                 data: [
                     { position:[134.157893, 33.287018], elevation: 1000, color:[255, 255, 255, 150] }, 
-                    { position:[136.054945, 33.449765], elevation: 1000, color: [255, 51, 51, 150] } 
+                    { position:[136.054945, 33.449765], elevation: 1000, color:[255, 51, 51, 150] } 
                 ],
                 diskResolution: 12,
                 radius: 1500,
