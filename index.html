@@ -61,9 +61,11 @@
         }
       ]
     }
-    </script>
 
-    <!-- 既存のフォントとCSS -->
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Noto+Serif+JP:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -301,18 +303,17 @@
                     <div class="exp-caption"><h3>Special Container</h3></div>
                 </div>
                 <div class="exp-card map-container">
-                    <a href="https://earth.google.com/earth/d/1Cbov36QXcYHL8I0Sx-0zyBI57k08agBO?usp=sharing" target="_blank" class="map-link">
-                        <!-- SEO: alt属性の最適化 -->
-                        <img src="images/flight-map.jpg" alt="成層圏への打ち上げ軌跡を示す3Dフライトトラジェクトリー">
-                        <div class="map-overlay-btn"><span class="icon">🌍</span> View 3D Flight Path</div>
-                    </a>
-                    <div class="exp-caption" style="pointer-events:none;">
+                    <div id="flight-3d-map"></div>
+                    
+                    <div class="exp-caption" style="pointer-events:none; z-index: 10;">
                         <h3>Flight Trajectory</h3>
-                        <p><span lang="ja">25,346m Journey</span><span lang="en">83,156ft Journey</span></p>
+                        <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
+                    </div>
+                    <!-- ユーザーに「触って回せる」ことを伝えるヒント -->
+                    <div class="map-hint" style="pointer-events:none;">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]
                     </div>
                 </div>
-            </div>
-
+                
             <div class="comparison-section js-scroll">
                 <h3>Visualizing the Change</h3>
                 <p class="text-center" style="margin-bottom:20px; color:#aaa; font-size:0.9rem;"><span lang="ja">スライダーを動かして変化を確認</span><span lang="en">Drag the slider to compare</span></p>
