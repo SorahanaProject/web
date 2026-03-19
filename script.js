@@ -794,14 +794,12 @@ function init3DFlightMap() {
     const container = document.getElementById('flight-3d-map');
     if (!container) return;
 
-    if (window.maplibregl) {
-        window.mapboxgl = window.maplibregl;
-    }
-
+    // KMLの実データ
     const MAP_FLIGHT_PATH = [[134.157893, 33.287018, 85.69],[134.157915, 33.286996, 87.73],[134.155705, 33.286825, 305.46],[134.159631, 33.295065, 1756.35],[134.170768, 33.290033, 3230.36],[134.183150, 33.270356, 4572.89],[134.244968, 33.266795, 5891.76],[134.370496, 33.306920, 7364.11],[134.514606, 33.353151, 8755.08],[134.665581, 33.382055, 10134.90],[134.837093, 33.405196, 11550.92],[135.020491, 33.433081, 13057.94],[135.196810, 33.432083, 14652.58],[135.362183, 33.425141, 16437.47],[135.462263, 33.420216, 18492.02],[135.486788, 33.424595, 20748.52],[135.505456, 33.412331, 23084.25],[135.489921, 33.399596, 25054.33],[135.488483, 33.402246, 23187.45],[135.663106, 33.394521, 12937.26],[135.835711, 33.420206, 9236.70],[135.972568, 33.460986, 6348.01],[136.034388, 33.454710, 3899.90],[136.049366, 33.453411, 1606.17],[136.054945, 33.449765, 0]];
 
     new deck.DeckGL({
         container: container,
+        // APIキー不要のダークマップを指定
         mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
         initialViewState: {
             longitude: 135.1,
@@ -812,20 +810,22 @@ function init3DFlightMap() {
         },
         controller: true,
         layers:[
+            // フライト軌跡のアーチ
             new deck.PathLayer({
                 id: 'flight-path',
-                data: [{ path: MAP_FLIGHT_PATH }],
+                data:[{ path: MAP_FLIGHT_PATH }],
                 getPath: d => d.path,
-                getColor: [212, 175, 55, 255],
+                getColor:[212, 175, 55, 255],
                 getWidth: 4,
                 widthMinPixels: 3,
-                getZ: d => d[2] * 2 
+                getZ: d => d[2] * 2 // 高さを2倍に強調
             }),
+            // スタート地点とゴール地点の柱（真ん中の黄色い柱は削除）
             new deck.ColumnLayer({
                 id: 'poi-pillars',
                 data: [
                     { position:[134.157893, 33.287018], elevation: 1000, color:[255, 255, 255, 150] }, 
-                    { position:[136.054945, 33.449765], elevation: 1000, color:[255, 51, 51, 150] } 
+                    { position:[136.054945, 33.449765], elevation: 1000, color: [255, 51, 51, 150] } 
                 ],
                 diskResolution: 12,
                 radius: 1500,
@@ -835,4 +835,5 @@ function init3DFlightMap() {
             })
         ]
     });
+}
 }
