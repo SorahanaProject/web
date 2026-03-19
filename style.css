@@ -396,15 +396,13 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     .hero-content .data-tag, .hero h1, .hero-desc { text-align: center; width: 100%; justify-content: center; }
     .hero h1 span[lang="ja"] { font-size: 1.8rem; }
     
-    /* ▼▼▼ この部分のダブリを修正 ▼▼▼ */
     .h-timeline-wrapper {
         /* 横揺れバグを防ぐため、100vwではなく親のpaddingを相殺する幅にする */
         width: calc(100% + 30px) !important;
         margin-left: -15px !important;
         padding: 40px 0 60px 0;
     }
-    /* ▲▲▲ 修正ここまで ▲▲▲ */
-
+    
     .h-timeline {
         padding: 0 15px !important; 
         display: flex !important;
@@ -456,6 +454,10 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     .name-cell { font-size: 1.1rem; }
 
     .map-hint { display: none; }
+
+    .compare-container {
+        height: 300px !important; /* 高さを600pxから300pxに縮める */
+    }
 }
 
 /* PCでのみ改行する（スマホでは改行が消える） */
@@ -783,14 +785,15 @@ body.arrival-shake-active {
 }
 .map-container .exp-caption {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 30px;  /* ★画面の真ん中から上へ移動 */
+    left: 30px; /* ★画面の真ん中から左へ移動 */
+    transform: none; /* ★中央寄せの解除 */
     z-index: 10;
-    /* 地図の上でも文字が読みやすいように影をつける */
     text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.9);
+    pointer-events: none;
 }
-/* ★追加: 見出しとテキストを左揃えにする */
+
+/* ★見出しとテキストを左揃えにする設定を追加 */
 .map-container .exp-caption h3,
 .map-container .exp-caption p {
     text-align: left;
