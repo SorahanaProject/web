@@ -1,5 +1,6 @@
-// --- KMLフライトデータ（全データ完全網羅） ---
+// --- START OF FILE script.js ---
 
+// --- KMLフライトデータ（全データ完全網羅） ---
 // 上昇フェーズ (地上 〜 最高到達点)
 const ASCENT_DATA =[
     { progress: 0.000, alt: 86,    lat: 33.2870, lon: 134.1579 }, 
@@ -38,10 +39,6 @@ function lerp(start, end, amt) {
     return (1 - amt) * start + amt * end;
 }
 
-function lerp(start, end, amt) {
-    return (1 - amt) * start + amt * end;
-}
-
 // GSAPプラグインの登録
 gsap.registerPlugin(ScrollTrigger);
 
@@ -56,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initStarfield();
     initTelemetryStream();
     initWaveformGraph();
-    initTimelineDrag(); // ドラッグ機能の起動
+    initTimelineDrag(); 
     init3DFlightMap();
 });
 
@@ -141,34 +138,22 @@ function initSiteAnimations() {
       .from(".hero-content .hero-desc", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
       .from(".scroll-down", { y: -20, opacity: 0, duration: 0.8 }, "-=0.4");
 
-    // 各要素の出現（時間ベースの素早いアニメーション）
     const revealElements = document.querySelectorAll(".section-title, .lead-text, .exp-card, .gallery-item, .blog-card");
     revealElements.forEach((elem) => {
         gsap.fromTo(elem, 
             { opacity: 0, y: 40 }, 
             { 
-                opacity: 1, 
-                y: 0, 
-                duration: 0.6, 
-                ease: "power2.out",
-                scrollTrigger: {
-                    trigger: elem,
-                    start: "top 95%", 
-                    once: true 
-                }
+                opacity: 1, y: 0, duration: 0.6, ease: "power2.out",
+                scrollTrigger: { trigger: elem, start: "top 95%", once: true }
             }
         );
-    }); // ★追加: ここで forEach を閉じます
+    });
         
-    // タイムラインが見えた瞬間に「少し横に揺らして」スクロール可能であることを暗示する
     ScrollTrigger.create({
-        trigger: "#h-timeline-wrapper",
-        start: "top 70%", // 画面の70%の高さに入ったら発動
-        once: true,
+        trigger: "#h-timeline-wrapper", start: "top 70%", once: true,
         onEnter: () => {
             gsap.fromTo("#h-timeline-container", 
                 { x: 0 }, 
-                // 左に50px動いてから、0.6秒かけて元の位置に戻る（往復アニメーション）
                 { x: -50, duration: 0.6, yoyo: true, repeat: 1, ease: "power2.inOut", delay: 0.5 }
             );
         }
@@ -195,20 +180,16 @@ function updateHUD(scrollTop) {
     const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
 
     let currentAlt = 0, currentLat = 0, currentLon = 0;
-    
-    // ★ 状態によって参照するKMLデータを切り替える
     let dataArray = DESCENT_DATA;
     let simPercent = scrollPercent;
 
     if (isReturningToTop) {
         dataArray = ASCENT_DATA;
-        // ロケット上昇中は、スクロールが上に戻るにつれて 0 → 1 へと進行するように逆転させる
         simPercent = 1.0 - scrollPercent; 
     }
 
     for (let i = 0; i < dataArray.length - 1; i++) {
-        let p1 = dataArray[i]; 
-        let p2 = dataArray[i + 1];
+        let p1 = dataArray[i]; let p2 = dataArray[i + 1];
         if (simPercent >= p1.progress && simPercent <= p2.progress) {
             let localPercent = (simPercent - p1.progress) / (p2.progress - p1.progress);
             currentAlt = lerp(p1.alt, p2.alt, localPercent);
@@ -239,62 +220,33 @@ function updateHUD(scrollTop) {
     if(latDisplay) latDisplay.textContent = currentLat.toFixed(4);
     if(lonDisplay) lonDisplay.textContent = currentLon.toFixed(4);
     
-    // イベント: バルーンバースト
     if (currentAlt < 25300 && currentAlt > 24000 && !hasBurstEventFired && !isReturningToTop) {
         hasBurstEventFired = true;
         triggerBalloonBurst();
     }
-    if (currentAlt >= 25340) {
-        hasBurstEventFired = false;
-    }
+    if (currentAlt >= 25340) hasBurstEventFired = false;
     
-    // イベント: 対流圏界面突破
     if (currentAlt < 11000 && currentAlt > 10000 && !hasTroposphereEventFired && !isReturningToTop) {
         hasTroposphereEventFired = true;
         triggerTroposphereEntry();
     }
-    if (currentAlt >= 11500) {
-        hasTroposphereEventFired = false;
-    }
+    if (currentAlt >= 11500) hasTroposphereEventFired = false;
     
     const tempDisplay = document.getElementById('hud-temp-val');
     const tempUnitDisplay = document.getElementById('hud-temp-unit');
     if (tempDisplay) {
         let tempC = 15;
-        if (currentAlt <= 11000) {
-            tempC = 15 - (currentAlt / 1000) * 6.5; 
-        } else {
-            tempC = -56.5 + ((currentAlt - 11000) / (25346 - 11000)) * (-38.8 - (-56.5)); 
-        }
+        if (currentAlt <= 11000) tempC = 15 - (currentAlt / 1000) * 6.5; 
+        else tempC = -56.5 + ((currentAlt - 11000) / (25346 - 11000)) * (-38.8 - (-56.5)); 
         
-        if (isEnglish) { 
-            tempDisplay.textContent = (tempC * 9/5 + 32).toFixed(1); 
-            if (tempUnitDisplay) tempUnitDisplay.textContent = '°F'; 
-        } else { 
-            tempDisplay.textContent = tempC.toFixed(1); 
-            if (tempUnitDisplay) tempUnitDisplay.textContent = '°C'; 
-        }
+        if (isEnglish) { tempDisplay.textContent = (tempC * 9/5 + 32).toFixed(1); if (tempUnitDisplay) tempUnitDisplay.textContent = '°F'; } 
+        else { tempDisplay.textContent = tempC.toFixed(1); if (tempUnitDisplay) tempUnitDisplay.textContent = '°C'; }
     }
 
     const presDisplay = document.getElementById('hud-pres-val');
-    const presUnitDisplay = document.getElementById('hud-pres-unit');
     if (presDisplay) {
-        let pressure = 1013.25;
-        if (currentAlt <= 11000) {
-            pressure = 1013.25 * Math.pow(1 - 0.0065 * currentAlt / 288.15, 5.25588);
-        } else {
-            pressure = 226.32 * Math.exp(-0.000157688 * (currentAlt - 11000));
-        }
-
-        if (isEnglish) {
-            // inHgに変換して小数点2桁で表示
-            presDisplay.textContent = (pressure * 0.02953).toFixed(2);
-            if (presUnitDisplay) presUnitDisplay.textContent = ' inHg';
-        } else {
-            // 日本語の時は整数のhPa
-            presDisplay.textContent = Math.round(pressure);
-            if (presUnitDisplay) presUnitDisplay.textContent = ' hPa';
-        }
+        let pressure = (currentAlt <= 11000) ? 1013.25 * Math.pow(1 - 0.0065 * currentAlt / 288.15, 5.25588) : 226.32 * Math.exp(-0.000157688 * (currentAlt - 11000));
+        presDisplay.textContent = Math.round(pressure);
     }
 
     const now = performance.now();
@@ -307,43 +259,32 @@ function updateHUD(scrollTop) {
             smoothedVerticalVelocity *= 0.5; 
             if (Math.abs(smoothedVerticalVelocity) < 0.1) smoothedVerticalVelocity = 0;
         }
-        lastTimeForVel = now; 
-        lastAltForVel = currentAlt;
+        lastTimeForVel = now; lastAltForVel = currentAlt;
     }
 
     const velDisplay = document.getElementById('hud-vel');
     const velLabel = document.getElementById('hud-vel-label');
     if (velDisplay && velLabel) {
         if (isReturningToTop) {
-            velLabel.textContent = "▲ ASCENT RATE"; 
-            velLabel.style.color = "#33ccff"; 
-            let simSpeed = 5.57 + (Math.random() * 0.06 - 0.03);
-            velDisplay.textContent = simSpeed.toFixed(2);
+            velLabel.textContent = "▲ ASCENT RATE"; velLabel.style.color = "#33ccff"; 
+            velDisplay.textContent = (5.57 + (Math.random() * 0.06 - 0.03)).toFixed(2);
         } else {
             let speedMS = Math.abs(smoothedVerticalVelocity); 
             if (speedMS < 0.1) { speedMS = 0; smoothedVerticalVelocity = 0; }
-            
-            if (speedMS === 0) { 
-                velLabel.textContent = "■ HOVERING"; 
-                velLabel.style.color = "var(--hud-color)"; 
-            } else if (smoothedVerticalVelocity < 0) { 
-                velLabel.textContent = "▼ DESCENT RATE"; 
-                velLabel.style.color = "#ff3333"; 
-            } else { 
-                velLabel.textContent = "▲ ASCENT RATE"; 
-                velLabel.style.color = "#33ccff"; 
-            }
+            if (speedMS === 0) { velLabel.textContent = "■ HOVERING"; velLabel.style.color = "var(--hud-color)"; } 
+            else if (smoothedVerticalVelocity < 0) { velLabel.textContent = "▼ DESCENT RATE"; velLabel.style.color = "#ff3333"; } 
+            else { velLabel.textContent = "▲ ASCENT RATE"; velLabel.style.color = "#33ccff"; }
             velDisplay.textContent = speedMS.toFixed(2);
         }
     }
 
-    const indicator = document.getElementById('scroll-indicator');
-    const progressBar = document.getElementById('scroll-progress');
     const hudLayer = document.getElementById('hud-layer');
-    const header = document.getElementById('header');
     const hero = document.getElementById('hero');
     const telemetry = document.querySelector('.bg-telemetry');
     const waveform = document.querySelector('.bg-waveform');
+    const indicator = document.getElementById('scroll-indicator');
+    const progressBar = document.getElementById('scroll-progress');
+    const header = document.getElementById('header');
 
     if(indicator) indicator.style.top = `${scrollPercent * 100}%`;
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
@@ -351,12 +292,12 @@ function updateHUD(scrollTop) {
     if (hero) {
         if (scrollTop > hero.offsetHeight * 0.5) {
             if (hudLayer) hudLayer.classList.add('visible');
-            if (telemetry) telemetry.style.opacity = '1';
-            if (waveform) waveform.style.opacity = '1';
+            if (telemetry) telemetry.classList.add('visible');
+            if (waveform) waveform.classList.add('visible');
         } else {
             if (hudLayer) hudLayer.classList.remove('visible');
-            if (telemetry) telemetry.style.opacity = '0';
-            if (waveform) waveform.style.opacity = '0';
+            if (telemetry) telemetry.classList.remove('visible');
+            if (waveform) waveform.classList.remove('visible');
         }
     }
 
@@ -368,14 +309,9 @@ function updateHUD(scrollTop) {
     
     const btt = document.getElementById('back-to-top');
     if(btt) {
-        if (scrollTop > hero.offsetHeight * 0.5) {
-            btt.classList.add('show');
-        } else {
-            btt.classList.remove('show');
-        }
+        if (scrollTop > (hero ? hero.offsetHeight * 0.5 : 400)) btt.classList.add('show'); else btt.classList.remove('show');
         const maxTop = Math.max(0, window.innerHeight - 150); 
-        const currentTop = 30 + scrollPercent * maxTop;
-        btt.style.top = `${currentTop}px`;
+        btt.style.top = `${30 + scrollPercent * maxTop}px`;
     }
 
     if (scrollPercent > 0.8) document.documentElement.style.setProperty('--hud-color', '#fff'); 
@@ -384,19 +320,20 @@ function updateHUD(scrollTop) {
 
 // === 5. Utility Functions ===
 function initLanguageSettings() {
-    let savedLang = localStorage.getItem('lang') || 'ja';
+    let savedLang = localStorage.getItem('lang');
+    if (!savedLang) {
+        const browserLang = (navigator.language || navigator.userLanguage).toLowerCase();
+        savedLang = browserLang.startsWith('ja') ? 'ja' : 'en';
+        localStorage.setItem('lang', savedLang);
+    }
     if (savedLang === 'en') document.body.classList.add('en');
-    
     const langBtn = document.getElementById('langBtn');
     if (langBtn) { 
-        // 初期表示の旗を設定
-        langBtn.innerHTML = document.body.classList.contains('en') ? '🇯🇵 JP' : '🇺🇸 EN';
-
+        langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
         langBtn.addEventListener('click', () => {
             const isEn = document.body.classList.toggle('en');
             localStorage.setItem('lang', isEn ? 'en' : 'ja');
-            // 切り替え直後にページをリロードしてHUDの計算をやり直す
-            location.reload(); 
+            location.reload();
         });
     }
 }
@@ -418,10 +355,7 @@ class TextScramble {
             const end = start + Math.floor(Math.random() * 40);
             this.queue.push({ from, to, start, end });
         }
-        cancelAnimationFrame(this.frameRequest); 
-        this.frame = 0; 
-        this.update(); 
-        return promise;
+        cancelAnimationFrame(this.frameRequest); this.frame = 0; this.update(); return promise;
     }
     update() {
         let output = ''; let complete = 0;
@@ -434,7 +368,7 @@ class TextScramble {
             } else { output += from; }
         }
         this.el.innerHTML = output;
-        if (complete === this.queue.length) { this.resolve(); }
+        if (complete === this.queue.length) this.resolve();
         else { this.frameRequest = requestAnimationFrame(this.update); this.frame++; }
     }
     randomChar() { return this.chars[Math.floor(Math.random() * this.chars.length)]; }
@@ -443,15 +377,13 @@ class TextScramble {
 function initTextScramble() {
     const el = document.querySelector('.data-tag span[lang="ja"]');
     const elEn = document.querySelector('.data-tag span[lang="en"]');
-    const target = (document.body.classList.contains('en')) ? elEn : el;
     const isEnglish = document.body.classList.contains('en');
+    const target = isEnglish ? elEn : el;
 
     if(target) {
         const fx = new TextScramble(target);
-        const phrases =[
-            isEnglish ? 'ALT: 83,156ft / TEMP: -37.8℉' : 'ALT: 25,346m / TEMP: -38.8℃',
-            'SYSTEM: NORMAL', 'STATUS: LAUNCHED', 'TRAJECTORY: STABLE'
-        ];
+        const phrases = isEnglish ? ['ALT: 83,156ft / TEMP: -37.8℉', 'SYSTEM: NORMAL', 'STATUS: LAUNCHED', 'TRAJECTORY: STABLE'] 
+                                 : ['ALT: 25,346m / TEMP: -38.8℃', 'SYSTEM: NORMAL', 'STATUS: LAUNCHED', 'TRAJECTORY: STABLE'];
         let counter = 0;
         const next = () => {
             fx.setText(phrases[counter]).then(() => { setTimeout(next, 3000); });
@@ -480,42 +412,18 @@ function initUI() {
 
     const btt = document.getElementById('back-to-top');
     const statusDisplay = document.getElementById('hud-status');
-
     if(btt) btt.addEventListener('click', (e) => {
         e.preventDefault(); 
         if (window.scrollY === 0) return; 
-
         isReturningToTop = true; 
-        
-        if (statusDisplay) {
-            statusDisplay.textContent = "HIGH LOAD";
-            statusDisplay.classList.remove("ok");
-            statusDisplay.classList.add("high-load");
-        }
-
-        // Lenisを使って等速で5秒間かけて上昇
-        if(typeof window.lenis !== 'undefined' && window.lenis) {
-            window.lenis.scrollTo(0, { duration: 5, easing: (t) => t }); 
-        } else {
-            window.scrollTo({top:0, behavior:'smooth'});
-        }
-        
-        // 5秒後（トップ到着時）の処理
+        if (statusDisplay) { statusDisplay.textContent = "HIGH LOAD"; statusDisplay.classList.remove("ok"); statusDisplay.classList.add("high-load"); }
+        if(typeof window.lenis !== 'undefined' && window.lenis) window.lenis.scrollTo(0, { duration: 5, easing: (t) => t }); 
+        else window.scrollTo({top:0, behavior:'smooth'});
         setTimeout(() => { 
             isReturningToTop = false; 
-            
-            if (statusDisplay) {
-                statusDisplay.textContent = "NORMAL";
-                statusDisplay.classList.remove("high-load");
-                statusDisplay.classList.add("ok");
-            }
-
-            // 到着時の衝撃（カメラシェイク）を発動
+            if (statusDisplay) { statusDisplay.textContent = "NORMAL"; statusDisplay.classList.remove("high-load"); statusDisplay.classList.add("ok"); }
             document.body.classList.add("arrival-shake-active");
-            setTimeout(() => {
-                document.body.classList.remove("arrival-shake-active");
-            }, 500);
-
+            setTimeout(() => document.body.classList.remove("arrival-shake-active"), 500);
             btt.classList.remove('launch', 'show'); 
         }, 5000);
     });
@@ -537,17 +445,12 @@ function initUI() {
 }
 
 function initFAQ() {
-    const questions = document.querySelectorAll('.faq-question');
-    questions.forEach(q => {
+    document.querySelectorAll('.faq-question').forEach(q => {
         q.addEventListener('click', () => {
             const item = q.parentElement;
             const answer = item.querySelector('.faq-answer');
             item.classList.toggle('active');
-            if (item.classList.contains('active')) {
-                answer.style.maxHeight = answer.scrollHeight + 'px';
-            } else {
-                answer.style.maxHeight = null;
-            }
+            answer.style.maxHeight = item.classList.contains('active') ? answer.scrollHeight + 'px' : null;
         });
     });
 }
@@ -555,44 +458,28 @@ function initFAQ() {
 function initHUDInteractions() {
     const cursor = document.getElementById('hud-cursor');
     if (!cursor) return;
-
     document.addEventListener('mousemove', (e) => {
         if (window.matchMedia("(min-width: 1025px)").matches) {
             cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
             createStardust(e.clientX, e.clientY);
         }
     });
-
     document.querySelectorAll('a, button, .gallery-item, .map-overlay-btn, .slider-button').forEach(el => {
         el.addEventListener('mouseenter', () => cursor.classList.add('locked'));
         el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
     });
-
     document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down').forEach((magnet) => {
         magnet.classList.add('magnet-btn');
         const isCentered = magnet.classList.contains('map-overlay-btn') || magnet.classList.contains('scroll-down');
-
         magnet.addEventListener('mousemove', (e) => {
             if (!window.matchMedia("(min-width: 1025px)").matches) return;
             const rect = magnet.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            gsap.to(magnet, { 
-                x: (e.clientX - centerX) / 5, 
-                y: (e.clientY - centerY) / 5, 
-                xPercent: isCentered ? -50 : 0, 
-                yPercent: isCentered ? -50 : 0, 
-                scale: 1.1, duration: 0.3, ease: "power2.out", overwrite: "auto" 
-            });
+            const x = (e.clientX - (rect.left + rect.width / 2)) / 5;
+            const y = (e.clientY - (rect.top + rect.height / 2)) / 5;
+            gsap.to(magnet, { x: x, y: y, xPercent: isCentered ? -50 : 0, yPercent: isCentered ? -50 : 0, scale: 1.1, duration: 0.3, ease: "power2.out", overwrite: "auto" });
         });
-
         magnet.addEventListener('mouseleave', () => {
-            gsap.to(magnet, { 
-                x: 0, y: 0, 
-                xPercent: isCentered ? -50 : 0, 
-                yPercent: isCentered ? -50 : 0, 
-                scale: 1, duration: 0.5, ease: "elastic.out(1, 0.5)", overwrite: "auto" 
-            });
+            gsap.to(magnet, { x: 0, y: 0, xPercent: isCentered ? -50 : 0, yPercent: isCentered ? -50 : 0, scale: 1, duration: 0.5, ease: "elastic.out(1, 0.5)", overwrite: "auto" });
         });
     });
 }
@@ -602,60 +489,33 @@ function createStardust(x, y) {
     if (isThrottled) return;
     isThrottled = true;
     setTimeout(() => isThrottled = false, 50);
-    
     const particle = document.createElement('div');
-    Object.assign(particle.style, {
-        position: 'fixed', left: x + 'px', top: y + 'px',
-        width: (Math.random() * 3) + 'px', height: (Math.random() * 3) + 'px',
-        background: Math.random() > 0.8 ? '#D4AF37' : '#fff',
-        borderRadius: '50%', pointerEvents: 'none', zIndex: '999999',
-        boxShadow: '0 0 6px rgba(255,255,255,0.8)'
-    });
+    Object.assign(particle.style, { position: 'fixed', left: x + 'px', top: y + 'px', width: Math.random() * 3 + 'px', height: Math.random() * 3 + 'px', background: Math.random() > 0.8 ? '#D4AF37' : '#fff', borderRadius: '50%', pointerEvents: 'none', zIndex: '999999', boxShadow: '0 0 6px rgba(255,255,255,0.8)' });
     document.body.appendChild(particle);
-    
-    gsap.to(particle, {
-        x: (Math.random() - 0.5) * 60, y: (Math.random() - 0.5) * 60,
-        scale: 0, opacity: 0, duration: 1 + Math.random(), ease: "power2.out",
-        onComplete: () => particle.remove()
-    });
+    gsap.to(particle, { x: (Math.random() - 0.5) * 60, y: (Math.random() - 0.5) * 60, scale: 0, opacity: 0, duration: 1 + Math.random(), ease: "power2.out", onComplete: () => particle.remove() });
 }
 
-// === 6. Background Effects & Events ===
 function initStarfield() {
     const canvas = document.getElementById('starfield');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let width, height, stars =[];
-    
     function resize() {
         width = window.innerWidth; height = window.innerHeight;
         canvas.width = width; canvas.height = height; 
         stars =[];
-        for (let i = 0; i < 400; i++) {
-            stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2 + 0.5, alpha: Math.random() * 0.8 + 0.2 });
-        }
+        for (let i = 0; i < 400; i++) stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2 + 0.5, alpha: Math.random() * 0.8 + 0.2 });
     }
-    window.addEventListener('resize', resize); 
-    resize();
-
+    window.addEventListener('resize', resize); resize();
     function animate() {
         ctx.clearRect(0, 0, width, height);
         const scrollVel = window.lenis ? window.lenis.velocity : 0;
         ctx.fillStyle = '#fff';
-        
         stars.forEach(star => {
-            // スクロール速度のみに連動
-            let speed = 0.2 + scrollVel * 0.05;
-            star.y -= speed * star.z;
-            
+            star.y -= (0.2 + scrollVel * 0.05) * star.z;
             if (star.y < 0) { star.y = height; star.x = Math.random() * width; }
             if (star.y > height) { star.y = 0; star.x = Math.random() * width; }
-            
-            ctx.globalAlpha = star.alpha; 
-            ctx.beginPath(); 
-            // 常に通常の丸い星を描画
-            ctx.arc(star.x, star.y, star.z * 0.8, 0, Math.PI * 2); 
-            ctx.fill();
+            ctx.globalAlpha = star.alpha; ctx.beginPath(); ctx.arc(star.x, star.y, star.z * 0.8, 0, Math.PI * 2); ctx.fill();
         });
         requestAnimationFrame(animate);
     }
@@ -666,7 +526,6 @@ function initTelemetryStream() {
     const stream = document.getElementById('telemetry-stream');
     if (!stream) return;
     const msgs =["SYS_CHK", "DAT_RCV", "SYNC_OK", "UV_SENS", "PRS_NRM", "TMP_STB", "ALT_UPD", "GPS_LCK"];
-    
     setInterval(() => {
         if (Math.random() > 0.85) return;
         const line = document.createElement('div');
@@ -682,40 +541,19 @@ function initWaveformGraph() {
     const canvas = document.getElementById('waveform-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const width = canvas.width; 
-    const height = canvas.height; 
-    const centerY = height / 2;
+    const width = canvas.width, height = canvas.height, centerY = height / 2;
     const points = new Array(width).fill(centerY);
     let time = 0;
-    
     function draw() {
         ctx.clearRect(0, 0, width, height);
         time += 0.05;
-        
-        let baseWave = Math.sin(time) * 8;
-        let noise = (Math.random() - 0.5) * 4;
-        
-        let spikeChance = isTurbulenceActive ? 0.3 : 0.96; 
-        let spikeMult = isTurbulenceActive ? 80 : 40;      
-        
-        if (Math.random() > spikeChance) {
-            noise += (Math.random() - 0.5) * spikeMult;
-        }
-        
-        let newY = centerY + baseWave + noise;
-        points.shift(); 
-        points.push(Math.max(5, Math.min(height - 5, newY)));
-        
-        ctx.beginPath(); 
-        ctx.moveTo(0, points[0]);
+        let noise = (Math.random() - 0.5) * (isTurbulenceActive ? 80 : 4);
+        if (Math.random() > (isTurbulenceActive ? 0.3 : 0.96)) noise += (Math.random() - 0.5) * 40;
+        points.shift(); points.push(Math.max(5, Math.min(height - 5, centerY + Math.sin(time) * 8 + noise)));
+        ctx.beginPath(); ctx.moveTo(0, points[0]);
         for (let i = 1; i < width; i++) ctx.lineTo(i, points[i]);
-        
         ctx.strokeStyle = isTurbulenceActive ? 'rgba(255, 51, 51, 0.9)' : 'rgba(212, 175, 55, 0.8)'; 
-        ctx.lineWidth = 1.2; 
-        ctx.shadowBlur = 4;
-        ctx.shadowColor = isTurbulenceActive ? 'rgba(255, 51, 51, 0.8)' : 'rgba(212, 175, 55, 0.5)';
-        ctx.stroke();
-        
+        ctx.lineWidth = 1.2; ctx.shadowBlur = 4; ctx.shadowColor = ctx.strokeStyle; ctx.stroke();
         requestAnimationFrame(draw);
     }
     draw();
@@ -724,10 +562,8 @@ function initWaveformGraph() {
 function triggerBalloonBurst() {
     const alertBox = document.getElementById('hud-alert-burst');
     if(alertBox) alertBox.classList.remove('hidden');
-    
     document.body.classList.add('shake-active');
     isTurbulenceActive = true;
-
     setTimeout(() => {
         if(alertBox) alertBox.classList.add('hidden');
         document.body.classList.remove('shake-active');
@@ -737,128 +573,39 @@ function triggerBalloonBurst() {
 
 function triggerTroposphereEntry() {
     const frost = document.getElementById('frost-overlay');
-    const altDisplay = document.getElementById('live-altitude');
-    const tempDisplay = document.getElementById('hud-temp-val');
-
     if (frost) frost.classList.add('active');
-
-    let glitchInterval = setInterval(() => {
-        if(altDisplay) altDisplay.innerText = Math.random().toString(36).substring(2, 7).toUpperCase();
-        if(tempDisplay) tempDisplay.innerText = "!#*@?";
-    }, 50);
-
+    document.body.classList.add('sys-glitch');
     setTimeout(() => {
-        clearInterval(glitchInterval);
-    }, 500);
-
-    setTimeout(() => {
+        document.body.classList.remove('sys-glitch');
         if (frost) frost.classList.remove('active');
     }, 1500);
 }
 
-// === タイムラインのドラッグスクロール機能（PC用） ===
 function initTimelineDrag() {
     const slider = document.getElementById('h-timeline-wrapper');
-    if (!slider) return;
-
-    // ★追加: スマホやタブレットでは自作のドラッグを無効化し、ネイティブの横スワイプに任せる
-    if (window.innerWidth <= 768) return;
-
-    let isDown = false;
-    let startX;
-    let scrollLeft;
-
-    slider.addEventListener('mousedown', (e) => {
-        isDown = true;
-        slider.style.cursor = 'grabbing';
-        // ドラッグ中はスナップを解除（ガクガク防止）
-        slider.style.scrollSnapType = 'none';
-        startX = e.pageX - slider.offsetLeft;
-        scrollLeft = slider.scrollLeft;
-    });
-
-    slider.addEventListener('mouseleave', () => {
-        isDown = false;
-        slider.style.cursor = 'grab';
-        slider.style.scrollSnapType = ''; // スナップを戻す
-    });
-
-    slider.addEventListener('mouseup', () => {
-        isDown = false;
-        slider.style.cursor = 'grab';
-        slider.style.scrollSnapType = ''; // スナップを戻す
-    });
-
-    slider.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - slider.offsetLeft;
-        const walk = (x - startX) * 2; 
-        slider.scrollLeft = scrollLeft - walk;
-    });
+    if (!slider || window.innerWidth <= 768) return;
+    let isDown = false, startX, scrollLeft;
+    slider.addEventListener('mousedown', (e) => { isDown = true; slider.style.cursor = 'grabbing'; slider.style.scrollSnapType = 'none'; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; });
+    slider.addEventListener('mouseleave', () => { isDown = false; slider.style.cursor = 'grab'; slider.style.scrollSnapType = ''; });
+    slider.addEventListener('mouseup', () => { isDown = false; slider.style.cursor = 'grab'; slider.style.scrollSnapType = ''; });
+    slider.addEventListener('mousemove', (e) => { if (!isDown) return; e.preventDefault(); const x = e.pageX - slider.offsetLeft; slider.scrollLeft = scrollLeft - (x - startX) * 2; });
 }
 
-// === 3Dフライトトラッカー（Deck.gl）スマホ・PC最適化版 ===
 function init3DFlightMap() {
     const container = document.getElementById('flight-3d-map');
     if (!container) return;
-
-    // KMLの実データ
     const MAP_FLIGHT_PATH = [[134.157893, 33.287018, 85.69],[134.157915, 33.286996, 87.73],[134.155705, 33.286825, 305.46],[134.159631, 33.295065, 1756.35],[134.170768, 33.290033, 3230.36],[134.183150, 33.270356, 4572.89],[134.244968, 33.266795, 5891.76],[134.370496, 33.306920, 7364.11],[134.514606, 33.353151, 8755.08],[134.665581, 33.382055, 10134.90],[134.837093, 33.405196, 11550.92],[135.020491, 33.433081, 13057.94],[135.196810, 33.432083, 14652.58],[135.362183, 33.425141, 16437.47],[135.462263, 33.420216, 18492.02],[135.486788, 33.424595, 20748.52],[135.505456, 33.412331, 23084.25],[135.489921, 33.399596, 25054.33],[135.488483, 33.402246, 23187.45],[135.663106, 33.394521, 12937.26],[135.835711, 33.420206, 9236.70],[135.972568, 33.460986, 6348.01],[136.034388, 33.454710, 3899.90],[136.049366, 33.453411, 1606.17],[136.054945, 33.449765, 0]];
-
     const isMobile = window.innerWidth <= 768;
-
-    // スマホとPCで最適な視点を個別に設定する
-    let viewState = {};
-
-     if (isMobile) {
-        // ▼▼▼ スマホ用の設定を上書き ▼▼▼
-        viewState = {
-            longitude: 135.10, // 始点と終点の真ん中
-            latitude: 32.30,   // ★大きく手前（南）に引いて奥を見渡す
-            zoom: 6.5,         // ★ズームをしっかり引いて左右の端を画面に収める
-            pitch: 70,         // ★高度を強調するため横から見上げる
-            bearing: -10         // 正面から見る
-        };
-    } else {
-        // PC用：画面が横長なため、少し寄ってダイナミックに見せる
-        viewState = {
-            longitude: 135.10,
-            latitude: 33.20,
-            zoom: 8.2,
-            pitch: 70,         // 横からの視点を強調
-            bearing: -15
-        };
-    }
-
-    // --- マップの描画 ---
+    let viewState = isMobile ? { longitude: 135.15, latitude: 33.35, zoom: 8.2, pitch: 60, bearing: -20 } 
+                             : { longitude: 135.10, latitude: 33.20, zoom: 8.2, pitch: 70, bearing: -15 };
     new deck.DeckGL({
         container: container,
         mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
         initialViewState: viewState, 
         controller: true,
         layers:[
-            new deck.PathLayer({
-                id: 'flight-path',
-                data:[{ path: MAP_FLIGHT_PATH }],
-                getPath: d => d.path,
-                getColor:[212, 175, 55, 255],
-                getWidth: 4,
-                widthMinPixels: 3,
-                getZ: d => d[2] * 2.5 // 高さを2.5倍に強調
-            }),
-            new deck.ColumnLayer({
-                id: 'poi-pillars',
-                data: [
-                    { position:[134.157893, 33.287018], elevation: 1000, color:[255, 255, 255, 150] }, 
-                    { position:[136.054945, 33.449765], elevation: 1000, color:[255, 51, 51, 150] } 
-                ],
-                diskResolution: 12,
-                radius: 1500,
-                extruded: true,
-                getFillColor: d => d.color,
-                getElevation: d => d.elevation,
-            })
+            new deck.PathLayer({ id: 'flight-path', data:[{ path: MAP_FLIGHT_PATH }], getPath: d => d.path, getColor:[212, 175, 55, 255], getWidth: 4, widthMinPixels: 3, getZ: d => d[2] * 2.5 }),
+            new deck.ColumnLayer({ id: 'poi-pillars', data: [{ position:[134.157893, 33.287018], elevation: 1000, color:[255, 255, 255, 150] }, { position:[136.054945, 33.449765], elevation: 1000, color: [255, 51, 51, 150] }], diskResolution: 12, radius: 1500, extruded: true, getFillColor: d => d.color, getElevation: d => d.elevation })
         ]
     });
 }
