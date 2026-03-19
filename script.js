@@ -1,5 +1,3 @@
-// --- START OF FILE script.js ---
-
 // --- KMLフライトデータ（全データ完全網羅） ---
 // 上昇フェーズ (地上 〜 最高到達点)
 const ASCENT_DATA =[
