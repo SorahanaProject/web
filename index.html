@@ -121,8 +121,7 @@
             
             <div class="hud-label" style="margin-top:15px;">PRESSURE</div>
             <div class="hud-value" style="font-size: 1.2rem; color: #ccc;">
-                <!-- smallタグに id="hud-pres-unit" を追加 -->
-                <span id="hud-pres-val">24</span><small id="hud-pres-unit"> hPa</small>
+                <span id="hud-pres-val">24</span><small style="font-size: 0.8rem;"> hPa</small>
             </div>
             
             <div class="hud-label" style="margin-top:15px;">COORD (LAT/LON)</div>
@@ -135,7 +134,6 @@
                 <span id="hud-vel">0.00</span><small style="font-size: 0.8rem;"> m/s</small>
             </div>
             
-            <!-- ★バルーンバースト用アラート -->
             <div id="hud-alert-burst" class="hud-alert hidden">[ EVENT: BALLOON BURST ]</div>
         </div>
 
@@ -180,7 +178,7 @@
                     <li><a href="#instagram-feed">Instagram</a></li>
                     <li><a href="#supporters">Support</a></li>
                     <li><a href="#contact">Contact</a></li>
-                    <li class="lang-switch" id="langBtn">&#x1f1fa; EN</li>
+                    <li class="lang-switch" id="langBtn">EN</li>
                 </ul>
             </nav>
         </div>
@@ -191,7 +189,6 @@
     <div id="hero" class="hero">
         <div class="hero-bg-wrapper">
             <video id="hero-video" autoplay loop muted playsinline preload="metadata" poster="images/stratosphere.png"></video>
-            <!-- SEO: alt属性の最適化 -->
             <img src="images/stratosphere.png" class="hero-bg" alt="成層圏から見た地球の美しい景色と宇宙を旅するSorahana Project">
             <div class="hero-overlay"></div>
         </div>
@@ -217,7 +214,7 @@
         <div class="container text-center">
             <p class="lead-text js-scroll">
                 <span lang="ja">
-                    「成層圏でドライフラワーを作れないか？」<br>
+                    「成層圏でドライフラワーを作れないか？」<br class="br-pc">
                     私たちは新たな仮説を立てました。<br>
                     成層圏の低温・真空の環境を使えば、<br>
                     地上では作れない最高の<br class="br-sp">
@@ -238,10 +235,9 @@
         </div>
     </section>
 
-<section id="about" class="bg-dark">
+    <section id="about" class="bg-dark">
         <h2 class="section-title js-scroll">The Experiment</h2>
         
-        <!-- ★完全に新しいクラス名で横スクロールを安全に実装 -->
         <div class="h-timeline-wrapper" id="h-timeline-wrapper">
             <div class="h-timeline" id="h-timeline-container">
                 <div class="h-timeline-item">
@@ -249,7 +245,6 @@
                     <div class="h-timeline-content">
                         <span class="phase">Phase 01</span>
                         <h3>Preparation</h3>
-                        <!-- SEO: alt属性の最適化 -->
                         <img src="images/g-roses.jpg" alt="愛知県産スプレーバラを宇宙用特別コンテナにセットする準備風景" class="h-timeline-img">
                         <p><span lang="ja">乾燥しやすく美しい「愛知県産スプレーバラ」を選定。UVカットフィルムと透湿防水シートを備えた、特別なコンテナを製作。</span><span lang="en">Selected spray roses from Aichi. Created a special container with UV-blocking film and moisture-permeable sheets.</span></p>
                     </div>
@@ -259,7 +254,6 @@
                     <div class="h-timeline-content">
                         <span class="phase">Phase 02</span>
                         <h3>Launch</h3>
-                        <!-- SEO: alt属性の最適化 -->
                         <img src="images/g-night.jpg" alt="早朝、ヘリウムガスを充填したバルーンを成層圏に向けてリリースする様子" class="h-timeline-img">
                         <p><span lang="ja">早朝、バルーンにヘリウムガスを充填しリリース。機体は秒速5mで上昇を開始。</span><span lang="en">Released the balloon filled with helium gas early in the morning. Ascended at 5m/s.</span></p>
                     </div>
@@ -269,7 +263,6 @@
                     <div class="h-timeline-content">
                         <span class="phase">Phase 03</span>
                         <h3>Stratosphere</h3>
-                        <!-- SEO: alt属性の最適化 -->
                         <img src="images/g-stratosphere.jpg" alt="高度25,346mの極低温・低気圧な成層圏を飛行するコンテナ" class="h-timeline-img">
                         <p><span lang="ja">高度25,346mに到達。気温-38.8℃、気圧は24hPa。極限の環境下でフライトを継続。</span><span lang="en">Reached 25,346m. Temp -38.8°C. Extreme environment with 1/100th atmospheric pressure.</span></p>
                     </div>
@@ -279,7 +272,6 @@
                     <div class="h-timeline-content">
                         <span class="phase">Phase 04</span>
                         <h3>Recovery</h3>
-                        <!-- SEO: alt属性の最適化 -->
                         <img src="images/flight-map.jpg" alt="パラシュートで降下しGPSを頼りに海上で機体を回収したフライトマップ" class="h-timeline-img">
                         <p><span lang="ja">バルーン破裂後、パラシュートで降下。GPSを頼りに海上で機体を回収。</span><span lang="en">After balloon burst, descended via parachute. Recovered at sea using GPS.</span></p>
                     </div>
@@ -289,7 +281,6 @@
                     <div class="h-timeline-content">
                         <span class="phase">Phase 05</span>
                         <h3>Analysis</h3>
-                        <!-- SEO: alt属性の最適化 -->
                         <img src="images/g-dried.jpg" alt="宇宙の過酷な環境を経て黄金色に変化した特別なドライフラワー" class="h-timeline-img">
                         <p><span lang="ja">花の状態を確認。鮮やかな赤色は、宇宙の刻印とも言える「黄金色」へと変化していました。</span><span lang="en">Confirmed the flowers. The vivid red color had changed to a "golden" color, a mark of space.</span></p>
                     </div>
@@ -300,34 +291,24 @@
         <div class="container">
             <div class="experiment-vertical-view js-scroll">
                 <div class="exp-card">
-                    <!-- SEO: alt属性の最適化 -->
                     <img src="images/story.jpg" alt="UVカットフィルムと透湿防水シートを備えたSorahana Projectの特別コンテナ">
                     <div class="exp-caption"><h3>Special Container</h3></div>
                 </div>
-            <div class="map-container">
-                <!-- 追加：地図の「上」に表示されるタイトルエリア -->
-                <div class="map-top-title">
-                    <h3>Flight Trajectory</h3>
-                    <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
-                </div>
-            
-                <!-- 地図本体の枠 -->
-                <div class="map-view-wrapper">
+                <div class="exp-card map-container">
                     <div id="flight-3d-map"></div>
-                    <div class="map-hint">
-                        <span lang="ja">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</span>
-                        <span lang="en">[ Drag to rotate / Ctrl+Drag to tilt ]</span>
+                    
+                    <div class="exp-caption" style="pointer-events:none; z-index: 10;">
+                        <h3>Flight Trajectory</h3>
+                        <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
                     </div>
+                    <div class="map-hint" style="pointer-events:none;">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</div>
                 </div>
-            </div>
                 
             <div class="comparison-section js-scroll">
                 <h3>Visualizing the Change</h3>
                 <p class="text-center" style="margin-bottom:20px; color:#aaa; font-size:0.9rem;"><span lang="ja">スライダーを動かして変化を確認</span><span lang="en">Drag the slider to compare</span></p>
                 <div class="compare-container">
-                    <!-- SEO: alt属性の最適化 -->
                     <div class="img-wrapper before"><img src="images/g-roses.jpg" alt="打ち上げ前の色鮮やかな愛知県産スプレーバラ"><span class="label">Before (Earth)</span></div>
-                    <!-- SEO: alt属性の最適化 -->
                     <div class="img-wrapper after" id="compare-overlay"><img src="images/g-dried.jpg" alt="宇宙空間でエイジングされ黄金色に変化したドライフラワー"><span class="label">After (Space)</span></div>
                     <input type="range" min="0" max="100" value="50" class="slider" id="compare-slider">
                     <div class="slider-button" id="slider-button"><span>&lt;&gt;</span></div>
@@ -341,22 +322,18 @@
         <div class="container">
             <div class="gallery-grid">
                 <div class="gallery-item js-scroll" data-title-ja="成層圏からの眺望" data-title-en="Flight View" data-desc-ja="高度25,346m、気温マイナス38.8℃。過酷な環境下でのフライト映像。" data-desc-en="The container reached 25,346 meters." data-img="images/g-stratosphere.jpg">
-                    <!-- SEO: alt属性の最適化 -->
                     <img src="images/g-stratosphere.jpg" alt="高度25,346m、気温マイナス38.8℃の成層圏からのフライト眺望">
                     <div class="gallery-label"><span lang="ja">成層圏からの眺望</span><span lang="en">Flight View</span></div>
                 </div>
                 <div class="gallery-item js-scroll" data-title-ja="愛知県産スプレーバラ" data-title-en="Spray Roses" data-desc-ja="日本一の生産額を誇る愛知県のバラを選定。" data-desc-en="We chose Spray Roses from Aichi." data-img="images/g-roses.jpg">
-                    <!-- SEO: alt属性の最適化 -->
                     <img src="images/g-roses.jpg" alt="日本一の生産額を誇る愛知県産のスプレーバラ">
                     <div class="gallery-label"><span lang="ja">スプレーバラ</span><span lang="en">Spray Roses</span></div>
                 </div>
                 <div class="gallery-item js-scroll" data-title-ja="実験結果：色の変化" data-title-en="The Result" data-desc-ja="帰還した花は、鮮やかな色からアンティークのような黄金色へ変化しました。" data-desc-en="The flowers changed to an antique-like color." data-img="images/g-dried.jpg">
-                    <!-- SEO: alt属性の最適化 -->
                     <img src="images/g-dried.jpg" alt="鮮やかな赤色からアンティークのような黄金色へ変化した実験結果">
                     <div class="gallery-label"><span lang="ja">実験結果</span><span lang="en">Result</span></div>
                 </div>
                 <div class="gallery-item js-scroll" data-title-ja="ボトルフラワー" data-title-en="Bottle Flower" data-desc-ja="宇宙を旅した物語をボトルに封じ込めました。" data-desc-en="We put these flowers in bottles." data-img="images/g-bottle.jpg">
-                    <!-- SEO: alt属性の最適化 -->
                     <img src="images/g-bottle.jpg" alt="宇宙を旅した物語を封じ込めた製品化ボトルフラワー">
                     <div class="gallery-label"><span lang="ja">製品化：ボトルフラワー</span><span lang="en">Bottle Flower</span></div>
                 </div>
@@ -369,7 +346,6 @@
         <div class="container">
             <div class="blog-grid">
                 <article class="blog-card js-scroll">
-                    <!-- SEO: alt属性の最適化 -->
                     <div class="blog-img"><img src="images/item1.jpg" alt="新たな仮説：宇宙エイジングに関する研究展望" onerror="this.src='https://placehold.co/400x250/111/444?text=Hypothesis'"></div>
                     <div class="blog-content">
                         <span class="date">New Hypothesis</span>
@@ -377,7 +353,6 @@
                     </div>
                 </article>
                 <article class="blog-card js-scroll">
-                    <!-- SEO: alt属性の最適化 -->
                     <div class="blog-img"><img src="images/item2.jpg" alt="ブランドストーリーの進化と今後のSorahana Project" onerror="this.src='https://placehold.co/400x250/111/444?text=Brand+Story'"></div>
                     <div class="blog-content">
                         <span class="date">Brand Story</span>
@@ -439,7 +414,6 @@
         </div>
     </section>
 
-    <!-- ★ここにContactセクションが完全に復元されています -->
     <section id="contact">
         <h2 class="section-title js-scroll">Contact</h2>
         <div class="container contact-container js-scroll">
@@ -463,14 +437,12 @@
 
     </main>
 
-    <!-- ★ここにFooterも完全に復元されています -->
     <footer>
         <div class="footer-links"><a href="privacy.html">Privacy Policy</a></div>
         <p>&copy; 2026 Sorahana Project</p>
     </footer>
 
     <a href="#" id="back-to-top" class="back-to-top">
-        <!-- SEO: alt属性の最適化 -->
         <img src="images/rocket.png" alt="ページトップへ戻る" style="width: 100%; height: 100%; object-fit: contain;">
     </a>
 
