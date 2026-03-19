@@ -789,7 +789,7 @@ function initTimelineDrag() {
     });
 }
 
-// === 3Dフライトトラッカー（Deck.gl）自動フィット＆横視点版 ===
+// === 3Dフライトトラッカー（Deck.gl）スマホ・PC最適化版 ===
 function init3DFlightMap() {
     const container = document.getElementById('flight-3d-map');
     if (!container) return;
@@ -797,41 +797,29 @@ function init3DFlightMap() {
     // KMLの実データ
     const MAP_FLIGHT_PATH = [[134.157893, 33.287018, 85.69],[134.157915, 33.286996, 87.73],[134.155705, 33.286825, 305.46],[134.159631, 33.295065, 1756.35],[134.170768, 33.290033, 3230.36],[134.183150, 33.270356, 4572.89],[134.244968, 33.266795, 5891.76],[134.370496, 33.306920, 7364.11],[134.514606, 33.353151, 8755.08],[134.665581, 33.382055, 10134.90],[134.837093, 33.405196, 11550.92],[135.020491, 33.433081, 13057.94],[135.196810, 33.432083, 14652.58],[135.362183, 33.425141, 16437.47],[135.462263, 33.420216, 18492.02],[135.486788, 33.424595, 20748.52],[135.505456, 33.412331, 23084.25],[135.489921, 33.399596, 25054.33],[135.488483, 33.402246, 23187.45],[135.663106, 33.394521, 12937.26],[135.835711, 33.420206, 9236.70],[135.972568, 33.460986, 6348.01],[136.034388, 33.454710, 3899.90],[136.049366, 33.453411, 1606.17],[136.054945, 33.449765, 0]];
 
-    // --- 画面サイズに合わせてカメラを自動計算 ---
-    const width = container.clientWidth || window.innerWidth;
-    const height = container.clientHeight || 450;
+    const isMobile = window.innerWidth <= 768;
 
-    // フライトデータ全体を囲む四角形（少し広めに設定して見切れを防ぐ）
-    const bounds = [[134.1, 33.2], // 南西の端[136.1, 33.5]  // 北東の端
-    ];
+    // スマホとPCで最適な視点を個別に設定する
+    let viewState = {};
 
-    // デフォルトのカメラ設定
-    let viewState = {
-        longitude: 135.1,
-        latitude: 33.3,
-        zoom: 8.2, 
-        pitch: 75, // ★傾きを60から75に変更し、グッと横からの視点にする
-        bearing: -15
-    };
-
-    try {
-        const viewport = new deck.WebMercatorViewport({ width, height });
-        const isMobile = window.innerWidth <= 768;
-        
-        // 画面の端からの余白
-        const padding = isMobile ? 40 : 80;
-        const fitted = viewport.fitBounds(bounds, { padding: padding });
-        
-        viewState.longitude = fitted.longitude;
-        
-        // ★傾き(pitch)をつけると画面上部が奥へ倒れて見切れるため、カメラ中心を少し南(手前)にずらす
-        viewState.latitude = fitted.latitude - (isMobile ? 0.15 : 0.05);
-        
-        // ★スマホの場合はズームを意図的に少し引いて全体を収める
-        viewState.zoom = fitted.zoom - (isMobile ? 0.6 : 0);
-
-    } catch(e) {
-        console.warn("Viewport fitting failed.");
+    if (isMobile) {
+        // スマホ用：画面が縦長なため、ズームを大きく引き、カメラをかなり手前(南)に引いて見上げる
+        viewState = {
+            longitude: 135.10, // 軌跡の中央
+            latitude: 33.00,   // ★大きく手前に引く
+            zoom: 6.8,         // ★ズームを引いて左右の端を画面に収める
+            pitch: 65,         // 見上げ角度
+            bearing: -15       // 少し斜めから
+        };
+    } else {
+        // PC用：画面が横長なため、少し寄ってダイナミックに見せる
+        viewState = {
+            longitude: 135.10,
+            latitude: 33.20,
+            zoom: 8.2,
+            pitch: 70,         // 横からの視点を強調
+            bearing: -15
+        };
     }
 
     // --- マップの描画 ---
@@ -848,7 +836,7 @@ function init3DFlightMap() {
                 getColor:[212, 175, 55, 255],
                 getWidth: 4,
                 widthMinPixels: 3,
-                getZ: d => d[2] * 2.5 // ★高さを2倍から2.5倍に強調
+                getZ: d => d[2] * 2.5 // 高さを2.5倍に強調
             }),
             new deck.ColumnLayer({
                 id: 'poi-pillars',
