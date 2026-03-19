@@ -802,9 +802,9 @@ function init3DFlightMap() {
         // APIキー不要のダークマップを指定
         mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
         initialViewState: {
-            longitude: 135.1,
-            latitude: 33.3,
-            zoom: 7.2,
+            longitude: 135.15,
+            latitude: 33.35,
+            zoom: 8.2,
             pitch: 60,
             bearing: -20
         },
