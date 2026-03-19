@@ -276,6 +276,7 @@ function updateHUD(scrollTop) {
     }
 
     const presDisplay = document.getElementById('hud-pres-val');
+    const presUnitDisplay = document.getElementById('hud-pres-unit');
     if (presDisplay) {
         let pressure = 1013.25;
         if (currentAlt <= 11000) {
@@ -283,7 +284,15 @@ function updateHUD(scrollTop) {
         } else {
             pressure = 226.32 * Math.exp(-0.000157688 * (currentAlt - 11000));
         }
-        presDisplay.textContent = Math.round(pressure);
+
+        if (isEnglish) {
+            // hPa から inHg への変換 (1 hPa = 0.02953 inHg)
+            presDisplay.textContent = (pressure * 0.02953).toFixed(2);
+            if (presUnitDisplay) presUnitDisplay.textContent = ' inHg';
+        } else {
+            presDisplay.textContent = Math.round(pressure);
+            if (presUnitDisplay) presUnitDisplay.textContent = ' hPa';
+        }
     }
 
     const now = performance.now();
@@ -383,6 +392,7 @@ function initLanguageSettings() {
     
     const langBtn = document.getElementById('langBtn');
     if (langBtn) { 
+        langBtn.innerHTML = document.body.classList.contains('en') ? '🇯🇵 JP' : '🇺🇸 EN';
         langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
         langBtn.addEventListener('click', () => {
             const isEn = document.body.classList.toggle('en');
