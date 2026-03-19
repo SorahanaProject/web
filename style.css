@@ -393,21 +393,14 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     
     /* ★修正: 横スクロールタイムラインのスマホ最適化（絶対に縦に落ちないように強制） */
     .h-timeline-wrapper {
-        width: 100vw;
-        margin-left: calc(50% - 50vw);
+         .h-timeline-wrapper {
+        /* 横揺れバグを防ぐため、100vwではなく親のpaddingを相殺する幅にする */
+        width: calc(100% + 30px) !important;
+        margin-left: -15px !important;
         padding: 40px 0 60px 0;
-        /* スマホで横スワイプを許可する */
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        -webkit-overflow-scrolling: touch !important;
-        scroll-snap-type: x mandatory !important;
-        touch-action: pan-x pan-y !important;
-        
-        /* ★この2行を追加：スマホは画面が狭いのでマスクの範囲を少し狭める */
-        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%) !important;
-        mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%) !important;
     }
     .h-timeline {
+        padding: 0 15px !important; 
         /* スマホでも絶対に縦並びさせないための念押し */
         display: flex !important;
         flex-direction: row !important;
