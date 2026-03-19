@@ -55,9 +55,25 @@ header.scrolled .logo-img { height: 35px; }
 .experiment-vertical-view { display: flex; flex-direction: column; gap: 80px; align-items: center; width: 100%; max-width: 900px; margin: 0 auto 100px auto; }
 
 /* --- Special Container 写真と文字 --- */
-.exp-card { position: relative; width: 100%; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); background: #000; }
-.exp-card img { width: 100%; height: auto; display: block; opacity: 0.85; transition: 0.6s; }
-.exp-card:hover img { opacity: 0.6; transform: scale(1.03); }
+.exp-card {
+    position: relative !important; /* 子要素の基準にする */
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    background: #000;
+}
+
+.exp-card .exp-caption { 
+    position: absolute !important; 
+    top: 50% !important; 
+    left: 50% !important; 
+    transform: translate(-50%, -50%) !important; /* 完全に中央へ */
+    width: 100%;
+    text-align: center;
+    z-index: 5;
+    pointer-events: none;
+}
 
 /* 写真の上に重なる文字（Special Container用） */
 .exp-card .exp-caption { 
@@ -66,19 +82,25 @@ header.scrolled .logo-img { height: 35px; }
 }
 .exp-caption h3 { font-family: var(--font-en); color: var(--accent-color); font-size: clamp(1.8rem, 4vw, 2.8rem); margin-bottom: 5px; }
 
-/* --- 3D Flight Map (タイトルを上に、説明を地図内に) --- */
-.map-container { display: flex !important; flex-direction: column !important; gap: 15px !important; width: 100%; }
-
-/* 地図の上のタイトル部分（ここが崩れの原因だったので修正） */
-.map-top-caption { 
-    position: static !important; transform: none !important; text-align: left !important; width: 100% !important; 
+.exp-card {
+    position: relative !important; /* 子要素の基準にする */
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    background: #000;
 }
-.map-top-caption h3 { font-size: 2.2rem !important; margin: 0 !important; }
-.map-top-caption p { margin: 5px 0 0 0 !important; opacity: 0.8; }
 
-/* 地図の枠 */
-.map-view-wrapper { position: relative; width: 100%; height: 450px; border-radius: 16px; overflow: hidden; border: 1px solid var(--glass-border); background: #0a0a0a; }
-#flight-3d-map { width: 100%; height: 100%; }
+.exp-card .exp-caption { 
+    position: absolute !important; 
+    top: 50% !important; 
+    left: 50% !important; 
+    transform: translate(-50%, -50%) !important; /* 完全に中央へ */
+    width: 100%;
+    text-align: center;
+    z-index: 5;
+    pointer-events: none;
+}
 
 /* 地図内のヒント（左下） */
 .map-view-wrapper .map-hint { 
@@ -113,5 +135,23 @@ header.scrolled .logo-img { height: 35px; }
 .back-to-top { position: fixed; right: 30px; top: 30px; width: 50px; z-index: 999; opacity: 0; transition: 0.3s; }
 .back-to-top.show { opacity: 1; animation: rocketIdle 2s infinite; }
 @keyframes rocketIdle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-.hero { position: relative; height: 100vh; display: flex; justify-content: flex-end; align-items: center; overflow: hidden; }
-.hero-content { z-index: 1; padding: 60px; margin-right: 8%; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-left: 3px solid var(--accent-color); border-radius: 0 30px 0 30px; max-width: 600px; }
+
+/* --- 言語スイッチのスタイル --- */
+.lang-switch {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer;
+    border: 1px solid var(--accent-color);
+    padding: 5px 12px;
+    border-radius: 4px;
+    color: var(--accent-color);
+    font-weight: bold;
+    font-family: var(--font-en);
+    transition: 0.3s;
+    list-style: none;
+}
+.lang-switch:hover {
+    background: var(--accent-color);
+    color: #000;
+}
