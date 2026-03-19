@@ -303,20 +303,24 @@
                     <img src="images/story.jpg" alt="UVカットフィルムと透湿防水シートを備えたSorahana Projectの特別コンテナ">
                     <div class="exp-caption"><h3>Special Container</h3></div>
                 </div>
-                <!-- 修正後：文字を地図の外（下）に出す構造 -->
-                <div class="exp-card map-container">
-    <!-- 1. まず地図を表示 -->
-    <div id="flight-3d-map"></div>
-    
-    <!-- 2. 地図の下に情報をまとめる（style属性は削除し、CSSで制御します） -->
-    <div class="map-info-footer">
-        <div class="exp-caption">
-            <h3>Flight Trajectory</h3>
-            <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
+        <div class="exp-card map-container">
+            <!-- 【修正】タイトルと高度情報を地図の上に配置 -->
+            <div class="exp-caption map-top-caption">
+                <h3>Flight Trajectory</h3>
+                <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
+            </div>
+        
+            <!-- 地図本体のラッパー（操作説明をこの中に絶対配置する） -->
+            <div class="map-view-wrapper">
+                <div id="flight-3d-map"></div>
+                
+                <!-- 【修正】操作説明を地図内に配置し、多言語対応にする -->
+                <div class="map-hint" style="pointer-events:none;">
+                    <span lang="ja">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</span>
+                    <span lang="en">[ Drag to rotate / Ctrl+Drag to tilt ]</span>
+                </div>
+            </div>
         </div>
-        <div class="map-hint">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</div>
-    </div>
-</div>
                 
             <div class="comparison-section js-scroll">
                 <h3>Visualizing the Change</h3>
