@@ -304,18 +304,19 @@
                     <div class="exp-caption"><h3>Special Container</h3></div>
                 </div>
                 <!-- 修正後：文字を地図の外（下）に出す構造 -->
-            <div class="exp-card map-container">
-                <div id="flight-3d-map"></div>
+                <div class="exp-card map-container">
+    <!-- 1. まず地図を表示 -->
+    <div id="flight-3d-map"></div>
     
-                <!-- 地図の下に表示されるキャプションエリア -->
-            <div class="map-details">
-                <div class="exp-caption">
-                    <h3>Flight Trajectory</h3>
-                    <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
-                </div>
-            <div class="map-hint">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</div>
+    <!-- 2. 地図の下に情報をまとめる（style属性は削除し、CSSで制御します） -->
+    <div class="map-info-footer">
+        <div class="exp-caption">
+            <h3>Flight Trajectory</h3>
+            <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
         </div>
+        <div class="map-hint">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</div>
     </div>
+</div>
                 
             <div class="comparison-section js-scroll">
                 <h3>Visualizing the Change</h3>
