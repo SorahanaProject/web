@@ -21,6 +21,8 @@
 
 html {
     height: 100%; width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
     background: #000;
     overflow-y: scroll;
     scrollbar-width: none;
@@ -393,7 +395,6 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     
     /* ★修正: 横スクロールタイムラインのスマホ最適化（絶対に縦に落ちないように強制） */
     .h-timeline-wrapper {
-         .h-timeline-wrapper {
         /* 横揺れバグを防ぐため、100vwではなく親のpaddingを相殺する幅にする */
         width: calc(100% + 30px) !important;
         margin-left: -15px !important;
@@ -758,28 +759,6 @@ body.arrival-shake-active {
 .h-timeline-content h3 {
     margin-top: 0; letter-spacing: 0.1em;
 }
-
-@media (max-width: 768px) {
-    /* 横スクロールタイムラインのスマホ最適化 */
-    .h-timeline-wrapper {
-        /* ★スマホでも画面幅いっぱいまで広げてスクロールできるようにする */
-        width: 100vw;
-        margin-left: calc(50% - 50vw);
-        padding: 40px 0 60px 0;
-    }
-    .h-timeline {
-        /* カード幅の半分(150px) + マージン(20px) を引いてど真ん中に */
-        padding: 0 calc(50vw - 170px); 
-    }
-    .h-timeline-item { 
-        width: 300px; 
-        margin: 0 20px; 
-    }
-    .h-timeline-content { padding: 20px; margin-top: 60px; text-align: left; } 
-    .h-timeline-img { height: 160px; margin-bottom: 15px; }
-    .h-timeline::before { top: 40px; }
-    .h-timeline-dot { top: 30px; width: 16px; height: 16px; }
-    }
 
 /* === 3D Flight Map === */
 .exp-card.map-container {
