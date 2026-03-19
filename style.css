@@ -117,38 +117,13 @@ header.scrolled .logo-img { height: 35px; }
 .back-to-top.show { opacity: 1; animation: rocketIdle 2s infinite; }
 @keyframes rocketIdle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-/* 言語切り替えボタンのスタイル */
-.lang-switch {
-    cursor: pointer;
-    font-weight: bold;
-    color: var(--accent-color);
-    border: 1px solid var(--accent-color);
-    padding: 5px 12px;
-    border-radius: 4px;
-    transition: 0.3s;
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.lang-switch:hover {
-    background: var(--accent-color);
-    color: #000;
-}
+/* =========================================
+   FINAL FIX: Layout & Typography
+   ========================================= */
 
-/* --- Special Container 写真の上に文字を載せる --- */
+/* 1. Special Container (写真の真ん中に文字) */
 .exp-card {
     position: relative !important;
-    width: 100% !important;
-    border-radius: 16px;
-    overflow: hidden;
-    background: #000;
-}
-.exp-card img {
-    width: 100% !important;
-    height: auto !important;
-    display: block !important;
-    opacity: 0.8 !important;
 }
 .exp-card .exp-caption {
     position: absolute !important;
@@ -156,76 +131,72 @@ header.scrolled .logo-img { height: 35px; }
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     width: 100% !important;
-    text-align: center !important;
-    z-index: 5 !important;
-    pointer-events: none;
+    z-index: 10 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
-.exp-caption h3 {
-    font-family: var(--font-en);
-    color: var(--accent-color);
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
-    text-shadow: 0 0 20px rgba(0,0,0,1);
-}
-/* --- Flight Trajectory タイトルを地図の上に置く --- */
+
+/* 2. Flight Trajectory (地図の「上」にタイトル) */
 .map-container {
     display: flex !important;
-    flex-direction: column !important;
+    flex-direction: column !important; /* 縦並びを強制 */
     gap: 20px !important;
     height: auto !important;
-    position: relative !important;
-    background: transparent !important;
 }
-
-/* 地図の上のタイトル部分を強制的に通常配置にする */
-.map-top-caption {
+.map-top-title {
     position: relative !important;
-    top: 0 !important;
-    left: 0 !important;
-    transform: none !important;
-    width: 100% !important;
     text-align: left !important;
+    width: 100% !important;
+    order: -1 !important; /* 必ず地図より前に配置 */
+}
+.map-top-title h3 {
+    font-size: 2.2rem !important;
+    color: var(--accent-color) !important;
+    margin: 0 !important;
 }
 
+/* 3. 地図本体とヒント */
 .map-view-wrapper {
     position: relative !important;
     width: 100% !important;
     height: 450px !important;
     border-radius: 16px;
     overflow: hidden;
-    border: 1px solid var(--glass-border);
 }
-
-/* 地図の中の操作ヒント */
-.map-hint {
+.map-view-wrapper .map-hint {
     position: absolute !important;
     bottom: 20px !important;
     left: 20px !important;
-    z-index: 10 !important;
+    top: auto !important;
+    z-index: 15 !important;
     background: rgba(0,0,0,0.6) !important;
     padding: 8px 15px !important;
-    font-family: var(--font-tech);
-    color: var(--hud-color);
-    font-size: 0.75rem;
+    border-radius: 4px;
+    width: auto !important;
 }
 
-/* --- Visualizing the Change サイズ調整 --- */
+/* 4. 比較スライダーのサイズ固定 */
 .comparison-section {
     width: 100% !important;
     max-width: 900px !important;
-    margin: 60px auto !important;
+}
+.compare-container {
+    aspect-ratio: 16 / 9 !important; /* PC比率 */
+    width: 100% !important;
+    height: auto !important;
 }
 
-.compare-container {
-    width: 100% !important;
-    aspect-ratio: 16 / 9 !important; /* PC: Special Containerと同じ比率 */
-    position: relative !important;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid var(--glass-border);
+/* 5. 言語スイッチの旗 */
+.lang-switch {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    border: 1px solid var(--accent-color) !important;
+    padding: 4px 10px !important;
 }
 
 @media (max-width: 768px) {
     .map-view-wrapper { height: 350px !important; }
-    .compare-container { aspect-ratio: 4 / 3 !important; } /* スマホ: Galleryと同じ比率 */
-    .map-hint { display: none !important; }
+    .compare-container { aspect-ratio: 4 / 3 !important; } /* スマホ比率 */
+    .map-top-title h3 { font-size: 1.6rem !important; }
 }
