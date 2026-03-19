@@ -882,3 +882,105 @@ body.arrival-shake-active {
         aspect-ratio: 4 / 3; 
     }
 }
+/* --- 3Dフライトセクションのレイアウト（既存の上書き） --- */
+.map-container {
+    display: flex !important;
+    flex-direction: column !important; /* 縦並びにする */
+    gap: 15px !important;
+    background: transparent !important;
+    height: auto !important; /* 高さを固定しない */
+}
+
+/* タイトルと高度情報を地図の上に配置 */
+.map-top-caption {
+    position: static !important; /* 絶対配置を解除 */
+    transform: none !important;
+    padding: 0 !important;
+    text-align: left !important;
+    width: 100% !important;
+}
+
+/* 地図とヒントを包む枠（ここで地図の大きさを決める） */
+.map-view-wrapper {
+    position: relative !important;
+    width: 100% !important;
+    height: 450px; /* パソコンでの地図の高さ */
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+#flight-3d-map {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* 地図の中の操作説明（左下に浮かせる） */
+.map-hint {
+    position: absolute !important;
+    bottom: 15px !important;
+    left: 15px !important;
+    top: auto !important; /* 上からの指定をリセット */
+    z-index: 10;
+    font-size: 0.75rem;
+    color: var(--hud-color);
+    background: rgba(0, 0, 0, 0.5); /* 文字が見やすいよう背景を少し暗く */
+    padding: 6px 12px;
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+/* --- 言語切り替えの表示制御（既存にない場合は必須） --- */
+body:not(.en) [lang="en"] {
+    display: none !important;
+}
+body.en [lang="ja"] {
+    display: none !important;
+}
+
+/* --- Visualizing the Change (比較スライダー) のサイズ調整 --- */
+.comparison-section {
+    width: 100%;
+    margin: 60px auto;
+}
+
+.compare-container {
+    width: 100% !important;
+    max-width: none !important;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    aspect-ratio: 16 / 9; /* PCでの写真の比率 */
+}
+
+.compare-container img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* PC：Special Containerと同じくらいのサイズに制限 */
+@media (min-width: 1025px) {
+    .comparison-section {
+        max-width: 800px; /* ここの数値でPCでの写真の大きさを調整できます */
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* スマホ用レスポンシブ設定 */
+@media (max-width: 768px) {
+    .map-view-wrapper {
+        height: 350px; /* スマホでは地図を少し低く */
+    }
+
+    .compare-container {
+        aspect-ratio: 4 / 3; /* スマホ：Galleryと同じ比率（4:3）に */
+        width: 100% !important;
+    }
+    
+    .comparison-section {
+        max-width: 100%;
+        padding: 0;
+    }
+}
