@@ -261,13 +261,12 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 
 .map-link:hover .map-overlay-btn { background: var(--accent-color); color: #000; transform: translate(-50%, -50%) scale(1.05); margin-top: 80px; }
 
-/* === Visualizing the Change (Comparison Slider) === */
+/* === Visualizing the Change (PC版サイズ完全固定) === */
 .compare-container { 
     position: relative; 
-    width: 100%; 
-    max-width: 900px !important; /* PC版Special Containerに合わせる */
-    height: 500px !important;    /* PC版の高さ */
-    margin: 40px auto 0; 
+    width: 900px !important; /* ★PC版の横幅を900pxに強制固定 */
+    height: 500px !important; /* ★PC版の高さを500pxに強制固定 */
+    margin: 40px auto 0 !important; 
     overflow: hidden; 
     border-radius: 16px; 
     border: 1px solid var(--glass-border); 
@@ -275,46 +274,44 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
     background: #111;
 }
 
-/* 画像を包む枠 */
+/* 画像を包む枠（カーテン） */
 .img-wrapper { 
     position: absolute; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    overflow: hidden; /* ★ここが重要：はみ出た画像を隠す */
+    top: 0; left: 0; 
+    width: 100%; height: 100%; 
+    overflow: hidden; /* はみ出た画像を隠す */
 }
 
-/* スライダーで動く方の枠 (After) */
+/* スライダーで動く After 側の枠 */
 .img-wrapper.after { 
-    width: 50%; /* JSでここが変わります */
+    width: 50%; /* JSでこの数値が変わる */
     z-index: 2; 
-    border-right: 2px solid var(--accent-color); 
+    border-right: 3px solid var(--accent-color); 
 }
 
-/* ★画像本体（重要：枠が縮んでも画像は縮ませない） */
+/* ★画像本体：枠が狭くなっても画像は絶対に 900px を維持する設定 */
 .img-wrapper img { 
     display: block;
-    width: 900px !important;  /* ★枠が狭くなっても画像は900pxを維持する */
-    height: 500px !important;
-    object-fit: cover;        /* 画像の比率を保ったまま枠を埋める */
-    max-width: none !important; /* width: 100% などの干渉を無効化 */
+    width: 900px !important;  /* ★枠のサイズに関係なく画像は900px */
+    height: 500px !important; /* ★枠のサイズに関係なく画像は500px */
+    object-fit: cover; 
+    max-width: none !important; /* width: 100% などの干渉を完全に無視 */
 }
 
-/* スライダーの透明な入力バー */
+/* スライダーの透明なバー */
 .compare-container .slider {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     opacity: 0; cursor: col-resize; z-index: 10;
 }
 
-/* 真ん中のボタン */
+/* 中央のつまみボタン */
 .slider-button { 
     position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; 
     background: var(--accent-color); border-radius: 50%; 
     transform: translate(-50%, -50%); z-index: 5; 
     display: flex; justify-content: center; align-items: center; 
-    pointer-events: none; color: #000; font-weight: bold;
+    pointer-events: none; color: #000; font-size: 1.2rem;
 }
 
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
@@ -812,15 +809,14 @@ body.arrival-shake-active {
 
     .map-hint { display: none; }
 
-    /* ビフォーアフターのスマホ表示：Galleryと同じ高さ350pxに調整 */
     .compare-container {
-        height: 350px !important;
+        width: 100% !important; 
+        height: 350px !important; 
         border-radius: 8px;
     }
-    /* スマホ画面に合わせて画像の基準幅を100vwに変更 */
+
     .compare-container .img-wrapper img {
-        width: 100vw !important;
+        width: calc(100vw - 30px) !important;
         height: 350px !important;
-    }
     }
 }
