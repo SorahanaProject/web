@@ -265,29 +265,56 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .compare-container { 
     position: relative; 
     width: 100%; 
-    max-width: 900px !important; /* ★PC版Special Containerと同じ幅 */
-    height: 500px !important;    /* ★高さをPC版サイズに固定 */
+    max-width: 900px !important; /* PC版Special Containerに合わせる */
+    height: 500px !important;    /* PC版の高さ */
     margin: 40px auto 0; 
     overflow: hidden; 
     border-radius: 16px; 
     border: 1px solid var(--glass-border); 
     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    background: #111;
 }
 
+/* 画像を包む枠 */
 .img-wrapper { 
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    overflow: hidden; /* ★ここが重要：はみ出た画像を隠す */
 }
+
+/* スライダーで動く方の枠 (After) */
 .img-wrapper.after { 
-    width: 50%; border-right: 2px solid var(--accent-color); z-index: 2; 
+    width: 50%; /* JSでここが変わります */
+    z-index: 2; 
+    border-right: 2px solid var(--accent-color); 
 }
+
+/* ★画像本体（重要：枠が縮んでも画像は縮ませない） */
 .img-wrapper img { 
-    width: 100%; height: 100%; object-fit: cover; 
+    display: block;
+    width: 900px !important;  /* ★枠が狭くなっても画像は900pxを維持する */
+    height: 500px !important;
+    object-fit: cover;        /* 画像の比率を保ったまま枠を埋める */
+    max-width: none !important; /* width: 100% などの干渉を無効化 */
 }
+
+/* スライダーの透明な入力バー */
 .compare-container .slider {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: col-resize; z-index: 10;
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: col-resize; z-index: 10;
 }
+
+/* 真ん中のボタン */
 .slider-button { 
-    position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; background: var(--accent-color); border-radius: 50%; transform: translate(-50%, -50%); z-index: 5; display: flex; justify-content: center; align-items: center; pointer-events: none; 
+    position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; 
+    background: var(--accent-color); border-radius: 50%; 
+    transform: translate(-50%, -50%); z-index: 5; 
+    display: flex; justify-content: center; align-items: center; 
+    pointer-events: none; color: #000; font-weight: bold;
 }
 
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
@@ -712,7 +739,7 @@ body.arrival-shake-active {
 
     .bg-telemetry, .bg-waveform { display: none; }
 
-    section { padding: 80px 15px; }
+    .section { padding: 80px 15px; }
 
     .section-title { font-size: 2.2rem; margin-bottom: 40px; text-align: center; }
 
@@ -785,10 +812,15 @@ body.arrival-shake-active {
 
     .map-hint { display: none; }
 
-     .compare-container {
-        height: 350px !important;    /* ★ スマホ版Galleryの高さに合わせる */
-        max-width: 100% !important;  /* スマホでは横幅いっぱい */
-        border-radius: 8px;          /* 角丸をスマホサイズに */
-        margin-top: 20px;
+    /* ビフォーアフターのスマホ表示：Galleryと同じ高さ350pxに調整 */
+    .compare-container {
+        height: 350px !important;
+        border-radius: 8px;
+    }
+    /* スマホ画面に合わせて画像の基準幅を100vwに変更 */
+    .compare-container .img-wrapper img {
+        width: 100vw !important;
+        height: 350px !important;
+    }
     }
 }
