@@ -295,15 +295,16 @@
                     <div class="exp-caption"><h3>Special Container</h3></div>
                 </div>
                 <div class="exp-card map-container">
-                    <div id="flight-3d-map"></div>
-                    <!-- ヒントはマップ上に残し、キャプション（タイトル）を下に移動 -->
-                    <div class="map-hint" style="pointer-events:none;">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</div>
-                    
-                    <div class="exp-caption">
-                        <h3>Flight Trajectory</h3>
-                        <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
-                    </div>
+                <!-- マップを上に配置 -->
+                <div id="flight-3d-map"></div>
+                <div class="map-hint" style="pointer-events:none;">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</div>
+            
+                <!-- 文字をマップの外（下側）へ配置 -->
+                <div class="exp-caption">
+                    <h3>Flight Trajectory</h3>
+                    <p><span lang="ja">25,346m 3D Flight</span><span lang="en">83,156ft 3D Flight</span></p>
                 </div>
+            </div>
                 
             <div class="comparison-section js-scroll">
                 <h3>Visualizing the Change</h3>
