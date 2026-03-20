@@ -274,17 +274,36 @@ function updateHUD(scrollTop) {
     const velDisplay = document.getElementById('hud-vel');
     const velLabel = document.getElementById('hud-vel-label');
     if (velDisplay && velLabel) {
+        let displayVel = 0;
+
         if (isReturningToTop) {
-            velLabel.textContent = "▲ ASCENT RATE"; velLabel.style.color = "#33ccff"; 
-            velDisplay.textContent = (5.57 + (Math.random() * 0.06 - 0.03)).toFixed(2);
+            // ロケット上昇演出中
+            velLabel.textContent = "▲ ASCENT RATE"; 
+            velLabel.style.color = "#33ccff"; 
+            displayVel = 5.57 + (Math.random() * 0.06 - 0.03);
         } else {
+            // 通常のスクロール追従中
             let speedMS = Math.abs(smoothedVerticalVelocity); 
             if (speedMS < 0.1) { speedMS = 0; smoothedVerticalVelocity = 0; }
-            if (speedMS === 0) { velLabel.textContent = "■ HOVERING"; velLabel.style.color = "var(--hud-color)"; } 
-            else if (smoothedVerticalVelocity < 0) { velLabel.textContent = "▼ DESCENT RATE"; velLabel.style.color = "#ff3333"; } 
-            else { velLabel.textContent = "▲ ASCENT RATE"; velLabel.style.color = "#33ccff"; }
-            velDisplay.textContent = speedMS.toFixed(2);
+            
+            if (speedMS === 0) { 
+                velLabel.textContent = "■ HOVERING"; 
+                velLabel.style.color = "var(--hud-color)"; 
+            } else if (smoothedVerticalVelocity < 0) { 
+                velLabel.textContent = "▼ DESCENT RATE"; 
+                velLabel.style.color = "#ff3333"; 
+            } else { 
+                velLabel.textContent = "▲ ASCENT RATE"; 
+                velLabel.style.color = "#33ccff"; 
+            }
+            displayVel = speedMS;
         }
+
+        // 英語モードなら mph に変換
+        if (isEnglish) {
+            displayVel = displayVel * 2.23694;
+        }
+        velDisplay.textContent = displayVel.toFixed(2);
     }
 
     const hudLayer = document.getElementById('hud-layer');
