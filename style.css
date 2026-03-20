@@ -68,7 +68,7 @@ h1 span[lang="ja"], h1 span[lang="en"] { display: block; }
 @keyframes shineText { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
 body:not(.en) [lang="en"] { display: none !important; }
-body.en[lang="ja"] { display: none !important; }
+body.en [lang="ja"] { display: none !important; }
 span[lang="en"] { font-size: 1.05em; }
 
 #boot-screen {
