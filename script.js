@@ -245,8 +245,17 @@ function updateHUD(scrollTop) {
 
     const presDisplay = document.getElementById('hud-pres-val');
     if (presDisplay) {
-        let pressure = (currentAlt <= 11000) ? 1013.25 * Math.pow(1 - 0.0065 * currentAlt / 288.15, 5.25588) : 226.32 * Math.exp(-0.000157688 * (currentAlt - 11000));
-        presDisplay.textContent = Math.round(pressure);
+        // まずhPa基準で計算
+        let pressureHpa = (currentAlt <= 11000) ? 1013.25 * Math.pow(1 - 0.0065 * currentAlt / 288.15, 5.25588) : 226.32 * Math.exp(-0.000157688 * (currentAlt - 11000));
+        
+        if (isEnglish) {
+            // 英語モード：hPaをinHgに変換（小数点第2位まで表示）
+            let pressureInHg = pressureHpa * 0.02953;
+            presDisplay.textContent = pressureInHg.toFixed(2);
+        } else {
+            // 日本語モード：hPaのまま（整数表示）
+            presDisplay.textContent = Math.round(pressureHpa);
+        }
     }
 
     const now = performance.now();
