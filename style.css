@@ -391,13 +391,37 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     display: inline-block; 
 }
 
-/* PCでのみ改行する */
-.br-pc { display: inline; } 
+/* --- PC用設定 --- */
 
-/* スマホ用改行をPCで「完全に」消す設定 */
+/* PC用改行：本来の改行(inline)に戻す */
+.br-pc { 
+    display: inline !important; 
+} 
+
+/* スマホ用改行：PCでは「完全に消滅」させる */
 .br-sp { 
     display: none !important; 
-    content: ""; 
+    content: "" !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* --- スマホ用設定（@media (max-width: 768px) の中） --- */
+
+@media (max-width: 768px) {
+    /* PC用改行：スマホでは「完全に消滅」させる */
+    .br-pc { 
+        display: none !important; 
+        content: "" !important;
+        font-size: 0 !important;
+        line-height: 0 !important;
+    }
+    /* スマホ用改行：スマホでは改行として機能させる */
+    .br-sp { 
+        display: block !important; 
+    } 
 }
 
 /* =========================================
