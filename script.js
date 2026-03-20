@@ -679,7 +679,7 @@ function init3DFlightMap() {
     let viewState = isMobile ? { longitude: 135.15, latitude: 33.35, zoom: 8.2, pitch: 60, bearing: -20 } 
                              : { longitude: 134.80, latitude: 33.15, zoom: 8.3, pitch: 70, bearing: -15 };
     
-    new deck.DeckGL({
+    window.deckMap = new deck.DeckGL({
         container: container,
         mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
         initialViewState: viewState, 
