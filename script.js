@@ -299,8 +299,6 @@ function updateHUD(scrollTop) {
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
 
     // ヒーローセクションを過ぎたらHUDと背景パーツを表示
-    const telemetry = document.querySelector('.bg-telemetry');
-    const waveform = document.querySelector('.bg-waveform');
     const heroHeight = document.getElementById('hero')?.offsetHeight || 800;
 
     if (scrollTop > heroHeight * 0.5) {
