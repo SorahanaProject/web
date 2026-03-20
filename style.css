@@ -266,7 +266,7 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
     position: relative; 
     width: 100%; 
     max-width: 900px !important; /* ★PC版Special Containerと同じ幅 */
-    height: 600px !important;    /* ★高さをPC版サイズに固定 */
+    height: 500px !important;    /* ★高さをPC版サイズに固定 */
     margin: 40px auto 0; 
     overflow: hidden; 
     border-radius: 16px; 
@@ -673,25 +673,23 @@ body.arrival-shake-active {
 #flight-3d-map:active {
     cursor: grabbing;
 }
-/* マップ上のタイトル（Flight Trajectory等）の設定 */
+/* マップタイトルの背景（黒い帯）を削除し、マップの上に浮かす */
 .map-container .exp-caption {
-    position: relative; /* ★ absolute（重ねる）から relative（並べる）に変更 */
-    padding: 30px;      /* 文字の周りに余白を作る */
-    background: #000;   /* 背景を黒にして地図と分ける */
-    text-align: center;
+    position: absolute; /* ★ 再度 absolute に戻してマップの上に重ねる */
+    bottom: 65px;       /* 下のヒント(bottom:15px)と被らない高さに配置 */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
     z-index: 10;
-}
-.map-container .exp-caption h3,
-.map-container .exp-caption p {
-    margin: 0;
+    
+    /* 文字の後ろの装飾をリセット */
+    background: transparent !important; /* ★ 黒い帯を完全に透明にする */
+    padding: 0 !important;              /* 余計な余白を消す */
+    
+    /* 背景なしでも文字が読めるように影を強調 */
+    text-shadow: 0 0 20px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1);
+    pointer-events: none;
     text-align: center;
-}
-
-/* タイトル内の文字も中央揃えにする */
-.map-container .exp-caption h3,
-.map-container .exp-caption p {
-    text-align: center;
-    margin: 0;
 }
 
 .map-hint {
