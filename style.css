@@ -27,6 +27,12 @@ html {
 }
 html.lenis { height: auto; }
 ::-webkit-scrollbar { display: none; }
+/* ロード中のスクロールロック用 */
+html.is-locking, 
+html.is-locking body {
+    overflow: hidden !important;
+    height: 100% !important;
+}
 
 body {
     margin: 0; 
