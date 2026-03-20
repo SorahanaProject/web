@@ -132,7 +132,9 @@ function initBootSequence() {
                     }
                 });
             }, 500);
-        }
+         }
+    }, 50); // setInterval を閉じるカッコ
+} // initBootSequence を閉じるカッコ
 
 // === 3. GSAP Site Animations ===
 function initSiteAnimations() {
