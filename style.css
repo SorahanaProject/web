@@ -662,8 +662,7 @@ body.arrival-shake-active {
 }
 .map-container .exp-caption {
     position: absolute;
-    bottom: 30px;
-    left: 30px;
+    top: 30px;
     transform: none;
     z-index: 10;
     text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.9);
