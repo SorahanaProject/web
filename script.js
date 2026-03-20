@@ -299,7 +299,7 @@ function updateHUD(scrollTop) {
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
 
     // ヒーローセクションを過ぎたらHUDと背景パーツを表示
-    const heroHeight = document.getElementById('hero')?.offsetHeight || 800;
+    const heroHeight = hero?.offsetHeight || 800;
 
     if (scrollTop > heroHeight * 0.5) {
         if (hudLayer) hudLayer.classList.add('visible');
