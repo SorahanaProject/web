@@ -261,11 +261,12 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 
 .map-link:hover .map-overlay-btn { background: var(--accent-color); color: #000; transform: translate(-50%, -50%) scale(1.05); margin-top: 80px; }
 
+/* === Visualizing the Change (Comparison Slider) === */
 .compare-container { 
     position: relative; 
     width: 100%; 
-    max-width: 900px !important; /* PC版Special Containerと同じ幅 */
-    height: 600px !important;    /* PC版の高さを固定 */
+    max-width: 900px !important; /* ★PC版Special Containerと同じ幅 */
+    height: 600px !important;    /* ★高さをPC版サイズに固定 */
     margin: 40px auto 0; 
     overflow: hidden; 
     border-radius: 16px; 
@@ -274,49 +275,19 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 }
 
 .img-wrapper { 
-    position: absolute; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    overflow: hidden; 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; 
 }
 .img-wrapper.after { 
-    width: 50%; 
-    border-right: 2px solid var(--accent-color); 
-    z-index: 2; 
+    width: 50%; border-right: 2px solid var(--accent-color); z-index: 2; 
 }
 .img-wrapper img { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
+    width: 100%; height: 100%; object-fit: cover; 
 }
-
 .compare-container .slider {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: col-resize;
-    z-index: 10;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: col-resize; z-index: 10;
 }
-
 .slider-button { 
-    position: absolute; 
-    top: 50%; 
-    left: 50%; 
-    width: 44px; 
-    height: 44px; 
-    background: var(--accent-color); 
-    border-radius: 50%; 
-    transform: translate(-50%, -50%); 
-    z-index: 5; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    pointer-events: none; 
+    position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; background: var(--accent-color); border-radius: 50%; transform: translate(-50%, -50%); z-index: 5; display: flex; justify-content: center; align-items: center; pointer-events: none; 
 }
 
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
@@ -704,14 +675,15 @@ body.arrival-shake-active {
 }
 /* マップ上のタイトル（Flight Trajectory等）の設定 */
 .map-container .exp-caption {
-    position: absolute;
-    bottom: 55px;       /* ★ bottom:15pxにある操作ヒントの少し上に配置 */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
+    position: relative; /* ★ absolute（重ねる）から relative（並べる）に変更 */
+    padding: 30px;      /* 文字の周りに余白を作る */
+    background: #000;   /* 背景を黒にして地図と分ける */
+    text-align: center;
     z-index: 10;
-    text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.9);
-    pointer-events: none;
+}
+.map-container .exp-caption h3,
+.map-container .exp-caption p {
+    margin: 0;
     text-align: center;
 }
 
