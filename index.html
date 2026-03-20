@@ -121,7 +121,10 @@
             
             <div class="hud-label" style="margin-top:15px;">PRESSURE</div>
             <div class="hud-value" style="font-size: 1.2rem; color: #ccc;">
-                <span id="hud-pres-val">24</span><small style="font-size: 0.8rem;"> hPa</small>
+                <span id="hud-pres-val">24</span><small style="font-size: 0.8rem;">
+                    <span lang="ja"> hPa</span>
+                    <span lang="en"> inHg</span>
+                </small>
             </div>
             
             <div class="hud-label" style="margin-top:15px;">COORD (LAT/LON)</div>
@@ -297,8 +300,11 @@
                 <div class="exp-card map-container">
                 <!-- マップを上に配置 -->
                 <div id="flight-3d-map"></div>
-                <div class="map-hint" style="pointer-events:none;">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</div>
-            
+                <div class="map-hint" style="pointer-events:none;">
+                    <span lang="ja">[ ドラッグで回転 / Ctrl+ドラッグで傾き変更 ]</span>
+                    <span lang="en">[ Drag to rotate / Ctrl+Drag to tilt ]</span>
+                </div>
+                    
                 <!-- 文字をマップの外（下側）へ配置 -->
                 <div class="exp-caption">
                     <h3>Flight Trajectory</h3>
