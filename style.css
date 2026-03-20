@@ -264,13 +264,26 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .compare-container { 
     position: relative; 
     width: 100%; 
-    max-width: 900px; /* Special Container (exp-card) と同じ最大幅 */
-    height: 500px;    /* PCで見た時にバランスの良い高さに調整 */
+    max-width: 900px !important; /* ★ PC版Special Container (900px) に合わせる */
+    height: 500px;               /* PCでの高さ */
     margin: 0 auto; 
     overflow: hidden; 
-    border-radius: 16px; /* exp-card と同じ角丸に合わせる */
+    border-radius: 16px; 
     border: 1px solid var(--glass-border); 
 }
+
+/* 中にあるスライダー入力（input）も枠いっぱいに広がるように設定 */
+.compare-container .slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: col-resize;
+    z-index: 10;
+}
+
 .img-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; }
 .img-wrapper.after { width: 50%; border-right: 2px solid var(--accent-color); z-index: 2; }
 .img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
@@ -660,19 +673,26 @@ body.arrival-shake-active {
 #flight-3d-map:active {
     cursor: grabbing;
 }
+/* マップ上のタイトル（Flight Trajectory等）の設定 */
 .map-container .exp-caption {
     position: absolute;
-    top: 30px;
-    transform: none;
+    top: 30px;          /* 上から30px */
+    left: 50%;          /* 横方向の真ん中の起点 */
+    transform: translateX(-50%); /* 起点を中心にずらして完全に中央揃え */
+    width: 100%;        /* 幅をいっぱいにする */
     z-index: 10;
     text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.9);
     pointer-events: none;
+    text-align: center; /* ★文字を中央揃えにする */
 }
+
+/* タイトル内の文字も中央揃えにする */
 .map-container .exp-caption h3,
 .map-container .exp-caption p {
-    text-align: left;
+    text-align: center;
     margin: 0;
 }
+
 .map-hint {
     position: absolute;
     bottom: 15px;
@@ -766,8 +786,9 @@ body.arrival-shake-active {
 
     .map-hint { display: none; }
 
-    .compare-container {
-        height: 350px !important; /* Gallery (.gallery-item) と同じ高さに変更 */
-        border-radius: 8px;      /* Gallery の角丸に合わせる */
+     .compare-container {
+        height: 350px !important;    /* ★ スマホ版Galleryの高さに合わせる */
+        max-width: 100% !important;  /* スマホでは横幅いっぱい */
+        border-radius: 8px;          /* 角丸をスマホサイズに */
     }
 }
