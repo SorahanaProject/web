@@ -677,7 +677,7 @@ function init3DFlightMap() {
     const SMOOTH_FLIGHT_PATH = getSmoothPath(RAW_DATA, 12); // 12倍の密度でなめらかに
     const isMobile = window.innerWidth <= 768;
     let viewState = isMobile ? { longitude: 135.15, latitude: 33.35, zoom: 8.2, pitch: 60, bearing: -20 } 
-                             : { longitude: 134.90, latitude: 33.15, zoom: 8.5, pitch: 70, bearing: -15 };
+                             : { longitude: 134.80, latitude: 33.15, zoom: 8.3, pitch: 70, bearing: -15 };
     
     new deck.DeckGL({
         container: container,
