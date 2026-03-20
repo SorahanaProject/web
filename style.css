@@ -264,18 +264,17 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 /* === Visualizing the Change (完全修正版) === */
 .compare-container { 
     position: relative; 
-    width: 100%; 
-    max-width: 900px !important; /* PC版Special Containerと同じ幅 */
-    height: 500px !important;    /* PC版の高さ */
+    width: 100% !important; 
+    max-width: 900px !important; /* PC版Special Containerと同じ最大幅 */
+    height: 600px !important;    /* 高さを600pxに固定して迫力を出す */
     margin: 40px auto 0 !important; 
     overflow: hidden; 
     border-radius: 16px; 
     border: 1px solid var(--glass-border); 
     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    background: #111;
 }
 
-/* 画像を包む枠 */
+/* 画像を隠すためのカーテン枠 */
 .img-wrapper { 
     position: absolute; 
     top: 0; left: 0; 
@@ -285,28 +284,29 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 
 /* スライダーで動く After 側の枠 */
 .img-wrapper.after { 
-    width: 50%; 
+    width: 50%; /* JSでここが変わる */
     z-index: 2; 
     border-right: 3px solid var(--accent-color); 
 }
 
-/* 画像本体：枠が狭くなっても画像は縮ませない */
+/* ★超重要：画像本体の設定。枠が縮んでも画像サイズは固定！ */
 .img-wrapper img { 
     display: block;
+    /* 枠(wrapper)の幅に関わらず、常に親(container)の最大幅と同じ 900px を維持 */
     width: 900px !important;  
-    height: 500px !important;
-    object-fit: cover;        
-    max-width: none !important; 
+    height: 600px !important;
+    object-fit: cover; 
+    max-width: none !important; /* 100% などの指定を完全に無効化 */
 }
 
-/* スライダーの透明な操作バー */
+/* スライダーの透明な入力バー */
 .compare-container .slider {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     opacity: 0; cursor: col-resize; z-index: 10;
 }
 
-/* つまみボタン */
+/* 中央のつまみボタン */
 .slider-button { 
     position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; 
     background: var(--accent-color); border-radius: 50%; 
@@ -803,14 +803,15 @@ body.arrival-shake-active {
 
     .map-hint { display: none; }
 
-    /* === ビフォーアフター スマホ表示最適化 (Galleryと同じ350px高) === */
+    /* === ビフォーアフター スマホ表示：Gallery (350px高) と一致させる === */
     .compare-container {
         width: 100% !important; 
-        height: 350px !important; 
-        border-radius: 8px;
         max-width: 100% !important;
+        height: 350px !important; /* Galleryと同じ高さ */
+        border-radius: 8px;
     }
 
+    /* スマホでは画像の基準幅を画面サイズ(100vw - 余白)に合わせる */
     .compare-container .img-wrapper img {
         width: calc(100vw - 30px) !important;
         height: 350px !important;
