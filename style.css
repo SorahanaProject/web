@@ -261,11 +261,12 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 
 .map-link:hover .map-overlay-btn { background: var(--accent-color); color: #000; transform: translate(-50%, -50%) scale(1.05); margin-top: 80px; }
 
-/* === Visualizing the Change (PC版サイズ完全固定) === */
+/* === Visualizing the Change (完全修正版) === */
 .compare-container { 
     position: relative; 
-    width: 900px !important; /* ★PC版の横幅を900pxに強制固定 */
-    height: 500px !important; /* ★PC版の高さを500pxに強制固定 */
+    width: 100%; 
+    max-width: 900px !important; /* PC版Special Containerと同じ幅 */
+    height: 500px !important;    /* PC版の高さ */
     margin: 40px auto 0 !important; 
     overflow: hidden; 
     border-radius: 16px; 
@@ -274,44 +275,44 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
     background: #111;
 }
 
-/* 画像を包む枠（カーテン） */
+/* 画像を包む枠 */
 .img-wrapper { 
     position: absolute; 
     top: 0; left: 0; 
     width: 100%; height: 100%; 
-    overflow: hidden; /* はみ出た画像を隠す */
+    overflow: hidden; 
 }
 
 /* スライダーで動く After 側の枠 */
 .img-wrapper.after { 
-    width: 50%; /* JSでこの数値が変わる */
+    width: 50%; 
     z-index: 2; 
     border-right: 3px solid var(--accent-color); 
 }
 
-/* ★画像本体：枠が狭くなっても画像は絶対に 900px を維持する設定 */
+/* 画像本体：枠が狭くなっても画像は縮ませない */
 .img-wrapper img { 
     display: block;
-    width: 900px !important;  /* ★枠のサイズに関係なく画像は900px */
-    height: 500px !important; /* ★枠のサイズに関係なく画像は500px */
-    object-fit: cover; 
-    max-width: none !important; /* width: 100% などの干渉を完全に無視 */
+    width: 900px !important;  
+    height: 500px !important;
+    object-fit: cover;        
+    max-width: none !important; 
 }
 
-/* スライダーの透明なバー */
+/* スライダーの透明な操作バー */
 .compare-container .slider {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     opacity: 0; cursor: col-resize; z-index: 10;
 }
 
-/* 中央のつまみボタン */
+/* つまみボタン */
 .slider-button { 
     position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; 
     background: var(--accent-color); border-radius: 50%; 
     transform: translate(-50%, -50%); z-index: 5; 
     display: flex; justify-content: center; align-items: center; 
-    pointer-events: none; color: #000; font-size: 1.2rem;
+    pointer-events: none; color: #000; font-weight: bold;
 }
 
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
@@ -363,8 +364,7 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 
 footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; color: #666; }
 
-/* --- style.css の変更箇所 --- */
-
+/* --- その他装飾 --- */
 .back-to-top { 
     position: fixed; 
     top: 30px; 
@@ -379,13 +379,7 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     opacity: 1; pointer-events: auto; 
     animation: rocketIdle 2s ease-in-out infinite; 
 }
-
-@keyframes rocketIdle {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-@keyframes launchRocket { 0% { transform: translateY(0); } 100% { transform: translateY(-100vh); opacity: 0; } }
+@keyframes rocketIdle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
 .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
 .modal.show { display: flex; opacity: 1; }
@@ -697,25 +691,25 @@ body.arrival-shake-active {
 #flight-3d-map:active {
     cursor: grabbing;
 }
-/* マップタイトルの背景（黒い帯）を削除し、マップの上に浮かす */
+/* マップタイトルの設定 */
 .map-container .exp-caption {
-    position: absolute; /* ★ 再度 absolute に戻してマップの上に重ねる */
-    bottom: 65px;       /* 下のヒント(bottom:15px)と被らない高さに配置 */
+    position: absolute; 
+    bottom: 65px;       
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
     z-index: 10;
-    
-    /* 文字の後ろの装飾をリセット */
-    background: transparent !important; /* ★ 黒い帯を完全に透明にする */
-    padding: 0 !important;              /* 余計な余白を消す */
-    
-    /* 背景なしでも文字が読めるように影を強調 */
+    background: transparent !important; 
+    padding: 0 !important;              
     text-shadow: 0 0 20px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1);
     pointer-events: none;
     text-align: center;
 }
-
+.map-container .exp-caption h3,
+.map-container .exp-caption p {
+    text-align: center;
+    margin: 0;
+}
 .map-hint {
     position: absolute;
     bottom: 15px;
@@ -736,7 +730,7 @@ body.arrival-shake-active {
 
     .bg-telemetry, .bg-waveform { display: none; }
 
-    .section { padding: 80px 15px; }
+    section { padding: 80px 15px; }
 
     .section-title { font-size: 2.2rem; margin-bottom: 40px; text-align: center; }
 
@@ -809,10 +803,12 @@ body.arrival-shake-active {
 
     .map-hint { display: none; }
 
+    /* === ビフォーアフター スマホ表示最適化 (Galleryと同じ350px高) === */
     .compare-container {
         width: 100% !important; 
         height: 350px !important; 
         border-radius: 8px;
+        max-width: 100% !important;
     }
 
     .compare-container .img-wrapper img {
