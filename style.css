@@ -391,10 +391,14 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     display: inline-block; 
 }
 
-/* PCでのみ改行する（スマホでは改行が消える） */
-.br-pc { display: block; }
-/* スマホでのみ改行する（PCでは改行が消える） */
-.br-sp { display: none; }
+/* PCでのみ改行する */
+.br-pc { display: inline; } 
+
+/* スマホ用改行をPCで「完全に」消す設定 */
+.br-sp { 
+    display: none !important; 
+    content: ""; 
+}
 
 /* =========================================
    ADDITION: Starfield & Background Effects
@@ -716,8 +720,11 @@ body.arrival-shake-active {
 
 /* === 10. Mobile Responsive === */
 @media (max-width: 768px) {
-    .br-pc { display: none; }
-    .br-sp { display: inline; } 
+    .br-pc { 
+        display: none !important; 
+        content: ""; 
+    }
+    .br-sp { display: block; } /* 改行として機能させる */
 
     .bg-telemetry, .bg-waveform { display: none; }
 
