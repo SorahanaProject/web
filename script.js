@@ -297,17 +297,20 @@ function updateHUD(scrollTop) {
 
     if(indicator) indicator.style.top = `${scrollPercent * 100}%`;
     if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
-    
-    if (hero) {
-        if (scrollTop > hero.offsetHeight * 0.5) {
-            if (hudLayer) hudLayer.classList.add('visible');
-            if (telemetry) telemetry.classList.add('visible');
-            if (waveform) waveform.classList.add('visible');
-        } else {
-            if (hudLayer) hudLayer.classList.remove('visible');
-            if (telemetry) telemetry.classList.remove('visible');
-            if (waveform) waveform.classList.remove('visible');
-        }
+
+    // ヒーローセクションを過ぎたらHUDと背景パーツを表示
+    const telemetry = document.querySelector('.bg-telemetry');
+    const waveform = document.querySelector('.bg-waveform');
+    const heroHeight = document.getElementById('hero')?.offsetHeight || 800;
+
+    if (scrollTop > heroHeight * 0.5) {
+        if (hudLayer) hudLayer.classList.add('visible');
+        if (telemetry) telemetry.classList.add('visible');
+        if (waveform) waveform.classList.add('visible');
+    } else {
+        if (hudLayer) hudLayer.classList.remove('visible');
+        if (telemetry) telemetry.classList.remove('visible');
+        if (waveform) waveform.classList.remove('visible');
     }
 
     if(header) {
