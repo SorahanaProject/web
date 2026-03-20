@@ -446,15 +446,18 @@ function initUI() {
         if (window.scrollY === 0) return; 
         isReturningToTop = true; 
         if (statusDisplay) { statusDisplay.textContent = "HIGH LOAD"; statusDisplay.classList.remove("ok"); statusDisplay.classList.add("high-load"); }
-        if(typeof window.lenis !== 'undefined' && window.lenis) window.lenis.scrollTo(0, { duration: 5, easing: (t) => t }); 
+        // スクロール時間を4秒に変更
+        if(typeof window.lenis !== 'undefined' && window.lenis) window.lenis.scrollTo(0, { duration: 4, easing: (t) => t }); 
         else window.scrollTo({top:0, behavior:'smooth'});
+        
+        // 演出終了のタイマーを4000ミリ秒（4秒）に変更
         setTimeout(() => { 
             isReturningToTop = false; 
             if (statusDisplay) { statusDisplay.textContent = "NORMAL"; statusDisplay.classList.remove("high-load"); statusDisplay.classList.add("ok"); }
             document.body.classList.add("arrival-shake-active");
             setTimeout(() => document.body.classList.remove("arrival-shake-active"), 500);
             btt.classList.remove('launch', 'show'); 
-        }, 5000);
+        }, 4000); 
     });
 
     const modal = document.getElementById('gallery-modal');
