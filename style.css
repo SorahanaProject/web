@@ -806,5 +806,16 @@ body.arrival-shake-active {
     .compare-container .img-wrapper img {
         width: calc(100vw - 30px) !important;
         height: 350px !important;
+        }
     }
-}
+
+    /* ロード中のスクロールを完全に物理破壊する設定 */
+    html.is-locking, 
+    html.is-locking body {
+        overflow: hidden !important;
+        height: 100vh !important;
+        width: 100vw !important;
+        position: fixed !important; /* これを追加して画面を固定します */
+        top: 0;
+        left: 0;
+    }
