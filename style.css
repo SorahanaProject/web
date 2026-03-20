@@ -547,9 +547,6 @@ body.shake-active {
     80% { filter: hue-rotate(-90deg) contrast(2); transform: translate(4px, 3px); }
     100% { filter: none; transform: translate(0); }
 }
-body.sys-glitch {
-    animation: sys-glitch-anim 0.4s steps(2) both;
-}
 
 /* --- 第3段階: ロケット上昇時の演出 --- */
 #hud-status {
