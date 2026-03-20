@@ -74,6 +74,10 @@ function initSmoothScroll() {
     gsap.ticker.lagSmoothing(0);
 
     window.lenis = lenis;
+    // ロード画面がある場合はスクロールを停止しておく
+    if (document.getElementById('boot-screen')) {
+        lenis.stop();
+    }
     updateHUD(window.scrollY || 0);
 }
 
@@ -120,13 +124,15 @@ function initBootSequence() {
                     opacity: 0, duration: 0.8, ease: "power2.inOut", 
                     onComplete: () => {
                         screen.style.display = 'none'; 
+                        // ロード完了したのでスクロールを許可
+                        if (window.lenis) window.lenis.start();
+                        // 念のためCSSのロックも外す
+                        document.documentElement.classList.remove('is-locking');
                         initSiteAnimations();
                     }
                 });
             }, 500);
         }
-    }, 50);
-}
 
 // === 3. GSAP Site Animations ===
 function initSiteAnimations() {
