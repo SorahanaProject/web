@@ -264,15 +264,18 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
 .compare-container { 
     position: relative; 
     width: 100%; 
-    max-width: 900px !important; /* ★ PC版Special Container (900px) に合わせる */
-    height: 500px;               /* PCでの高さ */
-    margin: 0 auto; 
+    /* ★ PC版Special Container (900px幅) と完全に合わせる */
+    max-width: 900px !important; 
+    /* ★ 写真の迫力を出すため、高さを600pxに引き上げる */
+    height: 600px;               
+    margin: 40px auto 0; 
     overflow: hidden; 
     border-radius: 16px; 
     border: 1px solid var(--glass-border); 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5); /* 影をつけて立体感を出す */
 }
 
-/* 中にあるスライダー入力（input）も枠いっぱいに広がるように設定 */
+/* スライダーの操作バーも枠の高さに合わせる */
 .compare-container .slider {
     position: absolute;
     top: 0;
@@ -676,14 +679,14 @@ body.arrival-shake-active {
 /* マップ上のタイトル（Flight Trajectory等）の設定 */
 .map-container .exp-caption {
     position: absolute;
-    top: 30px;          /* 上から30px */
-    left: 50%;          /* 横方向の真ん中の起点 */
-    transform: translateX(-50%); /* 起点を中心にずらして完全に中央揃え */
-    width: 100%;        /* 幅をいっぱいにする */
+    bottom: 55px;       /* ★ bottom:15pxにある操作ヒントの少し上に配置 */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
     z-index: 10;
     text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.9);
     pointer-events: none;
-    text-align: center; /* ★文字を中央揃えにする */
+    text-align: center;
 }
 
 /* タイトル内の文字も中央揃えにする */
