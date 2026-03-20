@@ -1,8 +1,7 @@
 // --- START OF FILE script.js ---
 
-// --- KMLフライトデータ（全データ完全網羅） ---
-// 上昇フェーズ (地上 〜 最高到達点)
-const ASCENT_DATA =[
+// --- KMLフライトデータ ---
+const ASCENT_DATA = [
     { progress: 0.000, alt: 86,    lat: 33.2870, lon: 134.1579 }, 
     { progress: 0.028, alt: 88,    lat: 33.2870, lon: 134.1579 }, 
     { progress: 0.585, alt: 305,   lat: 33.2868, lon: 134.1557 }, 
@@ -23,8 +22,7 @@ const ASCENT_DATA =[
     { progress: 1.000, alt: 25346, lat: 33.3996, lon: 135.4899 } 
 ];
 
-// 降下フェーズ (最高到達点 〜 海上着水)
-const DESCENT_DATA =[
+const DESCENT_DATA = [
     { progress: 0.000, alt: 25346, lat: 33.3996, lon: 135.4899 }, 
     { progress: 0.130, alt: 23187, lat: 33.4022, lon: 135.4885 }, 
     { progress: 0.351, alt: 12937, lat: 33.3945, lon: 135.6631 }, 
@@ -35,320 +33,18 @@ const DESCENT_DATA =[
     { progress: 1.000, alt: 0,     lat: 33.4498, lon: 136.0549 }  
 ];
 
-function lerp(start, end, amt) {
-    return (1 - amt) * start + amt * end;
-}
+function lerp(start, end, amt) { return (1 - amt) * start + amt * end; }
 
-// GSAPプラグインの登録
 gsap.registerPlugin(ScrollTrigger);
 
-document.addEventListener('DOMContentLoaded', () => {
-    initLanguageSettings();
-    initSmoothScroll();
-    initBootSequence();
-    initHUDInteractions();
-    initCompareSlider();
-    initUI();
-    initFAQ();
-    initStarfield();
-    initTelemetryStream();
-    initWaveformGraph();
-    initTimelineDrag(); 
-    init3DFlightMap();
-});
-
-// === 1. Lenis & GSAP ScrollTrigger Setup ===
-function initSmoothScroll() {
-    const lenis = new Lenis({
-        duration: 1.5,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smooth: true,
-    });
-
-    lenis.on('scroll', ScrollTrigger.update);
-    
-    gsap.ticker.add((time) => { 
-        lenis.raf(time * 1000); 
-        if (window.lenis) updateHUD(window.lenis.scroll);
-    });
-    gsap.ticker.lagSmoothing(0);
-
-    window.lenis = lenis;
-    updateHUD(window.scrollY || 0);
-}
-
-// === 2. Boot Loader ===
-function initBootSequence() {
-    const screen = document.getElementById('boot-screen');
-    const log = document.getElementById('boot-log');
-    const fill = document.querySelector('.boot-progress-fill');
-    const percent = document.querySelector('.boot-percent');
-    
-    if (!screen) { initSiteAnimations(); return; }
-
-    const logs =[
-        "SYSTEM_CHECK_INIT...", "LOADING_KERNEL_MODULES...", "CONNECTING_TO_SATELLITE...",
-        "ESTABLISHING_SECURE_LINK...", "LOADING_ASSETS...", "CALIBRATING_SENSORS...",
-        "ATMOSPHERIC_PRESSURE: NORMAL", "TARGET_COORDINATES: LOCKED", "SYSTEM_READY."
-    ];
-
-    let progress = 0; 
-    let logIndex = 0;
-
-    const interval = setInterval(() => {
-        progress += Math.random() * 5; 
-        if (progress > 100) progress = 100;
-        
-        if(fill) fill.style.width = `${progress}%`;
-        if(percent) percent.textContent = `${Math.floor(progress)}%`;
-
-        if (log && progress > (logIndex * (100 / logs.length)) && logIndex < logs.length) {
-            const p = document.createElement('div');
-            p.className = 'boot-line'; 
-            p.textContent = `> ${logs[logIndex]}`;
-            if (logIndex === logs.length - 1) { 
-                p.style.color = '#fff'; p.classList.add('blink'); 
-            }
-            log.prepend(p); 
-            logIndex++;
-        }
-
-        if (progress >= 100) {
-            clearInterval(interval);
-            setTimeout(() => {
-                gsap.to(screen, { 
-                    opacity: 0, duration: 0.8, ease: "power2.inOut", 
-                    onComplete: () => {
-                        screen.style.display = 'none'; 
-                        initSiteAnimations();
-                    }
-                });
-            }, 500);
-        }
-    }, 50);
-}
-
-// === 3. GSAP Site Animations ===
-function initSiteAnimations() {
-    initTextScramble();
-
-    const tl = gsap.timeline();
-    tl.from(".hero-content .data-tag", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" })
-      .from(".hero-content h1 span", { y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "power4.out" }, "-=0.6")
-      .from(".hero-content .hero-desc", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
-      .from(".scroll-down", { y: -20, opacity: 0, duration: 0.8 }, "-=0.4");
-
-    const revealElements = document.querySelectorAll(".section-title, .lead-text, .exp-card, .gallery-item, .blog-card");
-    revealElements.forEach((elem) => {
-        gsap.fromTo(elem, 
-            { opacity: 0, y: 40 }, 
-            { 
-                opacity: 1, y: 0, duration: 0.6, ease: "power2.out",
-                scrollTrigger: { trigger: elem, start: "top 95%", once: true }
-            }
-        );
-    });
-        
-    ScrollTrigger.create({
-        trigger: "#h-timeline-wrapper", start: "top 70%", once: true,
-        onEnter: () => {
-            gsap.fromTo("#h-timeline-container", 
-                { x: 0 }, 
-                { x: -50, duration: 0.6, yoyo: true, repeat: 1, ease: "power2.inOut", delay: 0.5 }
-            );
-        }
-    });
-}
-
-// === 4. HUD Simulator Logic ===
-let lastScrollTop = 0;
-let lastTimeForVel = performance.now();
-let lastAltForVel = 25346;
-let smoothedVerticalVelocity = 0;
-let isReturningToTop = false; 
-let hasBurstEventFired = false; 
-let isTurbulenceActive = false; 
-let hasTroposphereEventFired = false;
-
-function updateHUD(scrollTop) {
-    if (typeof scrollTop !== 'number' || isNaN(scrollTop)) {
-        scrollTop = window.scrollY || 0;
-    }
-
-    const isEnglish = document.body.classList.contains('en');
-    const docHeight = document.body.scrollHeight - window.innerHeight;
-    const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
-
-    let currentAlt = 0, currentLat = 0, currentLon = 0;
-    let dataArray = DESCENT_DATA;
-    let simPercent = scrollPercent;
-
-    if (isReturningToTop) {
-        dataArray = ASCENT_DATA;
-        simPercent = 1.0 - scrollPercent; 
-    }
-
-    for (let i = 0; i < dataArray.length - 1; i++) {
-        let p1 = dataArray[i]; let p2 = dataArray[i + 1];
-        if (simPercent >= p1.progress && simPercent <= p2.progress) {
-            let localPercent = (simPercent - p1.progress) / (p2.progress - p1.progress);
-            currentAlt = lerp(p1.alt, p2.alt, localPercent);
-            currentLat = lerp(p1.lat, p2.lat, localPercent);
-            currentLon = lerp(p1.lon, p2.lon, localPercent);
-            break;
-        }
-    }
-    if (simPercent >= 1.0) {
-        let lastObj = dataArray[dataArray.length - 1];
-        currentAlt = lastObj.alt; currentLat = lastObj.lat; currentLon = lastObj.lon;
-    }
-
-    const altDisplay = document.getElementById('live-altitude');
-    const altUnitDisplay = document.getElementById('hud-alt-unit');
-    const latDisplay = document.getElementById('hud-lat');
-    const lonDisplay = document.getElementById('hud-lon');
-    
-    let displayAlt = currentAlt;
-    if (isEnglish) {
-        displayAlt = currentAlt * 3.28084;
-        if (altUnitDisplay) altUnitDisplay.textContent = 'ft';
-    } else {
-        if (altUnitDisplay) altUnitDisplay.textContent = 'm';
-    }
-    
-    if(altDisplay) altDisplay.textContent = Math.floor(displayAlt).toString().padStart(5, '0');
-    if(latDisplay) latDisplay.textContent = currentLat.toFixed(4);
-    if(lonDisplay) lonDisplay.textContent = currentLon.toFixed(4);
-    
-    if (currentAlt < 25300 && currentAlt > 24000 && !hasBurstEventFired && !isReturningToTop) {
-        hasBurstEventFired = true;
-        triggerBalloonBurst();
-    }
-    if (currentAlt >= 25340) hasBurstEventFired = false;
-    
-    if (currentAlt < 11000 && currentAlt > 10000 && !hasTroposphereEventFired && !isReturningToTop) {
-        hasTroposphereEventFired = true;
-        triggerTroposphereEntry();
-    }
-    if (currentAlt >= 11500) hasTroposphereEventFired = false;
-    
-    const tempDisplay = document.getElementById('hud-temp-val');
-    const tempUnitDisplay = document.getElementById('hud-temp-unit');
-    if (tempDisplay) {
-        let tempC = 15;
-        if (currentAlt <= 11000) tempC = 15 - (currentAlt / 1000) * 6.5; 
-        else tempC = -56.5 + ((currentAlt - 11000) / (25346 - 11000)) * (-38.8 - (-56.5)); 
-        
-        if (isEnglish) { tempDisplay.textContent = (tempC * 9/5 + 32).toFixed(1); if (tempUnitDisplay) tempUnitDisplay.textContent = '°F'; } 
-        else { tempDisplay.textContent = tempC.toFixed(1); if (tempUnitDisplay) tempUnitDisplay.textContent = '°C'; }
-    }
-
-    const presDisplay = document.getElementById('hud-pres-val');
-    if (presDisplay) {
-        let pressure = (currentAlt <= 11000) ? 1013.25 * Math.pow(1 - 0.0065 * currentAlt / 288.15, 5.25588) : 226.32 * Math.exp(-0.000157688 * (currentAlt - 11000));
-        presDisplay.textContent = Math.round(pressure);
-    }
-
-    const now = performance.now();
-    const dt = (now - lastTimeForVel) / 1000; 
-    if (dt > 0.01) {
-        if (scrollTop !== lastScrollTop) {
-            let rawVerticalVel = (currentAlt - lastAltForVel) / dt; 
-            smoothedVerticalVelocity = smoothedVerticalVelocity * 0.9 + rawVerticalVel * 0.1;
-        } else {
-            smoothedVerticalVelocity *= 0.5; 
-            if (Math.abs(smoothedVerticalVelocity) < 0.1) smoothedVerticalVelocity = 0;
-        }
-        lastTimeForVel = now; lastAltForVel = currentAlt;
-    }
-
-    const velDisplay = document.getElementById('hud-vel');
-    const velLabel = document.getElementById('hud-vel-label');
-    if (velDisplay && velLabel) {
-        if (isReturningToTop) {
-            velLabel.textContent = "▲ ASCENT RATE"; velLabel.style.color = "#33ccff"; 
-            velDisplay.textContent = (5.57 + (Math.random() * 0.06 - 0.03)).toFixed(2);
-        } else {
-            let speedMS = Math.abs(smoothedVerticalVelocity); 
-            if (speedMS < 0.1) { speedMS = 0; smoothedVerticalVelocity = 0; }
-            if (speedMS === 0) { velLabel.textContent = "■ HOVERING"; velLabel.style.color = "var(--hud-color)"; } 
-            else if (smoothedVerticalVelocity < 0) { velLabel.textContent = "▼ DESCENT RATE"; velLabel.style.color = "#ff3333"; } 
-            else { velLabel.textContent = "▲ ASCENT RATE"; velLabel.style.color = "#33ccff"; }
-            velDisplay.textContent = speedMS.toFixed(2);
-        }
-    }
-
-    const hudLayer = document.getElementById('hud-layer');
-    const hero = document.getElementById('hero');
-    const telemetry = document.querySelector('.bg-telemetry');
-    const waveform = document.querySelector('.bg-waveform');
-    const indicator = document.getElementById('scroll-indicator');
-    const progressBar = document.getElementById('scroll-progress');
-    const header = document.getElementById('header');
-
-    if(indicator) indicator.style.top = `${scrollPercent * 100}%`;
-    if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
-    
-    if (hero) {
-        if (scrollTop > hero.offsetHeight * 0.5) {
-            if (hudLayer) hudLayer.classList.add('visible');
-            if (telemetry) telemetry.classList.add('visible');
-            if (waveform) waveform.classList.add('visible');
-        } else {
-            if (hudLayer) hudLayer.classList.remove('visible');
-            if (telemetry) telemetry.classList.remove('visible');
-            if (waveform) waveform.classList.remove('visible');
-        }
-    }
-
-    if(header) {
-        if(scrollTop > 50) header.classList.add('scrolled'); else header.classList.remove('scrolled');
-        if (scrollTop > lastScrollTop && scrollTop > 100) header.classList.add('header-hidden'); else header.classList.remove('header-hidden');
-        lastScrollTop = scrollTop;
-    }
-    
-    const btt = document.getElementById('back-to-top');
-    if(btt) {
-        if (scrollTop > (hero ? hero.offsetHeight * 0.5 : 400)) btt.classList.add('show'); else btt.classList.remove('show');
-        const maxTop = Math.max(0, window.innerHeight - 150); 
-        btt.style.top = `${30 + scrollPercent * maxTop}px`;
-    }
-
-    if (scrollPercent > 0.8) document.documentElement.style.setProperty('--hud-color', '#fff'); 
-    else document.documentElement.style.setProperty('--hud-color', 'rgba(212, 175, 55, 0.8)');
-}
-
-// === 5. Utility Functions ===
-function initLanguageSettings() {
-    let savedLang = localStorage.getItem('lang');
-    if (!savedLang) {
-        const browserLang = (navigator.language || navigator.userLanguage).toLowerCase();
-        savedLang = browserLang.startsWith('ja') ? 'ja' : 'en';
-        localStorage.setItem('lang', savedLang);
-    }
-    if (savedLang === 'en') document.body.classList.add('en');
-    const langBtn = document.getElementById('langBtn');
-    if (langBtn) { 
-        langBtn.textContent = document.body.classList.contains('en') ? 'JP' : 'EN';
-        langBtn.addEventListener('click', () => {
-            const isEn = document.body.classList.toggle('en');
-            localStorage.setItem('lang', isEn ? 'en' : 'ja');
-            location.reload();
-        });
-    }
-}
-
+// --- Class: TextScramble ---
 class TextScramble {
-    constructor(el) { 
-        this.el = el; 
-        this.chars = '!<>-_\\/[]{}—=+*^?#________'; 
-        this.update = this.update.bind(this); 
-    }
+    constructor(el) { this.el = el; this.chars = '!<>-_\\/[]{}—=+*^?#________'; this.update = this.update.bind(this); }
     setText(newText) {
         const oldText = this.el.innerText;
         const length = Math.max(oldText.length, newText.length);
         const promise = new Promise((resolve) => this.resolve = resolve);
-        this.queue =[];
+        this.queue = [];
         for (let i = 0; i < length; i++) {
             const from = oldText[i] || ''; const to = newText[i] || '';
             const start = Math.floor(Math.random() * 40);
@@ -364,272 +60,260 @@ class TextScramble {
             if (this.frame >= end) { complete++; output += to; }
             else if (this.frame >= start) {
                 if (!char || Math.random() < 0.28) { char = this.randomChar(); this.queue[i].char = char; }
-                output += `<span class="dud" style="color:#555">${char}</span>`;
+                output += `<span style="color:#555">${char}</span>`;
             } else { output += from; }
         }
         this.el.innerHTML = output;
-        if (complete === this.queue.length) this.resolve();
+        if (complete === this.queue.length) { this.resolve(); }
         else { this.frameRequest = requestAnimationFrame(this.update); this.frame++; }
     }
     randomChar() { return this.chars[Math.floor(Math.random() * this.chars.length)]; }
 }
 
-function initTextScramble() {
-    const el = document.querySelector('.data-tag span[lang="ja"]');
-    const elEn = document.querySelector('.data-tag span[lang="en"]');
-    const isEnglish = document.body.classList.contains('en');
-    const target = isEnglish ? elEn : el;
+// --- Logic ---
+document.addEventListener('DOMContentLoaded', () => {
+    initLanguageSettings();
+    initSmoothScroll();
+    initBootSequence();
+    initHUDInteractions();
+    initUI();
+    initFAQ();
+    initStarfield();
+    initTelemetryStream();
+    initWaveformGraph();
+    initTimelineDrag(); 
+    init3DFlightMap();
+});
 
+function initSmoothScroll() {
+    const lenis = new Lenis({ duration: 1.5, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smooth: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => { 
+        lenis.raf(time * 1000); 
+        if (window.lenis) updateHUD(window.lenis.scroll);
+    });
+    gsap.ticker.lagSmoothing(0);
+    window.lenis = lenis;
+}
+
+function initBootSequence() {
+    const screen = document.getElementById('boot-screen');
+    const log = document.getElementById('boot-log');
+    const fill = document.querySelector('.boot-progress-fill');
+    const percent = document.querySelector('.boot-percent');
+    if (!screen) return;
+    const logs = ["SYSTEM_CHECK_INIT...", "LOADING_KERNEL_MODULES...", "CONNECTING_TO_SATELLITE...", "ESTABLISHING_SECURE_LINK...", "SYSTEM_READY."];
+    let progress = 0; let logIndex = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 5; if (progress > 100) progress = 100;
+        if(fill) fill.style.width = `${progress}%`;
+        if(percent) percent.textContent = `${Math.floor(progress)}%`;
+        if (log && progress > (logIndex * 20) && logIndex < logs.length) {
+            const p = document.createElement('div'); p.className = 'boot-line'; p.textContent = `> ${logs[logIndex]}`;
+            log.prepend(p); logIndex++;
+        }
+        if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => { gsap.to(screen, { opacity: 0, duration: 0.8, onComplete: () => { screen.style.display = 'none'; initSiteAnimations(); } }); }, 500);
+        }
+    }, 50);
+}
+
+function initSiteAnimations() {
+    initTextScramble();
+    const tl = gsap.timeline();
+    tl.from(".hero-content .data-tag", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" })
+      .from(".hero-content h1 span", { y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "power4.out" }, "-=0.6")
+      .from(".hero-content .hero-desc", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.6")
+      .from(".scroll-down", { y: -20, opacity: 0, duration: 0.8 }, "-=0.4");
+    document.querySelectorAll(".section-title, .lead-text, .exp-card, .gallery-item, .blog-card").forEach((elem) => {
+        gsap.fromTo(elem, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, scrollTrigger: { trigger: elem, start: "top 95%", once: true } });
+    });
+}
+
+let lastScrollTop = 0; let lastTimeForVel = performance.now(); let lastAltForVel = 25346;
+let smoothedVerticalVelocity = 0; let isReturningToTop = false; 
+let isTurbulenceActive = false;
+
+function updateHUD(scrollTop) {
+    if (typeof scrollTop !== 'number' || isNaN(scrollTop)) scrollTop = window.scrollY || 0;
+    const isEnglish = document.body.classList.contains('en');
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = (docHeight > 0) ? Math.max(0, Math.min(1, scrollTop / docHeight)) : 0;
+    
+    let dataArray = isReturningToTop ? ASCENT_DATA : DESCENT_DATA;
+    let simPercent = isReturningToTop ? (1.0 - scrollPercent) : scrollPercent;
+    let currentAlt = 0, currentLat = 0, currentLon = 0;
+
+    for (let i = 0; i < dataArray.length - 1; i++) {
+        let p1 = dataArray[i]; let p2 = dataArray[i+1];
+        if (simPercent >= p1.progress && simPercent <= p2.progress) {
+            let localPct = (simPercent - p1.progress) / (p2.progress - p1.progress);
+            currentAlt = lerp(p1.alt, p2.alt, localPct); currentLat = lerp(p1.lat, p2.lat, localPct); currentLon = lerp(p1.lon, p2.lon, localPct);
+            break;
+        }
+    }
+    if (simPercent >= 1.0) {
+        let lastObj = dataArray[dataArray.length - 1];
+        currentAlt = lastObj.alt; currentLat = lastObj.lat; currentLon = lastObj.lon;
+    }
+
+    // 表示更新
+    if(document.getElementById('live-altitude')) document.getElementById('live-altitude').textContent = Math.floor(isEnglish ? currentAlt * 3.28084 : currentAlt).toString().padStart(5, '0');
+    if(document.getElementById('hud-alt-unit')) document.getElementById('hud-alt-unit').textContent = isEnglish ? 'ft' : 'm';
+    if(document.getElementById('hud-lat')) document.getElementById('hud-lat').textContent = currentLat.toFixed(4);
+    if(document.getElementById('hud-lon')) document.getElementById('hud-lon').textContent = currentLon.toFixed(4);
+
+    if (document.getElementById('hud-temp-val')) {
+        let tempC = (currentAlt <= 11000) ? 15 - (currentAlt/1000)*6.5 : -56.5 + ((currentAlt-11000)/(25346-11000))*17.7;
+        document.getElementById('hud-temp-val').textContent = isEnglish ? (tempC * 9/5 + 32).toFixed(1) : tempC.toFixed(1);
+        if(document.getElementById('hud-temp-unit')) document.getElementById('hud-temp-unit').textContent = isEnglish ? '°F' : '°C';
+    }
+    if(document.getElementById('hud-pres-val')) {
+        let pressure = (currentAlt <= 11000) ? 1013.25 * Math.pow(1-0.0065*currentAlt/288.15, 5.25588) : 226.32 * Math.exp(-0.000157688*(currentAlt-11000));
+        document.getElementById('hud-pres-val').textContent = Math.round(pressure);
+    }
+
+    // 速度計算
+    const now = performance.now(); const dt = (now - lastTimeForVel) / 1000;
+    if (dt > 0.01) {
+        if (scrollTop !== lastScrollTop) smoothedVerticalVelocity = smoothedVerticalVelocity * 0.9 + ((currentAlt - lastAltForVel) / dt) * 0.1;
+        else smoothedVerticalVelocity *= 0.2;
+        lastTimeForVel = now; lastAltForVel = currentAlt;
+    }
+
+    const velDisplay = document.getElementById('hud-vel'); const velLabel = document.getElementById('hud-vel-label');
+    if (velDisplay && velLabel) {
+        let speedMS = Math.abs(smoothedVerticalVelocity); if (speedMS < 0.1) speedMS = 0;
+        velLabel.textContent = speedMS === 0 ? "■ HOVERING" : (smoothedVerticalVelocity < 0 ? "▼ DESCENT RATE" : "▲ ASCENT RATE");
+        velLabel.style.color = speedMS === 0 ? "var(--hud-color)" : (smoothedVerticalVelocity < 0 ? "#ff3333" : "#33ccff");
+        velDisplay.textContent = speedMS.toFixed(2);
+    }
+
+    // ★ 計器類の表示タイミング制御（トップページでは隠す）
+    const hero = document.getElementById('hero');
+    const hudLayer = document.getElementById('hud-layer');
+    const telemetry = document.querySelector('.bg-telemetry');
+    const waveform = document.querySelector('.bg-waveform');
+    
+    // 画面の高さの10%以上スクロールしたら表示
+    const isVisible = scrollTop > window.innerHeight * 0.1;
+    if(hudLayer) hudLayer.classList.toggle('visible', isVisible);
+    if(telemetry) telemetry.classList.toggle('visible', isVisible);
+    if(waveform) waveform.classList.toggle('visible', isVisible);
+
+    // ヘッダーとスクロール進捗
+    const indicator = document.getElementById('scroll-indicator');
+    const progressBar = document.getElementById('scroll-progress');
+    if(indicator) indicator.style.top = `${scrollPercent * 100}%`;
+    if(progressBar) progressBar.style.width = `${scrollPercent * 100}%`;
+    
+    const header = document.getElementById('header');
+    if(header) {
+        header.classList.toggle('scrolled', scrollTop > 50);
+        header.classList.toggle('header-hidden', scrollTop > lastScrollTop && scrollTop > 100);
+    }
+    
+    const btt = document.getElementById('back-to-top');
+    if(btt) {
+        btt.classList.toggle('show', isVisible);
+        btt.style.top = `${30 + scrollPercent * Math.max(0, window.innerHeight - 150)}px`;
+    }
+    lastScrollTop = scrollTop;
+}
+
+function initLanguageSettings() {
+    let savedLang = localStorage.getItem('lang') || 'ja';
+    document.body.classList.toggle('en', savedLang === 'en');
+    const lb = document.getElementById('langBtn');
+    if(lb) lb.textContent = savedLang === 'en' ? 'JP' : 'EN';
+    if(lb) lb.onclick = () => {
+        const isEn = document.body.classList.toggle('en');
+        localStorage.setItem('lang', isEn ? 'en' : 'ja');
+        location.reload();
+    };
+}
+
+function initTextScramble() {
+    const isEn = document.body.classList.contains('en');
+    const target = document.querySelector(isEn ? '.data-tag span[lang="en"]' : '.data-tag span[lang="ja"]');
     if(target) {
         const fx = new TextScramble(target);
-        const phrases = isEnglish ? ['ALT: 83,156ft / TEMP: -37.8℉', 'SYSTEM: NORMAL', 'STATUS: LAUNCHED', 'TRAJECTORY: STABLE'] 
-                                 : ['ALT: 25,346m / TEMP: -38.8℃', 'SYSTEM: NORMAL', 'STATUS: LAUNCHED', 'TRAJECTORY: STABLE'];
-        let counter = 0;
-        const next = () => {
-            fx.setText(phrases[counter]).then(() => { setTimeout(next, 3000); });
-            counter = (counter + 1) % phrases.length;
-        };
+        const phrases = isEn ? ['ALT: 83,156ft / TEMP: -37.8℉', 'SYSTEM: NORMAL'] : ['ALT: 25,346m / TEMP: -38.8℃', 'SYSTEM: NORMAL'];
+        let c = 0; const next = () => { fx.setText(phrases[c]).then(() => setTimeout(next, 3000)); c = (c + 1) % phrases.length; };
         next();
     }
 }
 
-function initCompareSlider() {
-    const sld = document.getElementById('compare-slider');
-    if(sld) sld.addEventListener('input', (e) => {
-        const val = e.target.value;
-        document.getElementById('compare-overlay').style.width = val + "%";
-        document.getElementById('slider-button').style.left = val + "%";
-    });
-}
-
 function initUI() {
-    const ham = document.getElementById('hamburger'); 
-    const nv = document.getElementById('nav-menu');
-    if(ham && nv) {
-        ham.addEventListener('click', () => { ham.classList.toggle('active'); nv.classList.toggle('active'); });
-        nv.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { ham.classList.remove('active'); nv.classList.remove('active'); }));
-    }
-
+    const ham = document.getElementById('hamburger'); const nv = document.getElementById('nav-menu');
+    if(ham && nv) ham.onclick = () => { ham.classList.toggle('active'); nv.classList.toggle('active'); };
     const btt = document.getElementById('back-to-top');
-    const statusDisplay = document.getElementById('hud-status');
-    if(btt) btt.addEventListener('click', (e) => {
-        e.preventDefault(); 
-        if (window.scrollY === 0) return; 
-        isReturningToTop = true; 
-        if (statusDisplay) { statusDisplay.textContent = "HIGH LOAD"; statusDisplay.classList.remove("ok"); statusDisplay.classList.add("high-load"); }
-        if(typeof window.lenis !== 'undefined' && window.lenis) window.lenis.scrollTo(0, { duration: 5, easing: (t) => t }); 
-        else window.scrollTo({top:0, behavior:'smooth'});
-        setTimeout(() => { 
-            isReturningToTop = false; 
-            if (statusDisplay) { statusDisplay.textContent = "NORMAL"; statusDisplay.classList.remove("high-load"); statusDisplay.classList.add("ok"); }
-            document.body.classList.add("arrival-shake-active");
-            setTimeout(() => document.body.classList.remove("arrival-shake-active"), 500);
-            btt.classList.remove('launch', 'show'); 
-        }, 5000);
+    if(btt) btt.onclick = (e) => {
+        e.preventDefault(); if (window.scrollY === 0) return; isReturningToTop = true;
+        const sd = document.getElementById('hud-status'); if(sd) { sd.textContent = "HIGH LOAD"; sd.classList.add("high-load"); }
+        if(window.lenis) window.lenis.scrollTo(0, { duration: 5, easing: (t) => t });
+        setTimeout(() => { isReturningToTop = false; if(sd) { sd.textContent = "NORMAL"; sd.classList.remove("high-load"); } }, 5000);
+    };
+    document.querySelectorAll('.gallery-item').forEach(item => {
+        item.onclick = () => {
+            const isEn = document.body.classList.contains('en');
+            document.getElementById('modal-img').src = item.dataset.img;
+            document.getElementById('modal-title').textContent = isEn ? item.dataset.titleEn : item.dataset.titleJa;
+            document.getElementById('modal-desc').textContent = isEn ? item.dataset.descEn : item.dataset.descJa;
+            document.getElementById('gallery-modal').classList.add('show');
+        };
     });
-
-    const modal = document.getElementById('gallery-modal');
-    if (modal) {
-        document.querySelectorAll('.gallery-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const isEn = document.body.classList.contains('en');
-                document.getElementById('modal-img').src = item.dataset.img;
-                document.getElementById('modal-title').textContent = isEn ? item.dataset.titleEn : item.dataset.titleJa;
-                document.getElementById('modal-desc').textContent = isEn ? item.dataset.descEn : item.dataset.descJa;
-                modal.classList.add('show');
-            });
-        });
-        document.querySelector('.close-modal').addEventListener('click', () => modal.classList.remove('show'));
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
-    }
+    document.querySelector('.close-modal').onclick = () => document.getElementById('gallery-modal').classList.remove('show');
 }
 
 function initFAQ() {
     document.querySelectorAll('.faq-question').forEach(q => {
-        q.addEventListener('click', () => {
-            const item = q.parentElement;
-            const answer = item.querySelector('.faq-answer');
-            item.classList.toggle('active');
-            answer.style.maxHeight = item.classList.contains('active') ? answer.scrollHeight + 'px' : null;
-        });
+        q.onclick = () => {
+            const item = q.parentElement; const answer = item.querySelector('.faq-answer');
+            item.classList.toggle('active'); answer.style.maxHeight = item.classList.contains('active') ? answer.scrollHeight + 'px' : null;
+        };
     });
 }
 
 function initHUDInteractions() {
-    const cursor = document.getElementById('hud-cursor');
-    if (!cursor) return;
-    document.addEventListener('mousemove', (e) => {
-        if (window.matchMedia("(min-width: 1025px)").matches) {
-            cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-            createStardust(e.clientX, e.clientY);
-        }
-    });
-    document.querySelectorAll('a, button, .gallery-item, .map-overlay-btn, .slider-button').forEach(el => {
-        el.addEventListener('mouseenter', () => cursor.classList.add('locked'));
-        el.addEventListener('mouseleave', () => cursor.classList.remove('locked'));
-    });
-    document.querySelectorAll('.email-link, .btn-insta, .map-overlay-btn, .scroll-down').forEach((magnet) => {
-        magnet.classList.add('magnet-btn');
-        const isCentered = magnet.classList.contains('map-overlay-btn') || magnet.classList.contains('scroll-down');
-        magnet.addEventListener('mousemove', (e) => {
-            if (!window.matchMedia("(min-width: 1025px)").matches) return;
-            const rect = magnet.getBoundingClientRect();
-            const x = (e.clientX - (rect.left + rect.width / 2)) / 5;
-            const y = (e.clientY - (rect.top + rect.height / 2)) / 5;
-            gsap.to(magnet, { x: x, y: y, xPercent: isCentered ? -50 : 0, yPercent: isCentered ? -50 : 0, scale: 1.1, duration: 0.3, ease: "power2.out", overwrite: "auto" });
-        });
-        magnet.addEventListener('mouseleave', () => {
-            gsap.to(magnet, { x: 0, y: 0, xPercent: isCentered ? -50 : 0, yPercent: isCentered ? -50 : 0, scale: 1, duration: 0.5, ease: "elastic.out(1, 0.5)", overwrite: "auto" });
-        });
-    });
-}
-
-let isThrottled = false;
-function createStardust(x, y) {
-    if (isThrottled) return;
-    isThrottled = true;
-    setTimeout(() => isThrottled = false, 50);
-    const particle = document.createElement('div');
-    Object.assign(particle.style, { position: 'fixed', left: x + 'px', top: y + 'px', width: Math.random() * 3 + 'px', height: Math.random() * 3 + 'px', background: Math.random() > 0.8 ? '#D4AF37' : '#fff', borderRadius: '50%', pointerEvents: 'none', zIndex: '999999', boxShadow: '0 0 6px rgba(255,255,255,0.8)' });
-    document.body.appendChild(particle);
-    gsap.to(particle, { x: (Math.random() - 0.5) * 60, y: (Math.random() - 0.5) * 60, scale: 0, opacity: 0, duration: 1 + Math.random(), ease: "power2.out", onComplete: () => particle.remove() });
+    const cursor = document.getElementById('hud-cursor'); if (!cursor) return;
+    document.onmousemove = (e) => {
+        if (window.matchMedia("(min-width: 1025px)").matches) cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+    };
 }
 
 function initStarfield() {
-    const canvas = document.getElementById('starfield');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let width, height, stars =[];
-    function resize() {
-        width = window.innerWidth; height = window.innerHeight;
-        canvas.width = width; canvas.height = height; 
-        stars =[];
-        for (let i = 0; i < 400; i++) stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2 + 0.5, alpha: Math.random() * 0.8 + 0.2 });
-    }
-    window.addEventListener('resize', resize); resize();
-    function animate() {
-        ctx.clearRect(0, 0, width, height);
-        const scrollVel = window.lenis ? window.lenis.velocity : 0;
-        ctx.fillStyle = '#fff';
-        stars.forEach(star => {
-            star.y -= (0.2 + scrollVel * 0.05) * star.z;
-            if (star.y < 0) { star.y = height; star.x = Math.random() * width; }
-            if (star.y > height) { star.y = 0; star.x = Math.random() * width; }
-            ctx.globalAlpha = star.alpha; ctx.beginPath(); ctx.arc(star.x, star.y, star.z * 0.8, 0, Math.PI * 2); ctx.fill();
-        });
-        requestAnimationFrame(animate);
-    }
-    animate();
+    const canvas = document.getElementById('starfield'); if (!canvas) return; const ctx = canvas.getContext('2d'); let w, h, stars = [];
+    function res() { w = window.innerWidth; h = window.innerHeight; canvas.width = w; canvas.height = h; stars = []; for (let i = 0; i < 400; i++) stars.push({ x: Math.random()*w, y: Math.random()*h, z: Math.random()*2+0.5, a: Math.random()*0.8+0.2 }); }
+    window.onresize = res; res();
+    function anim() { ctx.clearRect(0,0,w,h); const v = window.lenis ? window.lenis.velocity : 0; stars.forEach(s => { s.y -= (0.2 + v*0.05)*s.z; if(s.y<0) s.y=h; if(s.y>h) s.y=0; ctx.globalAlpha=s.a; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(s.x, s.y, s.z*0.8, 0, Math.PI*2); ctx.fill(); }); requestAnimationFrame(anim); }
+    anim();
 }
 
 function initTelemetryStream() {
-    const stream = document.getElementById('telemetry-stream');
-    if (!stream) return;
-    const msgs =["SYS_CHK", "DAT_RCV", "SYNC_OK", "UV_SENS", "PRS_NRM", "TMP_STB", "ALT_UPD", "GPS_LCK"];
-    setInterval(() => {
-        if (Math.random() > 0.85) return;
-        const line = document.createElement('div');
-        line.className = 'telemetry-line';
-        if (Math.random() > 0.9) line.classList.add('highlight');
-        line.textContent = `0x${Math.floor(Math.random()*65535).toString(16).padStart(4, '0').toUpperCase()} :: ${msgs[Math.floor(Math.random()*msgs.length)]} :: OK`;
-        stream.appendChild(line);
-        if (stream.children.length > 7) stream.removeChild(stream.firstChild);
-    }, 100); 
+    const s = document.getElementById('telemetry-stream'); if(!s) return;
+    setInterval(() => { if(Math.random()>0.8) { const l = document.createElement('div'); l.className='telemetry-line'; l.textContent=`0x${Math.floor(Math.random()*65535).toString(16).toUpperCase()} :: OK`; s.appendChild(l); if(s.children.length>7) s.removeChild(s.firstChild); } }, 200);
 }
 
 function initWaveformGraph() {
-    const canvas = document.getElementById('waveform-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width, height = canvas.height, centerY = height / 2;
-    const points = new Array(width).fill(centerY);
-    let time = 0;
-    function draw() {
-        ctx.clearRect(0, 0, width, height);
-        time += 0.05;
-        let noise = (Math.random() - 0.5) * (isTurbulenceActive ? 80 : 4);
-        if (Math.random() > (isTurbulenceActive ? 0.3 : 0.96)) noise += (Math.random() - 0.5) * 40;
-        points.shift(); points.push(Math.max(5, Math.min(height - 5, centerY + Math.sin(time) * 8 + noise)));
-        ctx.beginPath(); ctx.moveTo(0, points[0]);
-        for (let i = 1; i < width; i++) ctx.lineTo(i, points[i]);
-        ctx.strokeStyle = isTurbulenceActive ? 'rgba(255, 51, 51, 0.9)' : 'rgba(212, 175, 55, 0.8)'; 
-        ctx.lineWidth = 1.2; ctx.shadowBlur = 4; ctx.shadowColor = ctx.strokeStyle; ctx.stroke();
-        requestAnimationFrame(draw);
-    }
-    draw();
-}
-
-function triggerBalloonBurst() {
-    const alertBox = document.getElementById('hud-alert-burst');
-    if(alertBox) alertBox.classList.remove('hidden');
-    document.body.classList.add('shake-active');
-    isTurbulenceActive = true;
-    setTimeout(() => {
-        if(alertBox) alertBox.classList.add('hidden');
-        document.body.classList.remove('shake-active');
-        isTurbulenceActive = false;
-    }, 2000); 
-}
-
-function triggerTroposphereEntry() {
-    const frost = document.getElementById('frost-overlay');
-    if (frost) frost.classList.add('active');
-    document.body.classList.add('sys-glitch');
-    setTimeout(() => {
-        document.body.classList.remove('sys-glitch');
-        if (frost) frost.classList.remove('active');
-    }, 1500);
+    const c = document.getElementById('waveform-canvas'); if(!c) return; const ctx = c.getContext('2d'); const pts = new Array(200).fill(30); let t=0;
+    function dr() { ctx.clearRect(0,0,200,60); t+=0.1; pts.shift(); pts.push(30+Math.sin(t)*10+Math.random()*5); ctx.beginPath(); ctx.moveTo(0,pts[0]); for(let i=1;i<200;i++) ctx.lineTo(i,pts[i]); ctx.strokeStyle='rgba(212,175,55,0.8)'; ctx.stroke(); requestAnimationFrame(dr); }
+    dr();
 }
 
 function initTimelineDrag() {
-    const slider = document.getElementById('h-timeline-wrapper');
-    if (!slider || window.innerWidth <= 768) return;
-    let isDown = false, startX, scrollLeft;
-    slider.addEventListener('mousedown', (e) => { isDown = true; slider.style.cursor = 'grabbing'; slider.style.scrollSnapType = 'none'; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; });
-    slider.addEventListener('mouseleave', () => { isDown = false; slider.style.cursor = 'grab'; slider.style.scrollSnapType = ''; });
-    slider.addEventListener('mouseup', () => { isDown = false; slider.style.cursor = 'grab'; slider.style.scrollSnapType = ''; });
-    slider.addEventListener('mousemove', (e) => { if (!isDown) return; e.preventDefault(); const x = e.pageX - slider.offsetLeft; slider.scrollLeft = scrollLeft - (x - startX) * 2; });
+    const s = document.getElementById('h-timeline-wrapper'); if(!s || window.innerWidth<=768) return;
+    let isD = false, sx, sl;
+    s.onmousedown = (e) => { isD=true; sx=e.pageX-s.offsetLeft; sl=s.scrollLeft; s.style.cursor='grabbing'; };
+    s.onmouseleave = () => { isD=false; s.style.cursor='grab'; }; s.onmouseup = () => { isD=false; s.style.cursor='grab'; };
+    s.onmousemove = (e) => { if(!isD) return; e.preventDefault(); s.scrollLeft = sl - (e.pageX-s.offsetLeft-sx)*2; };
 }
 
 function init3DFlightMap() {
-    const container = document.getElementById('flight-3d-map');
-    if (!container) return;
-    const MAP_FLIGHT_PATH = [[134.157893, 33.287018, 85.69],[134.157915, 33.286996, 87.73],[134.155705, 33.286825, 305.46],[134.159631, 33.295065, 1756.35],[134.170768, 33.290033, 3230.36],[134.183150, 33.270356, 4572.89],[134.244968, 33.266795, 5891.76],[134.370496, 33.306920, 7364.11],[134.514606, 33.353151, 8755.08],[134.665581, 33.382055, 10134.90],[134.837093, 33.405196, 11550.92],[135.020491, 33.433081, 13057.94],[135.196810, 33.432083, 14652.58],[135.362183, 33.425141, 16437.47],[135.462263, 33.420216, 18492.02],[135.486788, 33.424595, 20748.52],[135.505456, 33.412331, 23084.25],[135.489921, 33.399596, 25054.33],[135.488483, 33.402246, 23187.45],[135.663106, 33.394521, 12937.26],[135.835711, 33.420206, 9236.70],[135.972568, 33.460986, 6348.01],[136.034388, 33.454710, 3899.90],[136.049366, 33.453411, 1606.17],[136.054945, 33.449765, 0]];
-    const isMobile = window.innerWidth <= 768;
-    
-    // ご指定の画角設定
-    let viewState = isMobile ? { longitude: 135.15, latitude: 33.35, zoom: 8.2, pitch: 60, bearing: -20 } 
-                             : { longitude: 135.10, latitude: 33.20, zoom: 8.2, pitch: 70, bearing: -15 };
-    
-    new deck.DeckGL({
-        container: container,
-        mapStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
-        initialViewState: viewState, 
-        controller: true,
-        layers:[
-            // 軌跡のライン
-            new deck.PathLayer({ 
-                id: 'flight-path', 
-                data:[{ path: MAP_FLIGHT_PATH }], 
-                getPath: d => d.path, 
-                getColor:[212, 175, 55, 255], 
-                getWidth: 4, 
-                widthMinPixels: 3, 
-                getZ: d => d[2] * 2.5 
-            }),
-            // 始点と終点の柱（修正：getPositionを追加）
-            new deck.ColumnLayer({ 
-                id: 'poi-pillars', 
-                data: [
-                    { position:[134.157893, 33.287018], color:[255, 255, 255, 150] }, // 始点
-                    { position:[136.054945, 33.449765], color:[255, 51, 51, 150] }  // 終点
-                ], 
-                getPosition: d => d.position, // ★ここが抜けていました
-                getFillColor: d => d.color, 
-                getElevation: 1000, 
-                radius: 1500, 
-                extruded: true 
-            })
-        ]
-    });
+    const c = document.getElementById('flight-3d-map'); if(!c) return;
+    const path = [[134.157893,33.287018,85.69],[134.157915,33.286996,87.73],[134.155705,33.286825,305.46],[134.159631,33.295065,1756.35],[134.170768,33.290033,3230.36],[134.183150,33.270356,4572.89],[134.244968,33.266795,5891.76],[134.370496,33.306920,7364.11],[134.514606,33.353151,8755.08],[134.665581,33.382055,10134.90],[134.837093,33.405196,11550.92],[135.020491,33.433081,13057.94],[135.196810,33.432083,14652.58],[135.362183,33.425141,16437.47],[135.462263,33.420216,18492.02],[135.486788,33.424595,20748.52],[135.505456,33.412331,23084.25],[135.489921,33.399596,25054.33],[135.488483,33.402246,23187.45],[135.663106,33.394521,12937.26],[135.835711,33.420206,9236.70],[135.972568,33.460986,6348.01],[136.034388,33.454710,3899.90],[136.049366,33.453411,1606.17],[136.054945,33.449765,0]];
+    const isM = window.innerWidth<=768;
+    const vs = isM ? {longitude:135.15,latitude:33.35,zoom:8.2,pitch:60,bearing:-20} : {longitude:135.10,latitude:33.20,zoom:8.2,pitch:70,bearing:-15};
+    new deck.DeckGL({ container:c, mapStyle:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json', initialViewState:vs, controller:true, layers:[ new deck.PathLayer({id:'p',data:[{path}],getPath:d=>d.path,getColor:[212, 175, 55, 255],getWidth:4,getZ:d=>d[2]*2.5}), new deck.ColumnLayer({id:'c',data:[{p:[134.157893,33.287018],c:[255,255,255,150]},{p:[136.054945,33.449765],c:[255,51,51,150]}],getPosition:d=>d.p,getFillColor:d=>d.c,getElevation:1000,radius:1500,extruded:true}) ] });
 }
