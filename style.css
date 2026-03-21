@@ -176,6 +176,7 @@ span[lang="en"] { font-size: 1.05em; }
 }
 #hud-cursor.locked .cursor-crosshair, #hud-cursor.locked .cursor-label { opacity: 1; }
 
+/* === 5. Header & Navigation === */
 header {
     position: fixed; top: 0; width: 100%; padding: 20px 0; z-index: 11000;
     transition: transform 0.4s ease, background 0.4s ease, padding 0.4s ease;
@@ -187,12 +188,19 @@ header.scrolled {
 }
 header.header-hidden { transform: translateY(-100%); }
 
-.header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.header-container { 
+    display: flex; justify-content: space-between; align-items: center; 
+    max-width: 1200px; width: 100%; margin: 0 auto; padding: 0 20px; 
+}
 .logo-link { display: flex; align-items: center; text-decoration: none; }
-.logo-img { height: 50px; transition: all 0.4s ease; }
+.logo-img { height: 50px; width: auto; transition: all 0.4s ease; }
 header.scrolled .logo-img { height: 35px; }
-nav ul { display: flex; list-style: none; gap: 30px; margin: 0; padding: 0; }
-nav a { font-family: var(--font-en); font-size: 0.9rem; letter-spacing: 0.05em; position: relative; color: #fff; text-decoration: none; text-shadow: 0 0 5px rgba(0,0,0,0.5); transition: color 0.3s; }
+
+/* PCではハンバーガーメニューを隠す */
+.hamburger { display: none; }
+
+nav ul { display: flex; list-style: none; gap: 30px; margin: 0; padding: 0; align-items: center; }
+nav a { font-family: var(--font-en); font-size: 0.9rem; letter-spacing: 0.05em; color: #fff; text-decoration: none; transition: color 0.3s; }
 nav a:hover { color: var(--accent-color); }
 
 .hero { position: relative; height: 100vh; display: flex; justify-content: flex-end; align-items: center; text-align: left; overflow: hidden; z-index: 2; }
@@ -721,70 +729,67 @@ body.arrival-shake-active {
 
 /* === 10. Mobile Responsive (768px以下) === */
 @media (max-width: 768px) {
-    /* 改行設定：スマホではPC用を消し、スマホ用を有効化 */
-    .br-pc { 
-        display: none !important; 
-    }
-    .br-sp { 
-        display: block !important; /* スマホでは確実に改行させる */
-    }
+    /* 改行設定の切り替え */
+    .br-pc { display: none !important; }
+    .br-sp { display: inline !important; }
 
-    /* 背景パーツを非表示（スマホのみ） */
+    /* 背景パーツを非表示（スマホは画面が狭いため） */
     .bg-telemetry, .bg-waveform { display: none !important; }
 
-    /* セクション余白調整 */
-    section { padding: 80px 15px; }
-    .section-title { font-size: 2.2rem; margin-bottom: 40px; text-align: center; }
-
-    /* ヒーローエリア：スマホのみ中央寄せ */
-    .hero { 
-        justify-content: center !important; 
-        text-align: center !important; 
+    /* ヘッダー・ナビゲーションのスマホ対応 */
+    .header-container { padding: 0 15px; }
+    .logo-img { height: 35px; }
+    
+    .hamburger { 
+        display: block; cursor: pointer; width: 30px; height: 20px; 
+        position: relative; z-index: 12000; 
     }
+    .hamburger span { 
+        position: absolute; width: 100%; height: 2px; background: #fff; transition: 0.3s; 
+    }
+    .hamburger span:nth-child(1) { top: 0; }
+    .hamburger span:nth-child(2) { top: 9px; }
+    .hamburger span:nth-child(3) { bottom: 0; }
+    
+    /* ハンバーガーメニュー開閉時 */
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg); top: 9px; }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg); bottom: 9px; }
+
+    nav { 
+        position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; 
+        background: rgba(5,5,5,0.98); display: flex; justify-content: center; 
+        align-items: center; transition: 0.4s; z-index: 11500;
+    }
+    nav.active { right: 0; }
+    nav ul { flex-direction: column; text-align: center; gap: 30px; }
+
+    /* ヒーローエリアのスマホ調整 */
+    section { padding: 80px 15px; }
+    .hero { justify-content: center !important; text-align: center !important; }
     .hero-content { 
-        max-width: 95% !important; 
-        margin: 0 auto !important; 
-        padding: 30px 15px !important; 
-        background: rgba(0,0,0,0.6); 
-        border-left: none !important; 
+        max-width: 95% !important; margin: 0 auto !important; padding: 30px 15px !important; 
+        background: rgba(0,0,0,0.6); border-left: none !important; 
         border-bottom: 3px solid var(--accent-color) !important; 
         align-items: center !important;
     }
-    .hero-content .data-tag, .hero h1, .hero-desc { 
-        text-align: center !important; 
-        width: 100% !important; 
-        justify-content: center !important; 
-    }
-    
-    /* タイムライン（横スクロール） */
-    .h-timeline-wrapper {
-        width: calc(100% + 30px) !important;
-        margin-left: -15px !important;
-        padding: 40px 0 60px 0;
-    }
-    .h-timeline {
-        padding: 0 calc(50vw - 165px) !important; 
-        display: flex !important;
-    }
-    
-    /* HUD表示制限 */
+    .hero-content .data-tag, .hero h1, .hero-desc { justify-content: center !important; }
+
+    /* HUDのスマホ調整 */
     .hud-side-left, .hud-corner, .map-overlay-btn { display: none !important; }
     .hud-side-right { top: auto !important; bottom: 20px !important; right: 15px !important; transform: none !important; }
+}
 
-    /* ビフォーアフター */
-    .compare-container {
-        width: 100% !important; 
-        height: 350px !important; 
-        border-radius: 8px;
-    }
-} /* <--- ここでスマホ用設定を確実に閉じる */
-
-/* --- 全デバイス共通：スクロールロック --- */
+/* === 11. 共通スクロールロック設定（メディアクエリの外側） === */
 html.is-locking, 
 html.is-locking body {
     overflow: hidden !important;
     height: 100vh !important;
     width: 100vw !important;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+}
     position: fixed !important;
     top: 0;
     left: 0;
