@@ -216,6 +216,13 @@ nav a:hover { color: var(--accent-color); }
 }
 .hero h1 { margin: 0 0 25px 0; line-height: 1.4; }
 .hero h1 span { font-weight: 700; color: #fff; text-shadow: 0 0 30px rgba(0,0,0,0.5); }
+/* 英語タイトル専用の調整：カード幅600pxからはみ出さないサイズ */
+.hero h1 span[lang="en"] {
+    font-size: 2.4rem; /* 日本語より一回り小さく設定 */
+    line-height: 1.2;
+    display: block;
+    letter-spacing: 0.02em; /* 文字間をわずかに詰め、一行に入る量を増やす */
+}
 .hero-desc { font-size: clamp(0.9rem, 2vw, 1.1rem); color: #ccc; font-weight: 400; line-height: 1.8; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; width: 100%; text-align: center; }
 .scroll-down { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); color: #fff; font-family: var(--font-en); font-size: 0.8rem; animation: bounce 2s infinite; }
 @keyframes bounce { 0%, 100% { transform: translate(-50%, 0); opacity: 0.5; } 50% { transform: translate(-50%, 10px); opacity: 1; } }
@@ -766,25 +773,48 @@ body.arrival-shake-active {
 
     /* ヒーローエリアのスマホ調整 */
     section { padding: 80px 15px; }
-    .hero { justify-content: center !important; text-align: center !important; }
-    .hero-content { 
-        max-width: 95% !important; margin: 0 auto !important; padding: 30px 15px !important; 
-        background: rgba(0,0,0,0.6); border-left: none !important; 
-        border-bottom: 3px solid var(--accent-color) !important; 
-        align-items: center !important;
+    .hero { 
+        justify-content: center !important; 
+        text-align: center !important; 
     }
-    .hero-content .data-tag, .hero h1, .hero-desc { justify-content: center !important; }
+    .hero-content { 
+        max-width: 95% !important; 
+        margin: 0 auto !important; 
+        padding: 30px 15px !important; 
+        background: rgba(0,0,0,0.6); 
+        border-left: none !important; 
+        border-bottom: 3px solid var(--accent-color) !important; 
+        display: flex;
+        flex-direction: column;
+        align-items: center !important; /* これで中の要素はすべて中央に寄ります */
+    }
+
+    /* まとめて中央寄せ：h1自体の余計な命令を削除 */
+    .hero-content .data-tag, 
+    .hero-content .hero-desc { 
+        display: flex;
+        justify-content: center !important; 
+    }
+
+    /* 日本語タイトルのサイズ設定（スマホ） */
+    .hero h1 span[lang="ja"] { 
+        font-size: 1.8rem !important; 
+        line-height: 1.4;
+    }
+
+    /* 英語タイトルのサイズ設定（スマホ：2行を死守） */
+    .hero h1 span[lang="en"] {
+        font-size: 1.1rem !important; /* 重複を避け、確実に1.1remを適用 */
+        line-height: 1.4;
+        display: block;
+        width: 100%;
+    }
 
     /* HUDのスマホ調整 */
     .hud-side-left, .hud-corner, .map-overlay-btn { display: none !important; }
     .hud-side-right { top: auto !important; bottom: 20px !important; right: 15px !important; transform: none !important; }
-
-    .hero h1 span[lang="en"] {
-        font-size: 1.4rem !important; /* 日本語の2remより小さくして、1行に収める */
-        line-height: 1.3;
-        display: block;
-         }
-    }
+    
+}
 
 /* === 11. 共通スクロールロック設定（メディアクエリの外側） === */
 html.is-locking, 
