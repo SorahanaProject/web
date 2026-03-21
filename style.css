@@ -218,11 +218,13 @@ nav a:hover { color: var(--accent-color); }
 .hero h1 span { font-weight: 700; color: #fff; text-shadow: 0 0 30px rgba(0,0,0,0.5); }
 /* 英語タイトル専用の調整：カード幅600pxからはみ出さないサイズ */
 .hero h1 span[lang="en"] {
-    font-size: 2.3rem !important; 
+    /* 最小1.6rem、推奨サイズ3.5vw、最大2.3remの間で自動調整されます */
+    font-size: clamp(1.6rem, 3.5vw, 2.3rem) !important; 
     line-height: 1.2;
     display: block;
-    letter-spacing: 0.02em;
+    letter-spacing: -0.01em; /* わずかに文字間を詰め、2行に収まりやすくします */
     margin-top: 10px;
+    word-break: keep-all; /* 単語の途中での不自然な改行を防ぎます */
 }
 .hero-desc { font-size: clamp(0.9rem, 2vw, 1.1rem); color: #ccc; font-weight: 400; line-height: 1.8; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; width: 100%; text-align: center; }
 .scroll-down { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); color: #fff; font-family: var(--font-en); font-size: 0.8rem; animation: bounce 2s infinite; }
