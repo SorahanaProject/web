@@ -401,29 +401,6 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     display: none !important; 
 }
 
-/* --- 英語PC：スマホ用改行を「改行させず、スペースのみ」にする設定 --- */
-body.en .br-sp {
-    display: none !important; /* まず改行を完全に殺します */
-}
-
-body.en .br-sp::after {
-    content: " ";             /* 改行の代わりに半角スペースを入れます */
-    display: inline;
-}
-
-/* 補足：一部のブラウザ対策として、brの直後の文字にスペースを空ける命令 */
-body.en .br-sp + * {
-    margin-left: 0;
-}
-/* さらに確実な方法（インラインブロック化して幅を持たせる） */
-body.en .br-sp {
-    display: inline-block !important;
-    width: 0.3em;  /* スペース1文字分の幅 */
-    height: 0;
-    content: "" !important; /* これで改行機能を上書きします */
-    vertical-align: middle;
-}
-
 /* =========================================
    ADDITION: Starfield & Background Effects
    ========================================= */
@@ -744,16 +721,13 @@ body.arrival-shake-active {
 
 /* === 10. Mobile Responsive (768px以下) === */
 @media (max-width: 768px) {
-    /* PC用改行：スマホでは消す */
     .br-pc { 
         display: none !important; 
     }
     
-    /* スマホ用改行：本来の「強制改行」として機能させる */
+    /* スマホ：改行を復活させる */
     .br-sp { 
-        display: block !important; /* inlineではなくblockにすることで確実に改行させます */
-        width: auto !important;    /* PC版の横幅をリセット */
-        content: none !important;  /* PC版のスペース化を解除 */
+        display: inline !important; 
     }
 }
 
