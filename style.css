@@ -396,9 +396,17 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     display: inline; 
 } 
 
-/* スマホ用改行：PCでは「存在を完全に消す」 */
+/* --- 日本語の場合：PCでは完全に消す（文字が詰まる） --- */
 .br-sp { 
     display: none !important; 
+}
+
+/* --- 英語の場合：PCでは改行を「半角スペース」に変える --- */
+body.en .br-sp {
+    display: inline-block !important; /* 消さずにインラインブロック化 */
+    width: 0.25em;                   /* 半角スペース1個分の横幅を作る */
+    height: 0;                       /* 高さは出さない */
+    content: "";                     /* 中身は空 */
 }
 
 /* --- スマホ用設定（@media (max-width: 768px) の中） --- */
@@ -408,9 +416,10 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
         display: none !important; 
     }
     /* スマホ用改行：スマホでは「本来の改行(inline)」として機能させる */
-    .br-sp { 
-        display: inline !important; 
-    } 
+     .br-sp { 
+        display: block !important; 
+        width: auto !important;    /* PCで作った横幅を解除 */
+    }
 }
 
 /* =========================================
