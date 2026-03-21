@@ -778,7 +778,8 @@ body.arrival-shake-active {
 
     /* 英語タイトルのサイズ設定（スマホ：2行を死守） */
     .hero h1 span[lang="en"] {
-        font-size: 1.1rem !important; 
+        /* スマホの幅に合わせて 1.0rem から 1.2rem の間で伸縮 */
+        font-size: clamp(1.0rem, 5vw, 1.2rem) !important; 
         line-height: 1.4;
         display: block;
         width: 100%;
