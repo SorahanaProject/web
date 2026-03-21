@@ -391,20 +391,37 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     display: inline-block; 
 }
 
-/* PC用改行：標準の改行として機能（block指定は消します） */
+/* PC用改行：本来の改行として機能させる */
 .br-pc { 
-    display: inline; 
+    display: block; 
 } 
 
-/* --- 日本語PC：スマホ用改行を「完全に消滅」させて文字を詰める --- */
+/* --- 日本語PC：スマホ用改行を完全に消す --- */
 .br-sp { 
     display: none !important; 
 }
 
-/* --- 英語PC：スマホ用改行を「半角スペース1個分」に変換する --- */
+/* --- 英語PC：スマホ用改行を「改行させず、スペースのみ」にする設定 --- */
 body.en .br-sp {
-    display: inline !important; 
-    content: " " !important; /* 改行を半角スペース1文字に置き換える魔法 */
+    display: none !important; /* まず改行を完全に殺します */
+}
+
+body.en .br-sp::after {
+    content: " ";             /* 改行の代わりに半角スペースを入れます */
+    display: inline;
+}
+
+/* 補足：一部のブラウザ対策として、brの直後の文字にスペースを空ける命令 */
+body.en .br-sp + * {
+    margin-left: 0;
+}
+/* さらに確実な方法（インラインブロック化して幅を持たせる） */
+body.en .br-sp {
+    display: inline-block !important;
+    width: 0.3em;  /* スペース1文字分の幅 */
+    height: 0;
+    content: "" !important; /* これで改行機能を上書きします */
+    vertical-align: middle;
 }
 
 /* =========================================
@@ -727,14 +744,18 @@ body.arrival-shake-active {
 
 /* === 10. Mobile Responsive (768px以下) === */
 @media (max-width: 768px) {
-    /* 改行設定の切り替え */
+    /* PC用改行：スマホでは消す */
     .br-pc { 
         display: none !important; 
     }
+    
+    /* スマホ用改行：本来の「強制改行」として機能させる */
     .br-sp { 
-        display: block !important; 
-        content: none !important; 
+        display: block !important; /* inlineではなくblockにすることで確実に改行させます */
+        width: auto !important;    /* PC版の横幅をリセット */
+        content: none !important;  /* PC版のスペース化を解除 */
     }
+}
 
     /* 背景パーツを非表示 */
     .bg-telemetry, .bg-waveform { display: none; }
