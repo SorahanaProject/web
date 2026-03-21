@@ -725,116 +725,102 @@ body.arrival-shake-active {
     text-shadow: 0 0 5px #000;
 }
 
-/* === 10. Mobile Responsive === */
+/* === 10. Mobile Responsive (768px以下) === */
 @media (max-width: 768px) {
-    /* PC用改行：スマホでは存在を消す */
+    /* 改行設定の切り替え */
     .br-pc { 
         display: none !important; 
     }
-    /* スマホ用改行：スマホでは「強制的な一行改行」として機能させる */
     .br-sp { 
         display: block !important; 
-        content: none !important; /* PC版のスペース変換を解除して改行に戻す */
+        content: none !important; 
     }
-}
 
+    /* 背景パーツを非表示 */
     .bg-telemetry, .bg-waveform { display: none; }
 
+    /* セクション余白 */
     section { padding: 80px 15px; }
-
     .section-title { font-size: 2.2rem; margin-bottom: 40px; text-align: center; }
 
-    .hero { justify-content: center; align-items: center; text-align: center; }
+    /* ★ヒーローエリア：スマホのみ中央寄せにする設定★ */
+    .hero { 
+        justify-content: center; /* 中央に配置 */
+        align-items: center; 
+        text-align: center; 
+    }
     .hero-content { 
         max-width: 95%; 
-        margin: 0 auto; 
+        margin: 0 auto; /* 右余白をなくして中央へ */
         padding: 30px 15px; 
         background: rgba(0,0,0,0.6); 
         border-left: none; 
         border-bottom: 3px solid var(--accent-color); 
         display: flex;
         flex-direction: column;
-        align-items: center; 
+        align-items: center; /* 文字を中央揃え */
         text-align: center; 
     }
-    .hero-content .data-tag, .hero h1, .hero-desc { text-align: center; width: 100%; justify-content: center; }
+    .hero-content .data-tag, .hero h1, .hero-desc { 
+        text-align: center; 
+        width: 100%; 
+        justify-content: center; 
+    }
     .hero h1 span[lang="ja"] { font-size: 1.8rem; }
     
+    /* タイムライン（横スクロール）の設定 */
     .h-timeline-wrapper {
         width: calc(100% + 30px) !important;
         margin-left: -15px !important;
         padding: 40px 0 60px 0;
     }
     .h-timeline {
-        padding: 0 15px !important; 
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        width: max-content !important;
         padding: 0 calc(50vw - 165px) !important; 
+        display: flex !important;
     }
     .h-timeline-item { 
         width: 300px !important; 
-        flex: 0 0 auto !important; 
         margin: 0 15px !important; 
-        scroll-snap-align: center !important; 
     }
     .h-timeline-content { padding: 20px; margin-top: 60px; text-align: left; } 
-    .h-timeline-img { height: 160px; margin-bottom: 15px; pointer-events: none; }
-    .h-timeline::before { top: 40px; }
-    .h-timeline-dot { top: 30px; width: 16px; height: 16px; }
+    .h-timeline-img { height: 160px; margin-bottom: 15px; }
     
+    /* HUDのスマホ表示制限 */
     .map-overlay-btn { display: none !important; }
-    
     .hud-side-left, .hud-corner { display: none; }
     .hud-side-right { top: auto; bottom: 20px; right: 15px; transform: none; z-index: 10001; }
     .alt-value { font-size: 1.5rem; width: auto; margin-left: 10px; }
-    .alt-line { width: 15px; }
     
-    .hamburger { display: block; cursor: pointer; width: 30px; height: 25px; position: relative; z-index: 200; }
-    .hamburger span { position: absolute; width: 100%; height: 2px; background: #fff; transition: 0.3s; }
-    .hamburger span:nth-child(1) { top: 0; } .hamburger span:nth-child(2) { top: 11px; } .hamburger span:nth-child(3) { bottom: 0; }
-    .hamburger.active span:nth-child(1) { transform: rotate(45deg); top: 11px; } 
-    .hamburger.active span:nth-child(2) { opacity: 0; } 
-    .hamburger.active span:nth-child(3) { transform: rotate(-45deg); bottom: 11px; }
-    
+    /* ナビゲーション（ハンバーガーメニュー） */
+    .hamburger { display: block; }
     nav { position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; background: rgba(5,5,5,0.98); display: flex; justify-content: center; align-items: center; transition: 0.4s; }
-    nav.active { right: 0; } nav ul { flex-direction: column; text-align: center; gap: 30px; }
+    nav.active { right: 0; } 
+    nav ul { flex-direction: column; text-align: center; gap: 30px; }
     
-    .email-link { font-size: 1rem; padding: 15px 25px; width: 90%; text-align: center; display: block; margin: 0 auto; }
+    /* フッター・サポーター */
+    .email-link { font-size: 1rem; padding: 15px 25px; width: 90%; }
     .supporters-box { padding: 30px 20px; }
-    .credit-row { 
-        grid-template-columns: 1fr !important; 
-        gap: 5px !important; 
-        padding: 15px 10px !important; 
-    }
-    .role-cell { font-size: 0.9rem; opacity: 0.8; }
-    .name-cell { font-size: 1.1rem; }
+    .credit-row { grid-template-columns: 1fr !important; gap: 5px !important; }
 
-    .map-hint { display: none; }
-
-    /* === ビフォーアフター スマホ表示：Gallery (350px高) と一致させる === */
+    /* ビフォーアフター：スマホ対応 */
     .compare-container {
         width: 100% !important; 
-        max-width: 100% !important;
-        height: 350px !important; /* Galleryと同じ高さ */
+        height: 350px !important; 
         border-radius: 8px;
     }
-
-    /* スマホでは画像の基準幅を画面サイズ(100vw - 余白)に合わせる */
     .compare-container .img-wrapper img {
         width: calc(100vw - 30px) !important;
         height: 350px !important;
-        }
     }
+} /* ここでメディアクエリを閉じる */
 
-    /* ロード中のスクロールを完全に物理破壊する設定 */
-    html.is-locking, 
-    html.is-locking body {
-        overflow: hidden !important;
-        height: 100vh !important;
-        width: 100vw !important;
-        position: fixed !important; /* これを追加して画面を固定します */
-        top: 0;
-        left: 0;
-    }
+/* --- 全デバイス共通：スクロールロック設定（メディアクエリの外へ） --- */
+html.is-locking, 
+html.is-locking body {
+    overflow: hidden !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+}
