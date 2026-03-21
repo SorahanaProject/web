@@ -391,7 +391,7 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
     display: inline-block; 
 }
 
-/* PC用改行：標準の改行として機能させる（blockは不要です） */
+/* PC用改行：標準の改行として機能（block指定は消します） */
 .br-pc { 
     display: inline; 
 } 
@@ -403,22 +403,8 @@ footer { text-align: center; padding: 60px 0; margin-top: 100px; border-top: 1px
 
 /* --- 英語PC：スマホ用改行を「半角スペース1個分」に変換する --- */
 body.en .br-sp {
-    display: inline !important;  /* 消さずに残す */
-    content: " " !important;     /* 改行機能を消して、半角スペースに置き換える（魔法の1行） */
-    width: auto !important;
-}
-
-/* --- スマホ用設定（@media (max-width: 768px) の中） --- */
-@media (max-width: 768px) {
-    /* PC用改行：スマホでは存在を消す */
-    .br-pc { 
-        display: none !important; 
-    }
-    /* スマホ用改行：スマホでは本来の「強制改行」として機能させる */
-    .br-sp { 
-        display: block !important; 
-        content: none !important; /* PC版のスペース変換を解除 */
-    }
+    display: inline !important; 
+    content: " " !important; /* 改行を半角スペース1文字に置き換える魔法 */
 }
 
 /* =========================================
@@ -741,11 +727,16 @@ body.arrival-shake-active {
 
 /* === 10. Mobile Responsive === */
 @media (max-width: 768px) {
+    /* PC用改行：スマホでは存在を消す */
     .br-pc { 
         display: none !important; 
-        content: ""; 
     }
-    .br-sp { display: block; } /* 改行として機能させる */
+    /* スマホ用改行：スマホでは「強制的な一行改行」として機能させる */
+    .br-sp { 
+        display: block !important; 
+        content: none !important; /* PC版のスペース変換を解除して改行に戻す */
+    }
+}
 
     .bg-telemetry, .bg-waveform { display: none; }
 
