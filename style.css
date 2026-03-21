@@ -310,10 +310,13 @@ section { padding: 120px 20px; position: relative; z-index: 2; }
     border-right: 2px solid var(--accent-color); 
 }
 
-.img-wrapper img { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
+/* スライダー内の画像設定 */
+.compare-container .img-wrapper img {
+    width: 900px !important;  /* ★重要：枠が縮んでも、画像は常に900pxを維持 */
+    max-width: none !important; /* 制限を解除 */
+    height: 550px !important; /* 全体のカード高さに合わせる */
+    object-fit: cover;
+    display: block;
 }
 
 .compare-container .slider {
@@ -808,7 +811,14 @@ body.arrival-shake-active {
 
     /* ビフォーアフター：スマホ対応 */
     .compare-container { width: 100% !important; height: 350px !important; border-radius: 8px; }
-    .compare-container .img-wrapper img { width: calc(100vw - 30px) !important; height: 350px !important; }
+    /* スマホ版のスライダー内画像の修正 */
+    .compare-container .img-wrapper img {
+        /* スマホの横幅（100%から左右余白15pxずつ引いた分）で固定 */
+        width: calc(100vw - 30px) !important; 
+        max-width: none !important;
+        height: 400px !important; /* スマホのカード高さに合わせる */
+        object-fit: cover !important;
+    }
 }
 
 /* === 11. 共通スクロールロック設定（メディアクエリの外） === */
