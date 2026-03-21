@@ -721,49 +721,42 @@ body.arrival-shake-active {
 
 /* === 10. Mobile Responsive (768px以下) === */
 @media (max-width: 768px) {
+    /* 改行設定：スマホではPC用を消し、スマホ用を有効化 */
     .br-pc { 
         display: none !important; 
     }
-    
-    /* スマホ：改行を復活させる */
     .br-sp { 
-        display: inline !important; 
+        display: block !important; /* スマホでは確実に改行させる */
     }
-}
 
-    /* 背景パーツを非表示 */
-    .bg-telemetry, .bg-waveform { display: none; }
+    /* 背景パーツを非表示（スマホのみ） */
+    .bg-telemetry, .bg-waveform { display: none !important; }
 
-    /* セクション余白 */
+    /* セクション余白調整 */
     section { padding: 80px 15px; }
     .section-title { font-size: 2.2rem; margin-bottom: 40px; text-align: center; }
 
-    /* ★ヒーローエリア：スマホのみ中央寄せにする設定★ */
+    /* ヒーローエリア：スマホのみ中央寄せ */
     .hero { 
-        justify-content: center; /* 中央に配置 */
-        align-items: center; 
-        text-align: center; 
+        justify-content: center !important; 
+        text-align: center !important; 
     }
     .hero-content { 
-        max-width: 95%; 
-        margin: 0 auto; /* 右余白をなくして中央へ */
-        padding: 30px 15px; 
+        max-width: 95% !important; 
+        margin: 0 auto !important; 
+        padding: 30px 15px !important; 
         background: rgba(0,0,0,0.6); 
-        border-left: none; 
-        border-bottom: 3px solid var(--accent-color); 
-        display: flex;
-        flex-direction: column;
-        align-items: center; /* 文字を中央揃え */
-        text-align: center; 
+        border-left: none !important; 
+        border-bottom: 3px solid var(--accent-color) !important; 
+        align-items: center !important;
     }
     .hero-content .data-tag, .hero h1, .hero-desc { 
-        text-align: center; 
-        width: 100%; 
-        justify-content: center; 
+        text-align: center !important; 
+        width: 100% !important; 
+        justify-content: center !important; 
     }
-    .hero h1 span[lang="ja"] { font-size: 1.8rem; }
     
-    /* タイムライン（横スクロール）の設定 */
+    /* タイムライン（横スクロール） */
     .h-timeline-wrapper {
         width: calc(100% + 30px) !important;
         margin-left: -15px !important;
@@ -773,43 +766,20 @@ body.arrival-shake-active {
         padding: 0 calc(50vw - 165px) !important; 
         display: flex !important;
     }
-    .h-timeline-item { 
-        width: 300px !important; 
-        margin: 0 15px !important; 
-    }
-    .h-timeline-content { padding: 20px; margin-top: 60px; text-align: left; } 
-    .h-timeline-img { height: 160px; margin-bottom: 15px; }
     
-    /* HUDのスマホ表示制限 */
-    .map-overlay-btn { display: none !important; }
-    .hud-side-left, .hud-corner { display: none; }
-    .hud-side-right { top: auto; bottom: 20px; right: 15px; transform: none; z-index: 10001; }
-    .alt-value { font-size: 1.5rem; width: auto; margin-left: 10px; }
-    
-    /* ナビゲーション（ハンバーガーメニュー） */
-    .hamburger { display: block; }
-    nav { position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; background: rgba(5,5,5,0.98); display: flex; justify-content: center; align-items: center; transition: 0.4s; }
-    nav.active { right: 0; } 
-    nav ul { flex-direction: column; text-align: center; gap: 30px; }
-    
-    /* フッター・サポーター */
-    .email-link { font-size: 1rem; padding: 15px 25px; width: 90%; }
-    .supporters-box { padding: 30px 20px; }
-    .credit-row { grid-template-columns: 1fr !important; gap: 5px !important; }
+    /* HUD表示制限 */
+    .hud-side-left, .hud-corner, .map-overlay-btn { display: none !important; }
+    .hud-side-right { top: auto !important; bottom: 20px !important; right: 15px !important; transform: none !important; }
 
-    /* ビフォーアフター：スマホ対応 */
+    /* ビフォーアフター */
     .compare-container {
         width: 100% !important; 
         height: 350px !important; 
         border-radius: 8px;
     }
-    .compare-container .img-wrapper img {
-        width: calc(100vw - 30px) !important;
-        height: 350px !important;
-    }
-} /* ここでメディアクエリを閉じる */
+} /* <--- ここでスマホ用設定を確実に閉じる */
 
-/* --- 全デバイス共通：スクロールロック設定（メディアクエリの外へ） --- */
+/* --- 全デバイス共通：スクロールロック --- */
 html.is-locking, 
 html.is-locking body {
     overflow: hidden !important;
